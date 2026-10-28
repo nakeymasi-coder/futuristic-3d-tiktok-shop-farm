@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#010101" />
+    <title>Futuristic 3D TikTok Shop Farm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#010101;
+        --bg2:#0a0a0f;
+        --panel:#101018;
+        --panel2:#16161f;
+        --line:rgba(255,255,255,.10);
+        --ink:#f4f4f6;
+        --muted:#a7a7b3;
+        --cyan:#25F4EE;
+        --pink:#FE2C55;
+        --cyan-dim:rgba(37,244,238,.14);
+        --pink-dim:rgba(254,44,85,.14);
+        --green:#3ddc84;
+        --radius:18px;
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{
+        margin:0;background:var(--bg);color:var(--ink);
+        font-family:"Sora",system-ui,-apple-system,"Segoe UI",sans-serif;
+        overflow-x:hidden;
+      }
+      h1,h2,h3,.disp{font-family:"Baloo 2","Sora",sans-serif}
+
+      /* ---------- clay bubble letters ---------- */
+      .clay{display:inline-block;font-weight:800;letter-spacing:.005em}
+      .clay-w{color:#ffffff;text-shadow:
+        -4px 2px 0 rgba(37,244,238,.30), 4px -2px 0 rgba(254,44,85,.30),
+        0 2px 0 #dcdce2, 0 4px 0 #c0c0ca, 0 6px 0 #a4a4b2, 0 8px 0 #888894,
+        0 14px 26px rgba(0,0,0,.55)}
+      .clay-c{color:var(--cyan);text-shadow:
+        0 2px 0 #17b3ac, 0 4px 0 #11958e, 0 6px 0 #0d7a74, 0 8px 0 #095e59,
+        0 14px 26px rgba(0,0,0,.55)}
+      .clay-p{color:var(--pink);text-shadow:
+        0 2px 0 #d61f45, 0 4px 0 #b81839, 0 6px 0 #99122e, 0 8px 0 #780d24,
+        0 14px 26px rgba(0,0,0,.55)}
+
+      /* ---------- ambient background ---------- */
+      #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+      .glowfield{position:fixed;inset:0;z-index:0;pointer-events:none;
+        background:
+          radial-gradient(640px 420px at 12% -6%, rgba(37,244,238,.16), transparent 62%),
+          radial-gradient(720px 480px at 88% 4%, rgba(254,44,85,.15), transparent 62%),
+          radial-gradient(900px 600px at 50% 115%, rgba(37,244,238,.08), transparent 60%);
+      }
+      .gridfloor{position:fixed;left:-20%;right:-20%;bottom:-12vh;height:44vh;z-index:0;pointer-events:none;
+        background:
+          linear-gradient(transparent 0%, rgba(1,1,1,.0) 40%, rgba(1,1,1,.55) 100%),
+          repeating-linear-gradient(90deg, rgba(37,244,238,.13) 0 1px, transparent 1px 64px),
+          repeating-linear-gradient(0deg, rgba(254,44,85,.10) 0 1px, transparent 1px 44px);
+        transform:perspective(420px) rotateX(58deg);
+        transform-origin:bottom;
+        mask-image:linear-gradient(to top, rgba(0,0,0,.85), transparent 92%);
+        -webkit-mask-image:linear-gradient(to top, rgba(0,0,0,.85), transparent 92%);
+      }
+      main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px 90px}
+
+      /* ---------- hero ---------- */
+      .hero{display:grid;grid-template-columns:1.25fr .75fr;gap:34px;align-items:center;padding:56px 0 30px}
+      .livechip{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);
+        background:rgba(255,255,255,.04);border-radius:999px;padding:7px 14px;font-size:12.5px;
+        letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+      .livechip .dot{width:9px;height:9px;border-radius:50%;background:var(--pink);
+        box-shadow:0 0 0 0 rgba(254,44,85,.6);animation:pulse 1.8s infinite}
+      @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(254,44,85,.55)}70%{box-shadow:0 0 0 10px rgba(254,44,85,0)}100%{box-shadow:0 0 0 0 rgba(254,44,85,0)}}
+      .hero h1{font-size:clamp(56px,9vw,108px);line-height:.98;margin:22px 0 8px;font-weight:800}
+      .hero .sub{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.6;max-width:36em;margin:16px 0 26px}
+      .hero .sub strong{color:var(--ink)}
+      .cta-row{display:flex;flex-wrap:wrap;gap:12px}
+      .btn{appearance:none;border:0;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;
+        border-radius:12px;padding:14px 22px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;
+        transition:transform .15s ease, box-shadow .15s ease}
+      .btn:active{transform:translateY(1px) scale(.99)}
+      .btn-pink{background:var(--pink);color:#fff;box-shadow:0 10px 30px -8px rgba(254,44,85,.65)}
+      .btn-pink:hover{transform:translateY(-2px);box-shadow:0 16px 36px -8px rgba(254,44,85,.7)}
+      .btn-cyan{background:var(--cyan);color:#03181a;box-shadow:0 10px 30px -10px rgba(37,244,238,.6)}
+      .btn-cyan:hover{transform:translateY(-2px)}
+      .btn-ghost{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid var(--line)}
+      .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+      .btn.mini{padding:9px 15px;font-size:13.5px;border-radius:10px}
+      .btn.danger{background:rgba(255,255,255,.05);color:#ff8fa5;border:1px solid var(--line)}
+      .btn.danger:hover{border-color:var(--pink);color:var(--pink)}
+
+      /* clay blobs floating around the phone */
+      .stage{perspective:1100px;display:flex;justify-content:center;position:relative}
+      .blob{position:absolute;border-radius:50%;pointer-events:none;z-index:0;
+        box-shadow:inset -8px -12px 18px rgba(0,0,0,.22), inset 7px 9px 15px rgba(255,255,255,.75), 0 20px 34px -14px rgba(0,0,0,.55);
+        animation:clayFloat 6s ease-in-out infinite alternate}
+      .blob-w{background:radial-gradient(circle at 32% 28%, #ffffff, #dde1ea 58%, #b4bac8)}
+      .blob-c{background:radial-gradient(circle at 32% 28%, #a9fffa, var(--cyan) 58%, #0e8f89)}
+      .blob-p{background:radial-gradient(circle at 32% 28%, #ffb3c2, var(--pink) 58%, #b3122f)}
+      .b1{width:74px;height:74px;top:2%;left:2%}
+      .b2{width:46px;height:46px;bottom:14%;left:-2%;animation-delay:-2s}
+      .b3{width:56px;height:56px;top:16%;right:0;animation-delay:-4s}
+      .b4{width:34px;height:34px;bottom:2%;right:10%;animation-delay:-1s}
+      @keyframes clayFloat{from{transform:translateY(-7px) rotate(-3deg)}to{transform:translateY(9px) rotate(3deg)}}
+      .clayplay{position:absolute;z-index:2;width:64px;height:64px;border-radius:50%;right:2%;bottom:26%;
+        background:radial-gradient(circle at 32% 28%, #ffb3c2, var(--pink) 58%, #b3122f);
+        box-shadow:inset -6px -9px 15px rgba(0,0,0,.25), inset 5px 7px 12px rgba(255,255,255,.55), 0 18px 30px -12px rgba(254,44,85,.55);
+        animation:clayFloat 5s ease-in-out infinite alternate;display:grid;place-items:center}
+      .clayplay::after{content:"";width:0;height:0;margin-left:5px;
+        border-left:17px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;
+        filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+
+      /* 3D phone */
+      .phone3d{width:min(250px,64vw);aspect-ratio:9/18.6;border-radius:36px;position:relative;z-index:1;
+        transform-style:preserve-3d;transition:transform .25s ease-out;
+        background:linear-gradient(160deg,#1b1b26,#07070c 60%);
+        border:1px solid rgba(255,255,255,.22);
+        box-shadow:0 40px 80px -30px rgba(0,0,0,.9), -18px 0 44px -18px rgba(37,244,238,.35), 18px 0 44px -18px rgba(254,44,85,.35);
+        padding:14px 12px;display:flex;flex-direction:column;gap:10px}
+      .phone3d::before{content:"";position:absolute;inset:8px;border-radius:29px;border:1px solid rgba(255,255,255,.07);pointer-events:none}
+      .p-notch{width:74px;height:7px;border-radius:99px;background:rgba(255,255,255,.18);margin:2px auto 4px}
+      .p-live{align-self:flex-start;background:var(--pink);color:#fff;font-size:10.5px;font-weight:700;
+        letter-spacing:.12em;padding:4px 9px;border-radius:6px}
+      .p-prod{flex:1;border-radius:16px;position:relative;overflow:hidden;
+        background:
+          radial-gradient(120px 90px at 30% 25%, rgba(37,244,238,.5), transparent 70%),
+          radial-gradient(140px 110px at 75% 80%, rgba(254,44,85,.5), transparent 70%),
+          linear-gradient(160deg,#23232f,#101018);
+        display:flex;align-items:flex-end;padding:12px}
+      .p-prod .cap{font-size:12.5px;line-height:1.45;font-weight:600}
+      .p-prod .cap span{display:block;color:var(--cyan);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+      .p-bar{display:flex;align-items:center;gap:8px}
+      .p-bar .heart{color:var(--pink);font-size:17px}
+      .p-bar .track{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+      .p-bar .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--pink));border-radius:99px;transition:width .3s ease}
+      .p-shop{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:9px 10px}
+      .p-shop .thumb{width:30px;height:30px;border-radius:8px;background:linear-gradient(140deg,var(--cyan),var(--pink));flex:none}
+      .p-shop .t{font-size:11.5px;line-height:1.35;min-width:0}
+      .p-shop .t b{display:block;font-size:12px}
+      .p-shop .tag{margin-left:auto;font-size:9.5px;color:#010101;background:var(--cyan);font-weight:700;padding:3px 6px;border-radius:5px;letter-spacing:.06em;white-space:nowrap;flex:none}
+      .float-chip{position:absolute;font-size:11px;font-weight:700;letter-spacing:.08em;padding:7px 11px;border-radius:999px;
+        background:rgba(10,10,16,.85);border:1px solid var(--line);backdrop-filter:blur(4px);transform:translateZ(46px)}
+      .fc1{top:12%;left:-58px;color:var(--cyan)}
+      .fc2{bottom:20%;right:-52px;color:var(--pink)}
+      @media (max-width:560px){
+        .fc1{left:-8px;top:19%}.fc2{right:-8px;bottom:26%}
+        .phone3d{width:min(218px,66vw)}
+        .p-shop{padding:8px 9px;gap:7px}
+        .p-shop .t{font-size:11px}
+        .b1{width:52px;height:52px}.b3{width:40px;height:40px}
+        .clayplay{width:50px;height:50px}
+      }
+
+      /* ---------- stats ---------- */
+      .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:26px 0 8px}
+      .stat{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+        border-radius:var(--radius);padding:18px 18px 15px;position:relative;overflow:hidden}
+      .stat::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
+        background:linear-gradient(90deg,var(--cyan),transparent 55%)}
+      .stat:nth-child(even)::before{background:linear-gradient(90deg,var(--pink),transparent 55%)}
+      .stat .num{font-family:"Baloo 2";font-size:38px;font-weight:800;line-height:1;
+        text-shadow:0 2px 0 rgba(0,0,0,.35), 0 5px 12px rgba(0,0,0,.4)}
+      .stat .lbl{color:var(--muted);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;margin-top:7px}
+
+      /* ---------- sections ---------- */
+      section{margin-top:64px}
+      .sec-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+      .sec-head h2{font-size:clamp(28px,3.8vw,38px);margin:0;font-weight:800}
+      .sec-head .idx{font-family:"Baloo 2";color:var(--cyan);font-size:16px;font-weight:800;letter-spacing:.2em}
+      .sec-sub{color:var(--muted);line-height:1.6;max-width:48em;margin:0 0 26px}
+
+      /* ---------- forms ---------- */
+      .formcard{border:1px solid var(--line);border-radius:var(--radius);padding:24px;
+        background:linear-gradient(180deg,var(--panel2),var(--panel))}
+      .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+      .field{display:flex;flex-direction:column;gap:7px;min-width:0}
+      .field.full{grid-column:1/-1}
+      .field label{font-size:13px;font-weight:600;color:var(--muted)}
+      .field label b{color:var(--ink)}
+      .field input,.field select,.field textarea{
+        background:#0a0a12;border:1px solid var(--line);border-radius:12px;color:var(--ink);
+        font-family:inherit;font-size:15px;padding:12px 14px;width:100%;appearance:none}
+      .field textarea{resize:vertical;min-height:64px;line-height:1.5}
+      .field select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+        background-position:calc(100% - 19px) 55%,calc(100% - 14px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:36px}
+      .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--cyan)}
+      .field input.err{border-color:var(--pink)}
+      .formfoot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px}
+      .errmsg{color:#ff8fa5;font-size:13.5px;font-weight:600;display:none}
+      .okmsg{color:var(--green);font-size:13.5px;font-weight:600}
+      .promptbox{margin-top:20px;border:1px solid rgba(37,244,238,.35);border-radius:14px;padding:18px;background:#0a0a12}
+      .promptbox .plabel{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 10px}
+      textarea.prompt{width:100%;min-height:158px;background:#06060c;border:1px solid var(--line);border-radius:10px;
+        color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;
+        padding:13px 14px;resize:vertical}
+      textarea.prompt:focus{outline:none;border-color:var(--cyan)}
+      .rowbtns{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+
+      /* ---------- agents ---------- */
+      .agents{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;perspective:1200px}
+      .agent{background:linear-gradient(165deg,var(--panel2),var(--panel) 70%);border:1px solid var(--line);
+        border-radius:var(--radius);padding:20px;cursor:pointer;text-align:left;color:var(--ink);font-family:inherit;
+        transform-style:preserve-3d;transition:border-color .2s ease, box-shadow .2s ease;position:relative;width:100%}
+      .agent:hover{border-color:rgba(37,244,238,.55)}
+      .agent.active{border-color:var(--pink);box-shadow:0 18px 44px -18px rgba(254,44,85,.55)}
+      .agent .orb{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:25px;margin-bottom:14px;
+        transform:translateZ(28px)}
+      .orb-c{background:var(--cyan-dim);border:1px solid rgba(37,244,238,.45);box-shadow:inset 0 0 18px rgba(37,244,238,.25)}
+      .orb-p{background:var(--pink-dim);border:1px solid rgba(254,44,85,.45);box-shadow:inset 0 0 18px rgba(254,44,85,.25)}
+      .agent h3{margin:0 0 4px;font-size:20px}
+      .agent .role{color:var(--cyan);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+      .agent:nth-child(even) .role{color:var(--pink)}
+      .agent p{color:var(--muted);font-size:14px;line-height:1.55;margin:10px 0 14px}
+      .agent .status{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+      .agent .status i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block}
+      .agent .num-tag{position:absolute;top:16px;right:18px;font-family:"Baloo 2";font-weight:800;color:rgba(255,255,255,.22);font-size:15px}
+
+      .agent-detail{margin-top:16px;border:1px solid var(--line);border-radius:var(--radius);
+        background:linear-gradient(180deg,rgba(37,244,238,.05),rgba(254,44,85,.04) 130%),var(--panel);
+        padding:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px}
+      .agent-detail h4{margin:0 0 9px;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan)}
+      .agent-detail ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.75}
+      .agent-detail .d-title{grid-column:1/-1;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+      .agent-detail .d-title h3{margin:0;font-size:24px}
+      .agent-detail .d-title span{color:var(--muted);font-size:14px}
+      .jobbox{grid-column:1/-1;border-top:1px solid var(--line);padding-top:20px}
+      .jobbox .plabel{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);font-weight:700;margin:16px 0 10px}
+
+      /* ---------- queue ---------- */
+      .qempty{border:1px dashed rgba(255,255,255,.25);border-radius:var(--radius);padding:30px 24px;text-align:center;
+        color:var(--muted);line-height:1.6;background:rgba(255,255,255,.02)}
+      .qempty b{color:var(--ink)}
+      .qrun{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;background:var(--panel);margin-bottom:12px}
+      .qrun .qtop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+      .qrun .qtype{font-family:"Baloo 2";font-weight:800;font-size:18px}
+      .qrun .qacct{color:var(--cyan);font-size:13px;font-weight:700}
+      .qrun .qmeta{color:var(--muted);font-size:13.5px;line-height:1.6;margin-top:5px}
+      .qrun .qmeta b{color:var(--ink);font-weight:600}
+      .qrun .qctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px}
+      .qrun select{background-color:#0a0a12;border:1px solid var(--line);border-radius:10px;color:var(--ink);
+        font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 32px 9px 12px;appearance:none;cursor:pointer;
+        background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+        background-position:calc(100% - 17px) 55%,calc(100% - 12px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+      .qrun select:focus{outline:none;border-color:var(--cyan)}
+      .qpill{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px;white-space:nowrap}
+      .qp-queued{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
+      .qp-prod{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(37,244,238,.4)}
+      .qp-qc{background:var(--pink-dim);color:#ff8fa5;border:1px solid rgba(254,44,85,.4)}
+      .qp-posted{background:rgba(61,220,132,.14);color:var(--green);border:1px solid rgba(61,220,132,.4)}
+
+      /* ---------- lanes ---------- */
+      .lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+      .lane{border:1px solid var(--line);border-radius:var(--radius);padding:21px;background:linear-gradient(165deg,var(--panel2),var(--panel) 75%);
+        display:flex;flex-direction:column}
+      .lane .ic{font-size:24px;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;
+        background:rgba(255,255,255,.05);border:1px solid var(--line);margin-bottom:13px}
+      .lane h3{margin:0 0 6px;font-size:19px}
+      .lane p{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.6;flex:1}
+      .lane .btn{align-self:flex-start}
+
+      /* ---------- pipeline ---------- */
+      .pipe{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+      .step{border:1px solid var(--line);border-radius:14px;padding:16px 13px;background:var(--panel);
+        transition:border-color .3s, background .3s, transform .3s;position:relative}
+      .step .n{font-family:"Baloo 2";font-weight:800;font-size:12px;color:var(--muted);letter-spacing:.16em}
+      .step h3{font-size:16.5px;margin:8px 0 5px}
+      .step p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+      .step.on{border-color:var(--cyan);background:linear-gradient(180deg,rgba(37,244,238,.10),var(--panel));transform:translateY(-4px)}
+      .step.on .n{color:var(--cyan)}
+      .step.done{border-color:rgba(254,44,85,.6)}
+      .step.done .n{color:var(--pink)}
+
+      /* ---------- run board ---------- */
+      .board{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
+      .run{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:center;
+        padding:15px 20px;border-bottom:1px solid var(--line)}
+      .run:last-child{border-bottom:0}
+      .run .time{font-family:"Baloo 2";font-weight:800;font-size:15px;color:var(--cyan)}
+      .run:nth-child(even) .time{color:var(--pink)}
+      .run .what{font-size:15px;font-weight:600}
+      .run .what small{display:block;color:var(--muted);font-weight:400;font-size:13px;margin-top:2px}
+      .pill{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px;white-space:nowrap}
+      .pill-live{background:var(--pink);color:#fff}
+      .pill-done{background:rgba(61,220,132,.14);color:var(--green);border:1px solid rgba(61,220,132,.4)}
+      .pill-q{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
+
+      /* ---------- live games ---------- */
+      .games{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+      .game{border:1px solid var(--line);border-radius:var(--radius);padding:20px;background:linear-gradient(165deg,var(--panel2),var(--panel) 75%)}
+      .game .gnum{font-family:"Baloo 2";font-weight:800;font-size:12px;color:var(--cyan);letter-spacing:.16em}
+      .game:nth-child(even) .gnum{color:var(--pink)}
+      .game h3{margin:7px 0 5px;font-size:18px}
+      .game p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6}
+      .pumpkins{margin-top:16px;border:1px solid rgba(255,150,40,.45);border-radius:var(--radius);padding:22px;
+        background:linear-gradient(180deg,rgba(255,150,40,.09),rgba(254,44,85,.05) 130%),var(--panel)}
+      .pumpkins h3{margin:0 0 6px;font-size:20px}
+      .pumpkins p{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 14px;max-width:54em}
+      .prize-row{display:flex;flex-wrap:wrap;gap:9px}
+      .prize{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:600}
+      .prize.gold{border-color:rgba(255,176,32,.75);color:#ffc44d;background:rgba(255,176,32,.10)}
+      .gamelist{margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.8;columns:2;column-gap:30px}
+
+      /* ---------- laws + modes ---------- */
+      .laws{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+      .law{border:1px solid var(--line);border-radius:var(--radius);padding:19px 20px;background:var(--panel);display:flex;gap:15px}
+      .law .ic{font-size:23px;flex:none;width:46px;height:46px;border-radius:13px;display:grid;place-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+      .law h3{margin:0 0 5px;font-size:17px}
+      .law p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+      .modes{display:flex;flex-wrap:wrap;gap:9px}
+      .mode{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:600;
+        color:var(--ink);font-family:inherit;cursor:pointer;transition:border-color .15s ease}
+      .mode:hover{border-color:var(--cyan);color:var(--cyan)}
+      .mode:nth-child(3n){border-color:rgba(37,244,238,.4)}
+      .mode:nth-child(4n){border-color:rgba(254,44,85,.4)}
+
+      footer{margin-top:70px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);
+        font-size:13.5px;line-height:1.7;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+      footer b{color:var(--ink)}
+
+      @media (max-width:920px){
+        .hero{grid-template-columns:1fr;padding-top:38px}
+        .stage{order:-1}
+        .stats{grid-template-columns:repeat(2,1fr)}
+        .agents{grid-template-columns:repeat(2,1fr)}
+        .agent-detail{grid-template-columns:1fr}
+        .pipe{grid-template-columns:repeat(2,1fr)}
+        .laws{grid-template-columns:1fr}
+        .lanes{grid-template-columns:repeat(2,1fr)}
+        .games{grid-template-columns:repeat(2,1fr)}
+      }
+      @media (max-width:560px){
+        /* clay letters: drop the sideways cyan/pink tints and trim the depth
+           stack so the bubble letters read clean at phone size (desktop keeps
+           the full offset-shadow look) */
+        .clay-w{text-shadow:
+          0 2px 0 #dcdce2, 0 4px 0 #c0c0ca, 0 6px 0 #a4a4b2,
+          0 10px 18px rgba(0,0,0,.5)}
+        .clay-c{text-shadow:
+          0 2px 0 #17b3ac, 0 4px 0 #11958e, 0 6px 0 #0d7a74,
+          0 10px 18px rgba(0,0,0,.5)}
+        .clay-p{text-shadow:
+          0 2px 0 #d61f45, 0 4px 0 #b81839, 0 6px 0 #99122e,
+          0 10px 18px rgba(0,0,0,.5)}
+        .agents{grid-template-columns:1fr}
+        .lanes{grid-template-columns:1fr}
+        .games{grid-template-columns:1fr}
+        .gamelist{columns:1}
+        .form-grid{grid-template-columns:1fr}
+        .run{grid-template-columns:70px 1fr;grid-template-rows:auto auto}
+        .run .pill{grid-column:2;justify-self:start}
+        main{padding:0 14px 70px}
+      }
+      @media (prefers-reduced-motion: reduce){
+        *{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="stars" aria-hidden="true"></canvas>
+    <div class="glowfield" aria-hidden="true"></div>
+    <div class="gridfloor" aria-hidden="true"></div>
+
+    <main>
+      <!-- HERO -->
+      <div class="hero">
+        <div>
+          <span class="livechip"><span class="dot"></span> Farm online · Both accounts · All of TikTok</span>
+          <h1><span class="clay clay-w">The</span> <span class="clay clay-c">TikTok</span><br /><span class="clay clay-w">Farm</span><span class="clay clay-p">.</span></h1>
+          <p class="sub">Not just the Shop — <strong>the whole farm</strong>. One crew of agents runs everything TikTok for both of Glam&rsquo;s accounts: Shop videos that sell, everyday TikToks that grow the page, lives, captions, the hourly posting schedule, and account health. <strong>Start a run below and work it whenever you&rsquo;re ready.</strong></p>
+          <div class="cta-row">
+            <a class="btn btn-pink" href="#intake">＋ Start a run</a>
+            <button class="btn btn-ghost" id="launchBtn" type="button">▶ Run the launch sequence</button>
+            <a class="btn btn-cyan" href="https://glam-tiktok-strategy-content-farm.nakeymasi.chatgpt.site/hub" target="_blank" rel="noopener">Open GLAM Command Center ↗</a>
+          </div>
+        </div>
+        <div class="stage" aria-hidden="true">
+          <span class="blob blob-w b1"></span>
+          <span class="blob blob-c b2"></span>
+          <span class="blob blob-p b3"></span>
+          <span class="blob blob-w b4"></span>
+          <span class="clayplay"></span>
+          <div class="phone3d" id="phone">
+            <div class="p-notch"></div>
+            <span class="p-live">● LIVE + SHOP</span>
+            <div class="p-prod">
+              <div class="cap"><span>Now showing</span>Character Glam, on camera — Shop pick or everyday TikTok, the farm builds both.</div>
+            </div>
+            <div class="p-bar"><span class="heart">♥</span><div class="track"><div class="fill" id="phoneFill"></div></div><span style="font-size:11px;color:var(--muted)">0:31</span></div>
+            <div class="p-shop">
+              <div class="thumb"></div>
+              <div class="t"><b>Pick of the hour</b>Product attached · tap the link</div>
+              <span class="tag">AI LABEL ON</span>
+            </div>
+            <span class="float-chip fc1">◈ SCOUTING</span>
+            <span class="float-chip fc2">✦ POSTED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats" role="list" aria-label="Farm numbers">
+        <div class="stat" role="listitem"><div class="num" data-count="7">0</div><div class="lbl">AI agents on the crew</div></div>
+        <div class="stat" role="listitem"><div class="num" data-count="16">0</div><div class="lbl">Video modes in the barn</div></div>
+        <div class="stat" role="listitem"><div class="num" data-count="2">0</div><div class="lbl">TikTok accounts covered</div></div>
+        <div class="stat" role="listitem"><div class="num" data-count="10">0</div><div class="lbl">Posts a day, hourly</div></div>
+      </div>
+
+      <!-- START A RUN -->
+      <section id="intake">
+        <div class="sec-head"><span class="idx">01</span><h2>Start a Run</h2></div>
+        <p class="sec-sub">This is how you use the farm. Tell it what you want made, hit the button, and the run lands in your queue below with a copy-ready prompt you can hand to the crew in chat. Nothing posts until you say so.</p>
+        <form class="formcard" id="intakeForm" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="inAcct"><b>Which account?</b></label>
+              <select id="inAcct">
+                <option value="@glamorousgrammyglowup">@glamorousgrammyglowup — Shop &amp; selling</option>
+                <option value="@promptlikeglam">@promptlikeglam — teaching &amp; brand</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="inType"><b>What kind of run?</b></label>
+              <select id="inType">
+                <option>TikTok Shop video</option>
+                <option>Regular TikTok video</option>
+                <option>TikTok Live</option>
+                <option>Captions &amp; posting</option>
+                <option>Account health check</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="inAround"><b>What is this run built around?</b> — a product, a topic, a prompt, your own video, just an idea</label>
+              <input id="inAround" type="text" placeholder="e.g. Turmeric soap, nighttime routine angle" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="inProduct">Product name or link <span style="color:var(--muted)">(Shop videos)</span></label>
+              <input id="inProduct" type="text" placeholder="Product name or paste the listing link" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="inMode">Video mode</label>
+              <select id="inMode"></select>
+            </div>
+            <div class="field">
+              <label for="inWhen">When should it go out?</label>
+              <select id="inWhen">
+                <option>Next open hourly slot</option>
+                <option>Today</option>
+                <option>Tomorrow</option>
+                <option>This week</option>
+                <option>No rush — queue it</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="inNotes">Anything else the crew should know?</label>
+              <input id="inNotes" type="text" placeholder="Optional notes" autocomplete="off" />
+            </div>
+          </div>
+          <div class="formfoot">
+            <button class="btn btn-pink" type="submit">＋ Add this run to my queue</button>
+            <span class="errmsg" id="inErr">Tell the farm what this run is built around first, boo.</span>
+            <span class="okmsg" id="inOk"></span>
+          </div>
+          <div class="promptbox" id="intakeOut" hidden>
+            <p class="plabel">Your copy-ready run prompt</p>
+            <textarea class="prompt" id="intakePrompt" readonly></textarea>
+            <div class="rowbtns">
+              <button class="btn btn-cyan mini" id="inCopy" type="button">Copy run prompt</button>
+              <a class="btn btn-ghost mini" href="#queue">See it in my queue ↓</a>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- AGENT CREW -->
+      <section id="crew">
+        <div class="sec-head"><span class="idx">02</span><h2>The Agent Crew</h2></div>
+        <p class="sec-sub">Every agent has one job and does it in order. Nothing skips a step, nothing posts without passing the one before it. Select an agent to open its mission card — and give it a job right there: the card writes you a copy-ready prompt for that agent alone.</p>
+        <div class="agents" id="agentGrid"></div>
+        <div class="agent-detail" id="agentDetail" aria-live="polite"></div>
+      </section>
+
+      <!-- LIVE GAMES -->
+      <section id="games">
+        <div class="sec-head"><span class="idx">03</span><h2>Live Games — Agent 7&rsquo;s Menu</h2></div>
+        <p class="sec-sub">Agent 7 works <strong style="color:var(--ink)">LIVE ONLY</strong>. When Glam goes live on TikTok, it watches her live chat for the window she picks — the last 20 minutes is standard — pulls the real people engaging (recent commenters and her Top 10 Engagers), and builds one of these games from those people for her to play on the live. Shares, taps, likes and gifts count only when TikTok actually shows them: anything it can&rsquo;t see is marked <strong style="color:var(--ink)">NOT VISIBLE</strong>, and a pull that stops early is labeled <strong style="color:var(--ink)">PARTIAL</strong> with its times. No invented names, no invented numbers — ever.</p>
+        <div class="games">
+          <div class="game"><div class="gnum">GAME 01</div><h3>Names Wheel</h3><p>Everybody who commented in the window goes on the wheel. Glam spins it on the live and the name it lands on wins.</p></div>
+          <div class="game"><div class="gnum">GAME 02</div><h3>Number Wheel 1 to 200</h3><p>Viewers guess a number in the comments — Agent 7 logs each name with their guess — then the 1-to-200 wheel spins for the winning number.</p></div>
+          <div class="game"><div class="gnum">GAME 03</div><h3>Top 10 Engagers Wheel</h3><p>Only the Top 10 Engagers from the window earn a spot on this wheel. The hardest-working viewers play for the prize.</p></div>
+          <div class="game"><div class="gnum">GAME 04</div><h3>Top Engager Showdown</h3><p>The top engagers face off in rounds, head to head, until one champion is left standing.</p></div>
+          <div class="game"><div class="gnum">GAME 05</div><h3>Trivia Pop</h3><p>Agent 7 writes a question about the live&rsquo;s topic. The first right answer in the comments takes it.</p></div>
+          <div class="game"><div class="gnum">GAME 06</div><h3>Last One Standing</h3><p>The wheel spins to <em>eliminate</em> one name at a time. The last name left on the wheel is the winner — pure suspense.</p></div>
+          <div class="game"><div class="gnum">GAME 07</div><h3>Mystery Pumpkin Pick</h3><p>The winner picks a pumpkin and reveals the mystery prize hiding inside it. The prizes are stocked below — real ones, Glam-approved.</p></div>
+          <div class="game"><div class="gnum">GAME 08</div><h3>Secret Word Drop</h3><p>Agent 7 drops a secret word into the live. The first person to comment that exact word wins.</p></div>
+          <div class="game"><div class="gnum">GAME 09</div><h3>Closest Guess</h3><p>Viewers guess a number in the comments. Closest guess without going over wins — no spin needed.</p></div>
+          <div class="game"><div class="gnum">GAME 10</div><h3>Head-to-Head</h3><p>Two top engagers, one wheel, one spin. Winner takes it — the fastest showdown on the menu.</p></div>
+        </div>
+        <div class="pumpkins">
+          <h3>🎃 Mystery Pumpkin Pick — the prizes inside</h3>
+          <p>These are the only prizes stocked in the pumpkins — the ones Glam approved. The pumpkin only <em>shows</em> the prize on the live: the real code or product goes to the winner after, and only after Glam approves the exact message.</p>
+          <div class="prize-row">
+            <span class="prize gold">🎃 THE GOLDEN PUMPKIN — a free $27 product</span>
+            <span class="prize">A free $7 product</span>
+            <span class="prize">25% off</span>
+            <span class="prize">20% off</span>
+            <span class="prize">$5 off</span>
+            <span class="prize">25 Glow Points</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RUN QUEUE -->
+      <section id="queue">
+        <div class="sec-head"><span class="idx">04</span><h2>My Run Queue</h2></div>
+        <p class="sec-sub">Every run you start lands here. Move each one along as the crew works it — Queued, In production, Director QC, Posted — copy its prompt any time, or clear it out when it&rsquo;s done.</p>
+        <div id="queueList" aria-live="polite"></div>
+        <div class="qempty" id="queueEmpty"><b>No runs yet.</b><br />Start one up top and it will wait for you right here.</div>
+      </section>
+
+      <!-- THE WHOLE FARM -->
+      <section id="lanes">
+        <div class="sec-head"><span class="idx">05</span><h2>The Whole Farm — Every Lane</h2></div>
+        <p class="sec-sub">TikTok is bigger than the Shop, so the farm covers all of it. Each lane has a job, and each one can start a run for you.</p>
+        <div class="lanes">
+          <div class="lane"><div class="ic">🛍️</div><h3>TikTok Shop Videos</h3><p>The selling line: the exact product on camera, story first, product attached, AI label on — one an hour on @glamorousgrammyglowup, built from what&rsquo;s already selling in the showcase.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="TikTok Shop video">Start this run →</button></div>
+          <div class="lane"><div class="ic">🎥</div><h3>Everyday TikToks</h3><p>Content that grows the page, not just the cart: teaching, storytime, behind the scenes, and prompt breakdowns — for both accounts, in Glam&rsquo;s voice.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Regular TikTok video">Start this run →</button></div>
+          <div class="lane"><div class="ic">🔴</div><h3>TikTok Lives</h3><p>Pop-ups and planned lives: hook in the first seconds, pin the product or the lesson, answer in Glam&rsquo;s voice — then the replay gets packaged and posted after.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="TikTok Live">Start this run →</button></div>
+          <div class="lane"><div class="ic">🗓️</div><h3>Posting Schedule</h3><p>The hourly rhythm — about ten posts a day on the shop account — planned around what the Scout says is moving, so no slot ever goes out empty or repeated.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Captions &amp; posting">Start a posting run →</button></div>
+          <div class="lane"><div class="ic">✍️</div><h3>Captions</h3><p>Written warm and plain, like talking to a friend — and scrubbed clean before anything goes out. No prices, no sold counts, ever. The product link carries the live price.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Captions &amp; posting">Start this run →</button></div>
+          <div class="lane"><div class="ic">🩺</div><h3>Account Health</h3><p>Cadence, labels, violation watch, and what&rsquo;s actually working on both accounts — checked on the regular, so small problems get caught before they become account problems.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Account health check">Start this run →</button></div>
+        </div>
+      </section>
+
+      <!-- PIPELINE -->
+      <section id="pipeline">
+        <div class="sec-head"><span class="idx">06</span><h2>The Launch Sequence</h2></div>
+        <p class="sec-sub">This is the exact path one video travels, from a trend spotted in the morning to a post live with the product attached. Hit &ldquo;Run the launch sequence&rdquo; up top and watch it move.</p>
+        <div class="pipe" id="pipe"></div>
+      </section>
+
+      <!-- RUN BOARD -->
+      <section id="board">
+        <div class="sec-head"><span class="idx">07</span><h2>Today&rsquo;s Run Board</h2></div>
+        <p class="sec-sub">Sunday, October 25 — the farm&rsquo;s actual board on @glamorousgrammyglowup: the first six of today&rsquo;s ten hourly slots, built from what&rsquo;s already selling in the showcase.</p>
+        <div class="board">
+          <div class="run"><span class="time">12:03 PM</span><span class="what">IcyMe Ice Roller &amp; Jade Gua Sha Set<small>First post of the rebuilt run — product attached, AI label on</small></span><span class="pill pill-done">Posted</span></div>
+          <div class="run"><span class="time">1:45 PM</span><span class="what">Turmeric Soap<small>The #1 seller gets the spotlight slot</small></span><span class="pill pill-done">Posted</span></div>
+          <div class="run"><span class="time">3:00 PM</span><span class="what">Goli<small>Rebuilt under the exact-product rule</small></span><span class="pill pill-done">Posted</span></div>
+          <div class="run"><span class="time">4:00 PM</span><span class="what">M3<small>Next out of the production line</small></span><span class="pill pill-q">Scheduled</span></div>
+          <div class="run"><span class="time">5:00 PM</span><span class="what">Turmeric Oil<small>Director-QC passed, natural performance cut</small></span><span class="pill pill-q">Scheduled</span></div>
+          <div class="run"><span class="time">6:00 PM</span><span class="what">Cofier<small>Slot six of ten — the rest of the day is in production</small></span><span class="pill pill-q">Scheduled</span></div>
+        </div>
+      </section>
+
+      <!-- FARM LAWS -->
+      <section id="laws">
+        <div class="sec-head"><span class="idx">08</span><h2>The Farm Laws</h2></div>
+        <p class="sec-sub">The rules every agent obeys on every single run — Shop, content, lives, all of it. No exceptions, no shortcuts — this is what keeps the accounts safe and the videos believable.</p>
+        <div class="laws">
+          <div class="law"><div class="ic">🎯</div><div><h3>Exact products only</h3><p>Every scene is anchored to the listing&rsquo;s real product photo. If the render doesn&rsquo;t match the real product, it fails QC — look-alikes never ship.</p></div></div>
+          <div class="law"><div class="ic">🚫</div><div><h3>No prices. No sold counts.</h3><p>Never spoken, never on screen, never in captions. Prices change and a stale price is a violation risk — the product link always shows the live one.</p></div></div>
+          <div class="law"><div class="ic">✂️</div><div><h3>No dead air</h3><p>Edits are tightened so there are no long pauses — natural breath beats only. The video moves the way a real person talks.</p></div></div>
+          <div class="law"><div class="ic">👁️</div><div><h3>It has to feel human</h3><p>Conversational delivery, natural gestures and head movement, normal blinking. If it looks like a robot, it goes back for a rebuild.</p></div></div>
+          <div class="law"><div class="ic">🏷️</div><div><h3>AI label on, product attached</h3><p>Every post carries the AI-generated label and the real product link, with the caption scrubbed clean before it goes out.</p></div></div>
+          <div class="law"><div class="ic">🔍</div><div><h3>Director QC before anything posts</h3><p>Frames are swept, sound is checked, the product is matched against the listing. A video that fails never reaches the schedule.</p></div></div>
+          <div class="law"><div class="ic">🎃</div><div><h3>Live games: real people, real prizes, Glam&rsquo;s call</h3><p>Agent 7 works only from people actually seen on the live — never an invented name or number. Prizes are only the prizes Glam listed, and winners and prize messages always wait for Glam&rsquo;s approval of the exact text before anything is sent.</p></div></div>
+        </div>
+      </section>
+
+      <!-- MODES -->
+      <section id="modes">
+        <div class="sec-head"><span class="idx">09</span><h2>In the Mode Barn</h2></div>
+        <p class="sec-sub">Sixteen ways the farm can build a video, so the feed never repeats itself. Tap a mode and it loads straight into your next run up top.</p>
+        <div class="modes" id="modeBarn"></div>
+      </section>
+
+      <footer>
+        <span><b>TikTok Farm</b> — the agent crew behind @glamorousgrammyglowup and @promptlikeglam.</span>
+        <span>All of TikTok: Shop · content · lives · captions · schedule · health — Sunday, October 25, 2026</span>
+      </footer>
+    </main>
+
+    <script>
+      /* ---------------- data ---------------- */
+      var MODES = ["Problem → Solution","Get Ready With Me","Unboxing Reveal","Nighttime Routine","Bathroom Vanity Demo","Before You Buy","My Honest Take","Restock Day","Comment Reply Video","Side-by-Side Test","Morning Routine","What I Actually Use","Quick Tip","Shelf Tour","First Impression","The Closer Look"];
+      var STATUSES = ["Queued","In production","Director QC","Posted"];
+      var LAWS_LINE = "Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.";
+
+      var AGENTS = [
+        { icon:"🔭", tone:"c", name:"Pinterest Scout", role:"Trend Scout",
+          short:"Watches what&rsquo;s popping across Pinterest and TikTok and reports back what&rsquo;s rising — before anybody commits to a build.",
+          mission:"Find the angles that are already winning, so the farm never guesses.",
+          takes:["Trending pins, saves and searches","What&rsquo;s moving on TikTok right now","Glam&rsquo;s own best-performing posts"],
+          makes:["A ranked trend report","The adapted angle for each pick","The evidence behind every call"] },
+        { icon:"🛍️", tone:"p", name:"TikTok Shop Agent", role:"Product Picker",
+          short:"Works the showcase — all 269 products — and picks what should go on camera next, based on what&rsquo;s actually been selling.",
+          mission:"Put the right product in the next slot, every single hour.",
+          takes:["The full showcase, paged end to end","Real sold counts from the listings","What the audience already buys"],
+          makes:["The pick of the hour, with its real photo","The listing link, exactly as shown","Why this one, in plain words"] },
+        { icon:"✍️", tone:"c", name:"Story Agent", role:"Hook & Angle Writer",
+          short:"Turns the pick into a story a real woman would stop for — a problem she knows, in words she&rsquo;d use herself.",
+          mission:"Every video opens on a moment the viewer has lived.",
+          takes:["The Scout&rsquo;s winning angle","The product and who it&rsquo;s for","The mode picked from the barn"],
+          makes:["The opening hook, word for word","The story beats, scene by scene","A closer that lands on the benefit"] },
+        { icon:"🎬", tone:"p", name:"Muse Video Agent", role:"Video Builder",
+          short:"Builds the video itself — Character Glam on camera, the exact product in her hands, directed like a real performance.",
+          mission:"A 30-second shop video that feels like a friend showing you something.",
+          takes:["The story beats","The listing&rsquo;s real product photo","The staging for every scene"],
+          makes:["The finished vertical video","Natural movement and blinking","Tight edits — no dead air"] },
+        { icon:"🕵️", tone:"c", name:"Director QC", role:"Quality Control",
+          short:"Sweeps the finished video frame by frame before it can leave the farm. Wrong product, extra hands, stiff acting — it all gets caught here.",
+          mission:"Nothing ships unless it would fool Glam&rsquo;s own eye.",
+          takes:["Every frame of the render","The real listing photo to match against","The sound, checked for gaps"],
+          makes:["A pass — or a rebuild order","The exact scene that failed, and why","The final approved cut"] },
+        { icon:"📣", tone:"p", name:"Caption & Post Agent", role:"Publisher",
+          short:"Writes the caption, attaches the product, turns the AI label on, and drops the video into its hourly slot on @glamorousgrammyglowup.",
+          mission:"The right video, in the right slot, with everything attached.",
+          takes:["The QC-approved cut","The product link","The day&rsquo;s hourly schedule"],
+          makes:["A clean caption — no prices, no sold counts","The post, product attached, AI label on","A verified live post"] },
+        { icon:"🎡", tone:"c", name:"TikTok Live Game Agent", role:"Live Games · Live Only",
+          short:"Wakes up only when Glam is live. Watches the chat, pulls the real people engaging, and builds a game from them for her to play right there on the live.",
+          mission:"Turn the people actually in the live into a game they can win.",
+          takes:["The live chat, for the window Glam picks — the last 20 minutes is standard","Recent commenters and the Top 10 Engagers","Shares, taps, likes and gifts — only the counts TikTok actually shows"],
+          makes:["An engager report — real names only, anything unseen marked NOT VISIBLE, partial pulls labeled PARTIAL with their times","A ready-to-play game built from those real people","The winner call for Glam to read out loud on the live"],
+          law:["Only people actually seen on the live get into a game — no invented names or numbers","Prizes are only the prizes Glam listed — nothing added, nothing swapped","Winners and prize messages wait for Glam&rsquo;s approval of the exact text before anything is sent"],
+          games:["Names Wheel","Number Wheel 1 to 200","Top 10 Engagers Wheel","Top Engager Showdown","Trivia Pop","Last One Standing","Mystery Pumpkin Pick","Secret Word Drop","Closest Guess","Head-to-Head"],
+          prizes:["🎃 THE GOLDEN PUMPKIN — a free $27 product","A free $7 product","25% off","20% off","$5 off","25 Glow Points"],
+          promptExtra:[
+            "LIVE ONLY: this agent works only while Glam is live on TikTok. It never touches video runs.",
+            "Watch window: the one Glam picks — the last 20 minutes is standard.",
+            "Pull the real people engaging: recent commenters and the Top 10 Engagers.",
+            "Shares, taps, likes and gifts: report a count ONLY when TikTok actually shows it. If a count is not visible, say NOT VISIBLE. Never invent a name or a number. If a pull is partial, label it PARTIAL with its times.",
+            "Game menu (10): Names Wheel · Number Wheel 1 to 200 · Top 10 Engagers Wheel · Top Engager Showdown · Trivia Pop · Last One Standing · Mystery Pumpkin Pick · Secret Word Drop · Closest Guess · Head-to-Head.",
+            "Mystery Pumpkin Pick prizes — the only prizes: THE GOLDEN PUMPKIN = a free $27 product · a free $7 product · 25% off · 20% off · $5 off · 25 Glow Points.",
+            "Winners and prize messages: Glam approves the exact text before anything is sent. Nothing goes to a winner without her say-so."
+          ] }
+      ];
+
+      var STEPS = [
+        { n:"STEP 1", t:"Scout", d:"Trends spotted and ranked" },
+        { n:"STEP 2", t:"Pick", d:"Best product chosen from the showcase" },
+        { n:"STEP 3", t:"Story", d:"Hook and angle written" },
+        { n:"STEP 4", t:"Build", d:"Video produced by the Muse Video Agent" },
+        { n:"STEP 5", t:"QC", d:"Director sweep — pass or rebuild" },
+        { n:"STEP 6", t:"Post", d:"Live, product attached, AI label on" }
+      ];
+
+      /* ---------------- helpers ---------------- */
+      function plain(s){ return String(s).replace(/&rsquo;/g, "’").replace(/&amp;/g, "&").replace(/&ldquo;/g, "“").replace(/&rdquo;/g, "”"); }
+      function copyText(text, btn){
+        function done(){
+          var old = btn.textContent;
+          btn.textContent = "Copied ✓";
+          setTimeout(function(){ btn.textContent = old; }, 1600);
+        }
+        function fallback(){
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); done(); }
+          catch(e){ btn.textContent = "Press & hold to copy"; }
+          document.body.removeChild(ta);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(done, fallback);
+        } else { fallback(); }
+      }
+      function buildRunPrompt(r){
+        var lines = [
+          "TIKTOK FARM RUN",
+          "Account: " + r.account,
+          "Run type: " + r.type,
+          "Built around: " + r.around
+        ];
+        if (r.product) lines.push("Product / link: " + r.product);
+        lines.push("Mode: " + r.mode);
+        lines.push("When: " + r.when);
+        if (r.notes) lines.push("Notes: " + r.notes);
+        lines.push("");
+        lines.push("Crew order: Pinterest Scout → TikTok Shop Agent → Story Agent → Muse Video Agent → Director QC → Caption & Post Agent.");
+        lines.push(LAWS_LINE);
+        lines.push("Work in Glam’s voice: warm, plain words, step by step. Report back before anything posts.");
+        return lines.join("\n");
+      }
+
+      /* ---------------- intake ---------------- */
+      var inMode = document.getElementById("inMode");
+      var modeOpt0 = document.createElement("option");
+      modeOpt0.textContent = "Let the Story Agent pick";
+      inMode.appendChild(modeOpt0);
+      MODES.forEach(function(m){
+        var o = document.createElement("option");
+        o.textContent = m;
+        inMode.appendChild(o);
+      });
+
+      var queue = [];
+      var queueList = document.getElementById("queueList");
+      var queueEmpty = document.getElementById("queueEmpty");
+      var statusClass = ["qp-queued","qp-prod","qp-qc","qp-posted"];
+
+      function renderQueue(){
+        queueList.innerHTML = "";
+        queueEmpty.style.display = queue.length ? "none" : "block";
+        queue.forEach(function(r, idx){
+          var card = document.createElement("div");
+          card.className = "qrun";
+
+          var top = document.createElement("div");
+          top.className = "qtop";
+          var t = document.createElement("span"); t.className = "qtype"; t.textContent = r.type;
+          var a = document.createElement("span"); a.className = "qacct"; a.textContent = r.account;
+          var pill = document.createElement("span");
+          pill.className = "qpill " + statusClass[STATUSES.indexOf(r.status)];
+          pill.textContent = r.status;
+          top.appendChild(t); top.appendChild(a); top.appendChild(pill);
+          card.appendChild(top);
+
+          var meta = document.createElement("div");
+          meta.className = "qmeta";
+          var b1 = document.createElement("b"); b1.textContent = r.around;
+          meta.appendChild(document.createTextNode("Built around: "));
+          meta.appendChild(b1);
+          meta.appendChild(document.createTextNode(" · Mode: " + r.mode + " · When: " + r.when));
+          if (r.product) meta.appendChild(document.createTextNode(" · Product: " + r.product));
+          if (r.notes) meta.appendChild(document.createTextNode(" · Notes: " + r.notes));
+          card.appendChild(meta);
+
+          var ctrl = document.createElement("div");
+          ctrl.className = "qctrl";
+          var sel = document.createElement("select");
+          sel.setAttribute("aria-label", "Run status");
+          STATUSES.forEach(function(s){
+            var o = document.createElement("option");
+            o.textContent = s;
+            if (s === r.status) o.selected = true;
+            sel.appendChild(o);
+          });
+          sel.addEventListener("change", function(){
+            r.status = sel.value;
+            pill.className = "qpill " + statusClass[STATUSES.indexOf(r.status)];
+            pill.textContent = r.status;
+          });
+          var cp = document.createElement("button");
+          cp.type = "button"; cp.className = "btn btn-ghost mini"; cp.textContent = "Copy prompt";
+          cp.addEventListener("click", function(){ copyText(buildRunPrompt(r), cp); });
+          var rm = document.createElement("button");
+          rm.type = "button"; rm.className = "btn danger mini"; rm.textContent = "Remove";
+          rm.addEventListener("click", function(){
+            queue.splice(idx, 1);
+            renderQueue();
+          });
+          ctrl.appendChild(sel); ctrl.appendChild(cp); ctrl.appendChild(rm);
+          card.appendChild(ctrl);
+
+          queueList.appendChild(card);
+        });
+      }
+      renderQueue();
+
+      var intakeForm = document.getElementById("intakeForm");
+      var inAround = document.getElementById("inAround");
+      var inErr = document.getElementById("inErr");
+      var inOk = document.getElementById("inOk");
+      intakeForm.addEventListener("submit", function(ev){
+        ev.preventDefault();
+        var around = inAround.value.trim();
+        if (!around){
+          inErr.style.display = "inline";
+          inAround.classList.add("err");
+          inAround.focus();
+          return;
+        }
+        inErr.style.display = "none";
+        inAround.classList.remove("err");
+        var r = {
+          account: document.getElementById("inAcct").value,
+          type: plain(document.getElementById("inType").value),
+          around: around,
+          product: document.getElementById("inProduct").value.trim(),
+          mode: inMode.value,
+          when: document.getElementById("inWhen").value,
+          notes: document.getElementById("inNotes").value.trim(),
+          status: "Queued"
+        };
+        queue.unshift(r);
+        renderQueue();
+        var out = document.getElementById("intakeOut");
+        out.hidden = false;
+        document.getElementById("intakePrompt").value = buildRunPrompt(r);
+        inOk.textContent = "Added to your queue ✓";
+        document.getElementById("inCopy").onclick = function(){
+          copyText(document.getElementById("intakePrompt").value, this);
+        };
+      });
+      inAround.addEventListener("input", function(){
+        inErr.style.display = "none";
+        inAround.classList.remove("err");
+      });
+
+      /* lane quick-starts + mode barn prefills */
+      function prefillIntake(typeValue){
+        var sel = document.getElementById("inType");
+        for (var i = 0; i < sel.options.length; i++){
+          if (plain(sel.options[i].value) === typeValue || plain(sel.options[i].text) === typeValue){ sel.selectedIndex = i; break; }
+        }
+        document.getElementById("intake").scrollIntoView({ behavior:"smooth" });
+        setTimeout(function(){ inAround.focus({ preventScroll:true }); }, 550);
+      }
+      document.querySelectorAll(".lane-start").forEach(function(b){
+        b.addEventListener("click", function(){ prefillIntake(plain(b.getAttribute("data-type"))); });
+      });
+      var barn = document.getElementById("modeBarn");
+      MODES.forEach(function(m){
+        var chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "mode";
+        chip.textContent = m;
+        chip.addEventListener("click", function(){
+          inMode.value = m;
+          document.getElementById("intake").scrollIntoView({ behavior:"smooth" });
+          setTimeout(function(){ inAround.focus({ preventScroll:true }); }, 550);
+        });
+        barn.appendChild(chip);
+      });
+
+      /* ---------------- agent cards + job forms ---------------- */
+      var grid = document.getElementById("agentGrid");
+      var detail = document.getElementById("agentDetail");
+      var agentJobs = AGENTS.map(function(){ return { acct:"@glamorousgrammyglowup", job:"" }; });
+
+      function agentPrompt(i){
+        var a = AGENTS[i], j = agentJobs[i];
+        var lines = [
+          "AGENT JOB — " + a.name + " (" + a.role + ")",
+          "Account: " + j.acct,
+          "Job: " + (j.job ? j.job : "[describe the job for this agent]"),
+          "Mission: " + a.mission,
+          "Takes in: " + a.takes.map(plain).join(" · "),
+          "Hands off: " + a.makes.map(plain).join(" · "),
+          LAWS_LINE
+        ];
+        if (a.promptExtra) a.promptExtra.forEach(function(x){ lines.push(plain(x)); });
+        lines.push("Report back in plain words, step by step, in Glam’s voice — before anything posts.");
+        return lines.join("\n");
+      }
+
+      function renderDetail(i){
+        var a = AGENTS[i];
+        var lawItems = a.law || ["Exact products only — matched to the real listing photo","No prices and no sold counts, ever","Nothing posts without Director QC"];
+        var extra = "";
+        if (a.games){
+          extra = '<div class="jobbox">' +
+            "<h4>The game menu — all 10 games</h4>" +
+            '<ul class="gamelist">' + a.games.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul>" +
+            (a.prizes ? '<p class="plabel">Mystery Pumpkin Pick — the prizes inside</p><div class="prize-row">' +
+              a.prizes.map(function(x, pi){ return '<span class="prize' + (pi === 0 ? " gold" : "") + '">' + x + "</span>"; }).join("") + "</div>" : "") +
+            "</div>";
+        }
+        detail.innerHTML =
+          '<div class="d-title"><h3>' + a.icon + " " + a.name + '</h3><span>' + a.mission + "</span></div>" +
+          "<div><h4>Takes in</h4><ul>" + a.takes.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
+          "<div><h4>Hands off</h4><ul>" + a.makes.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
+          "<div><h4>The law it lives by</h4><ul>" + lawItems.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
+          extra +
+          '<div class="jobbox">' +
+            '<div class="form-grid">' +
+              '<div class="field"><label for="ajAcct"><b>Account</b></label>' +
+                '<select id="ajAcct"><option value="@glamorousgrammyglowup">@glamorousgrammyglowup</option><option value="@promptlikeglam">@promptlikeglam</option><option value="Both accounts">Both accounts</option></select></div>' +
+              '<div class="field"><label for="ajJob"><b>Give ' + a.name + ' a job</b></label>' +
+                '<input id="ajJob" type="text" placeholder="Type the job — the prompt below writes itself" autocomplete="off" /></div>' +
+            "</div>" +
+            '<p class="plabel">Your copy-ready prompt for this agent</p>' +
+            '<textarea class="prompt" id="ajPrompt" readonly></textarea>' +
+            '<div class="rowbtns"><button class="btn btn-pink mini" id="ajCopy" type="button">Copy this agent&rsquo;s prompt</button></div>' +
+          "</div>";
+        var acctSel = document.getElementById("ajAcct");
+        var jobIn = document.getElementById("ajJob");
+        var promptTa = document.getElementById("ajPrompt");
+        acctSel.value = agentJobs[i].acct;
+        jobIn.value = agentJobs[i].job;
+        function sync(){ promptTa.value = agentPrompt(i); }
+        acctSel.addEventListener("change", function(){ agentJobs[i].acct = acctSel.value; sync(); });
+        jobIn.addEventListener("input", function(){ agentJobs[i].job = jobIn.value; sync(); });
+        document.getElementById("ajCopy").addEventListener("click", function(){ copyText(promptTa.value, this); });
+        sync();
+      }
+
+      AGENTS.forEach(function(a, i){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "agent tilt" + (i === 0 ? " active" : "");
+        b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+        b.innerHTML =
+          '<span class="num-tag">A-0' + (i + 1) + "</span>" +
+          '<div class="orb orb-' + a.tone + '">' + a.icon + "</div>" +
+          '<div class="role">' + a.role + "</div>" +
+          "<h3>" + a.name + "</h3>" +
+          "<p>" + a.short + "</p>" +
+          '<span class="status"><i></i> On duty</span>';
+        b.addEventListener("click", function(){
+          var all = grid.querySelectorAll(".agent");
+          for (var k = 0; k < all.length; k++){ all[k].classList.remove("active"); all[k].setAttribute("aria-pressed","false"); }
+          b.classList.add("active"); b.setAttribute("aria-pressed","true");
+          renderDetail(i);
+        });
+        grid.appendChild(b);
+      });
+      renderDetail(0);
+
+      /* ---------------- pipeline ---------------- */
+      var pipe = document.getElementById("pipe");
+      STEPS.forEach(function(s){
+        var d = document.createElement("div");
+        d.className = "step";
+        d.innerHTML = '<div class="n">' + s.n + "</div><h3>" + s.t + "</h3><p>" + s.d + "</p>";
+        pipe.appendChild(d);
+      });
+      var stepEls = pipe.querySelectorAll(".step");
+      var fill = document.getElementById("phoneFill");
+      var running = false;
+
+      document.getElementById("launchBtn").addEventListener("click", function(){
+        if (running) return;
+        running = true;
+        document.getElementById("pipeline").scrollIntoView({ behavior:"smooth", block:"center" });
+        for (var k = 0; k < stepEls.length; k++) stepEls[k].className = "step";
+        fill.style.width = "0%";
+        var i = 0;
+        function tick(){
+          if (i > 0) { stepEls[i-1].className = "step done"; }
+          if (i >= stepEls.length) { fill.style.width = "100%"; running = false; return; }
+          stepEls[i].className = "step on";
+          fill.style.width = Math.round(((i + 1) / stepEls.length) * 100) + "%";
+          i++;
+          setTimeout(tick, 620);
+        }
+        setTimeout(tick, 450);
+      });
+
+      /* ---------------- counters ---------------- */
+      var counted = false;
+      function runCounters(){
+        if (counted) return; counted = true;
+        var nums = document.querySelectorAll(".num[data-count]");
+        nums.forEach(function(el){
+          var target = parseInt(el.getAttribute("data-count"), 10);
+          var start = null;
+          function frame(ts){
+            if (!start) start = ts;
+            var p = Math.min((ts - start) / 1100, 1);
+            el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(frame);
+          }
+          requestAnimationFrame(frame);
+        });
+      }
+      if ("IntersectionObserver" in window){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){ if (e.isIntersecting) runCounters(); });
+        }, { threshold:.35 });
+        io.observe(document.querySelector(".stats"));
+      } else { runCounters(); }
+
+      /* ---------------- 3D tilt ---------------- */
+      var fine = window.matchMedia("(pointer:fine)").matches;
+      var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (fine && !reduced){
+        document.querySelectorAll(".tilt").forEach(function(card){
+          card.addEventListener("pointermove", function(ev){
+            var r = card.getBoundingClientRect();
+            var x = (ev.clientX - r.left) / r.width - .5;
+            var y = (ev.clientY - r.top) / r.height - .5;
+            card.style.transform = "rotateY(" + (x * 10) + "deg) rotateX(" + (-y * 10) + "deg) translateZ(0)";
+          });
+          card.addEventListener("pointerleave", function(){ card.style.transform = ""; });
+        });
+        var phone = document.getElementById("phone");
+        var hero = document.querySelector(".hero");
+        hero.addEventListener("pointermove", function(ev){
+          var r = hero.getBoundingClientRect();
+          var x = (ev.clientX - r.left) / r.width - .5;
+          var y = (ev.clientY - r.top) / r.height - .5;
+          phone.style.transform = "rotateY(" + (14 + x * 16) + "deg) rotateX(" + (-y * 10) + "deg)";
+        });
+        hero.addEventListener("pointerleave", function(){ phone.style.transform = ""; });
+        phone.style.transform = "rotateY(14deg)";
+      }
+
+      /* ---------------- starfield ---------------- */
+      (function(){
+        var cv = document.getElementById("stars"), ctx = cv.getContext("2d");
+        var W, H, pts = [];
+        function size(){
+          W = cv.width = window.innerWidth;
+          H = cv.height = window.innerHeight;
+          pts = [];
+          var n = Math.min(110, Math.floor(W * H / 16000));
+          for (var i = 0; i < n; i++){
+            pts.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.4+.3,
+              c: Math.random() > .5 ? "37,244,238" : "254,44,85",
+              s: Math.random()*.25+.05, o: Math.random()*.5+.25 });
+          }
+        }
+        size();
+        window.addEventListener("resize", size);
+        if (reduced){ draw(0); return; }
+        function draw(t){
+          ctx.clearRect(0,0,W,H);
+          for (var i = 0; i < pts.length; i++){
+            var p = pts[i];
+            p.y -= p.s; if (p.y < -4) { p.y = H + 4; p.x = Math.random()*W; }
+            var tw = .55 + .45 * Math.sin(t/900 + i);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fillStyle = "rgba(" + p.c + "," + (p.o * tw) + ")";
+            ctx.fill();
+          }
+          requestAnimationFrame(draw);
+        }
+        requestAnimationFrame(draw);
+      })();
+    </script>
+  </body>
+</html>

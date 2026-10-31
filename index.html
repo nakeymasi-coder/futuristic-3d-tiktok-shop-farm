@@ -423,6 +423,7 @@
               <select id="inAcct">
                 <option value="@glamorousgrammyglowup">@glamorousgrammyglowup — Shop &amp; selling</option>
                 <option value="@promptlikeglam">@promptlikeglam — teaching &amp; brand</option>
+                <option value="None">None — no specific account</option>
               </select>
             </div>
             <div class="field">
@@ -433,6 +434,7 @@
                 <option>TikTok Live</option>
                 <option>Captions &amp; posting</option>
                 <option>Account health check</option>
+                <option>None</option>
               </select>
             </div>
             <div class="field full">
@@ -455,6 +457,7 @@
                 <option>Tomorrow</option>
                 <option>This week</option>
                 <option>No rush — queue it</option>
+                <option>None</option>
               </select>
             </div>
             <div class="field">
@@ -673,6 +676,58 @@
         } else { fallback(); }
       }
       function buildRunPrompt(r){
+        var voice = "Work in Glam\u2019s voice: warm, plain words, step by step.";
+        if (r.type === "Account health check"){
+          var h = [
+            "TIKTOK FARM \u2014 ACCOUNT CHECK",
+            "Account: " + r.account,
+            "Check: " + r.around
+          ];
+          if (r.notes) h.push("Notes: " + r.notes);
+          h.push("");
+          h.push("Run this check now and report back. This is a check only \u2014 nothing gets posted, nothing gets changed, nothing gets deleted.");
+          h.push("Check these, one by one:");
+          h.push("1. Account status \u2014 any violations, warnings, or strikes on the account.");
+          h.push("2. Video problems \u2014 any posts flagged, restricted, or not eligible for the For You feed.");
+          if (r.account === "@glamorousgrammyglowup") h.push("3. Shop health \u2014 shop violations, product or listing problems, anything that could put the shop at risk.");
+          else h.push("3. Creator notices \u2014 anything in the account status or notices that needs Glam\u2019s attention.");
+          h.push("4. Live and posting access \u2014 any limit on going LIVE or posting.");
+          h.push("5. Anything else TikTok is showing that could hold this account back.");
+          h.push("");
+          h.push(voice + " Report one finding at a time: what\u2019s good, what needs her attention, and what she should do about it. If everything is clean, say so plain.");
+          return h.join("\n");
+        }
+        if (r.type === "TikTok Live"){
+          var l = [
+            "TIKTOK FARM RUN",
+            "Account: " + r.account,
+            "Run type: TikTok Live",
+            "Live built around: " + r.around
+          ];
+          if (r.when && r.when !== "None") l.push("When: " + r.when);
+          if (r.notes) l.push("Notes: " + r.notes);
+          l.push("");
+          l.push("Crew: the TikTok Live Game Agent (Agent 7) runs the live. LIVE ONLY \u2014 this agent works only while Glam is live on TikTok.");
+          l.push("Live laws: real people only \u2014 games are built from people actually seen engaging on the live, never an invented name or number. Prizes are only the prizes Glam listed. Winners and prize messages wait for Glam\u2019s approval of the exact text before anything is sent.");
+          l.push(voice + " Report back before anything posts.");
+          return l.join("\n");
+        }
+        if (r.type === "Captions & posting"){
+          var c = [
+            "TIKTOK FARM RUN",
+            "Account: " + r.account,
+            "Run type: Captions & posting",
+            "Built around: " + r.around
+          ];
+          if (r.product) c.push("Product / link: " + r.product);
+          if (r.when && r.when !== "None") c.push("When: " + r.when);
+          if (r.notes) c.push("Notes: " + r.notes);
+          c.push("");
+          c.push("Crew: Caption & Post Agent only \u2014 no video build on this run.");
+          c.push("Caption laws: no prices and no sold counts in captions, ever. AI label on. Report back before anything posts.");
+          c.push(voice);
+          return c.join("\n");
+        }
         var lines = [
           "TIKTOK FARM RUN",
           "Account: " + r.account,
@@ -680,13 +735,20 @@
           "Built around: " + r.around
         ];
         if (r.product) lines.push("Product / link: " + r.product);
-        lines.push("Mode: " + r.mode);
-        lines.push("When: " + r.when);
+        if (r.mode && r.mode !== "None") lines.push("Mode: " + r.mode);
+        if (r.when && r.when !== "None") lines.push("When: " + r.when);
         if (r.notes) lines.push("Notes: " + r.notes);
         lines.push("");
-        lines.push("Crew order: Pinterest Scout → TikTok Shop Agent → Story Agent → Muse Video Agent → Director QC → Caption & Post Agent.");
-        lines.push(LAWS_LINE);
-        lines.push("Work in Glam’s voice: warm, plain words, step by step. Report back before anything posts.");
+        if (r.type === "Regular TikTok video"){
+          lines.push("Crew order: Pinterest Scout \u2192 Story Agent \u2192 Muse Video Agent \u2192 Director QC \u2192 Caption & Post Agent.");
+          lines.push("Farm laws on every run: no dead air \u00b7 natural human performance with normal blinking \u00b7 AI label on \u00b7 Director QC before anything posts.");
+        } else if (r.type === "TikTok Shop video"){
+          lines.push("Crew order: Pinterest Scout \u2192 TikTok Shop Agent \u2192 Story Agent \u2192 Muse Video Agent \u2192 Director QC \u2192 Caption & Post Agent.");
+          lines.push(LAWS_LINE);
+        } else {
+          lines.push("No run type picked \u2014 work this as a general farm request, and ask Glam if anything is unclear.");
+        }
+        lines.push(voice + " Report back before anything posts.");
         return lines.join("\n");
       }
 
@@ -695,6 +757,9 @@
       var modeOpt0 = document.createElement("option");
       modeOpt0.textContent = "Let the Story Agent pick";
       inMode.appendChild(modeOpt0);
+      var modeOptNone = document.createElement("option");
+      modeOptNone.textContent = "None";
+      inMode.appendChild(modeOptNone);
       MODES.forEach(function(m){
         var o = document.createElement("option");
         o.textContent = m;
@@ -728,7 +793,8 @@
           var b1 = document.createElement("b"); b1.textContent = r.around;
           meta.appendChild(document.createTextNode("Built around: "));
           meta.appendChild(b1);
-          meta.appendChild(document.createTextNode(" · Mode: " + r.mode + " · When: " + r.when));
+          if (r.type !== "Account health check" && r.type !== "TikTok Live" && r.type !== "Captions & posting" && r.mode && r.mode !== "None") meta.appendChild(document.createTextNode(" · Mode: " + r.mode));
+          if (r.type !== "Account health check" && r.when && r.when !== "None") meta.appendChild(document.createTextNode(" · When: " + r.when));
           if (r.product) meta.appendChild(document.createTextNode(" · Product: " + r.product));
           if (r.notes) meta.appendChild(document.createTextNode(" · Notes: " + r.notes));
           card.appendChild(meta);
@@ -769,9 +835,26 @@
       var inAround = document.getElementById("inAround");
       var inErr = document.getElementById("inErr");
       var inOk = document.getElementById("inOk");
+      var inTypeEl = document.getElementById("inType");
+      var inProductEl = document.getElementById("inProduct");
+      var inWhenEl = document.getElementById("inWhen");
+      function syncTypeUI(){
+        var t = plain(inTypeEl.value);
+        var health = (t === "Account health check");
+        var noMode = health || t === "TikTok Live" || t === "Captions & posting";
+        inMode.disabled = noMode;
+        inWhenEl.disabled = health;
+        inProductEl.disabled = health;
+        inAround.placeholder = health ? "Optional \u2014 anything specific you want looked at?" : "e.g. Turmeric soap, nighttime routine angle";
+        if (health){ inErr.style.display = "none"; inAround.classList.remove("err"); }
+      }
+      inTypeEl.addEventListener("change", syncTypeUI);
+      syncTypeUI();
       intakeForm.addEventListener("submit", function(ev){
         ev.preventDefault();
+        var isHealth = plain(document.getElementById("inType").value) === "Account health check";
         var around = inAround.value.trim();
+        if (!around && isHealth) around = "Full account health check";
         if (!around){
           inErr.style.display = "inline";
           inAround.classList.add("err");
@@ -790,6 +873,7 @@
           notes: document.getElementById("inNotes").value.trim(),
           status: "Queued"
         };
+        if (isHealth){ r.product = ""; }
         queue.unshift(r);
         renderQueue();
         var out = document.getElementById("intakeOut");
@@ -811,6 +895,7 @@
         for (var i = 0; i < sel.options.length; i++){
           if (plain(sel.options[i].value) === typeValue || plain(sel.options[i].text) === typeValue){ sel.selectedIndex = i; break; }
         }
+        syncTypeUI();
         document.getElementById("intake").scrollIntoView({ behavior:"smooth" });
         setTimeout(function(){ inAround.focus({ preventScroll:true }); }, 550);
       }
@@ -873,7 +958,7 @@
           '<div class="jobbox">' +
             '<div class="form-grid">' +
               '<div class="field"><label for="ajAcct"><b>Account</b></label>' +
-                '<select id="ajAcct"><option value="@glamorousgrammyglowup">@glamorousgrammyglowup</option><option value="@promptlikeglam">@promptlikeglam</option><option value="Both accounts">Both accounts</option></select></div>' +
+                '<select id="ajAcct"><option value="@glamorousgrammyglowup">@glamorousgrammyglowup</option><option value="@promptlikeglam">@promptlikeglam</option><option value="Both accounts">Both accounts</option><option value="None">None</option></select></div>' +
               '<div class="field"><label for="ajJob"><b>Give ' + a.name + ' a job</b></label>' +
                 '<input id="ajJob" type="text" placeholder="Type the job — the prompt below writes itself" autocomplete="off" /></div>' +
             "</div>" +

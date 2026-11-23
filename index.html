@@ -4,11 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#010101" />
-    <title>Futuristic 3D TikTok Shop Farm</title>
+    <link rel="icon" href="data:," />
+    <title>TikTok Farm</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -205,6 +202,38 @@
       textarea.prompt:focus{outline:none;border-color:var(--cyan)}
       .rowbtns{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
 
+      /* ---------- one-click auto run ---------- */
+      .autorun{border:1px solid rgba(254,44,85,.55);border-radius:var(--radius);padding:24px;margin-bottom:22px;
+        background:linear-gradient(180deg,rgba(254,44,85,.09),rgba(37,244,238,.05) 140%),var(--panel)}
+      .autorun h3{margin:0 0 6px;font-size:24px}
+      .autorun .ar-sub{color:var(--muted);font-size:14.5px;line-height:1.6;margin:0 0 18px;max-width:52em}
+      .autorun .ar-sub b{color:var(--ink)}
+      .walksteps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0 4px}
+      .wstep{border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#0a0a12;opacity:.45;transition:opacity .3s,border-color .3s}
+      .wstep .wn{font-family:"Baloo 2";font-weight:800;font-size:11px;letter-spacing:.14em;color:var(--muted)}
+      .wstep .wt{font-size:14px;font-weight:700;margin-top:3px}
+      .wstep.on{opacity:1;border-color:var(--cyan)}
+      .wstep.on .wn{color:var(--cyan)}
+      .wstep.done{opacity:1;border-color:rgba(61,220,132,.5)}
+      .wstep.done .wn{color:var(--green)}
+      .walklog{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#06060c;padding:15px 17px;
+        font-size:14px;line-height:1.75;color:var(--muted);max-height:300px;overflow-y:auto}
+      .walklog p{margin:0 0 8px}
+      .walklog p:last-child{margin-bottom:0}
+      .walklog b{color:var(--ink)}
+      .walklog .wl-step{color:var(--cyan);font-weight:700}
+      .walklog .wl-hold{color:#ff8fa5;font-weight:700}
+      .pkg{margin-top:16px;border:1px solid rgba(37,244,238,.35);border-radius:14px;padding:18px;background:#0a0a12}
+      .pkg h4{margin:0 0 4px;font-size:18px}
+      .pkg .pk{font-family:"Baloo 2";font-weight:800;font-size:11.5px;color:var(--pink);letter-spacing:.16em;margin:16px 0 6px}
+      .pkg .pk:first-of-type{margin-top:10px}
+      .pkg p,.pkg li{color:var(--muted);font-size:14px;line-height:1.65}
+      .pkg p{margin:0}
+      .pkg p b,.pkg li b{color:var(--ink)}
+      .pkg ul{margin:0;padding-left:18px}
+      @media (max-width:920px){ .walksteps{grid-template-columns:repeat(2,1fr)} }
+      @media (max-width:560px){ .walksteps{grid-template-columns:1fr} }
+
       /* ---------- agents ---------- */
       .agents{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;perspective:1200px}
       .agent{background:linear-gradient(165deg,var(--panel2),var(--panel) 70%);border:1px solid var(--line);
@@ -279,6 +308,17 @@
       .step.done{border-color:rgba(254,44,85,.6)}
       .step.done .n{color:var(--pink)}
 
+      /* ---------- run order ---------- */
+      .runorder{border:1px solid var(--line);border-radius:var(--radius);
+        background:linear-gradient(180deg,var(--panel2),var(--panel));padding:8px 22px}
+      .ro-row{display:flex;gap:16px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line)}
+      .ro-row:last-child{border-bottom:0}
+      .ro-n{font-family:"Baloo 2";font-weight:800;font-size:15px;color:#03181a;background:var(--cyan);
+        border-radius:50%;width:30px;height:30px;display:grid;place-items:center;flex:none;margin-top:1px}
+      .ro-row:nth-child(even) .ro-n{background:var(--pink);color:#fff}
+      .ro-row p{margin:3px 0 0;font-size:15px;line-height:1.55;color:var(--muted)}
+      .ro-row p b{color:var(--ink)}
+
       /* ---------- run board ---------- */
       .board{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
       .run{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:center;
@@ -321,6 +361,47 @@
       .mode:hover{border-color:var(--cyan);color:var(--cyan)}
       .mode:nth-child(3n){border-color:rgba(37,244,238,.4)}
       .mode:nth-child(4n){border-color:rgba(254,44,85,.4)}
+
+      /* ---------- Product-to-Post lane ---------- */
+      .fitflow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+      .fitstep{border:1px solid var(--line);border-radius:14px;padding:16px 14px;background:var(--panel)}
+      .fitstep .n{font-family:"Baloo 2";font-weight:800;font-size:12px;color:var(--cyan);letter-spacing:.16em}
+      .fitstep:nth-child(even) .n{color:var(--pink)}
+      .fitstep h3{font-size:16.5px;margin:8px 0 5px}
+      .fitstep p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+      .fitstate{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:14px;border:1px solid rgba(37,244,238,.35);border-radius:14px;padding:13px 15px;background:#0a0a12}
+      .fitstate .st{font-size:11.5px;font-weight:700;letter-spacing:.08em;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);white-space:nowrap}
+      .fitstate .arr{color:var(--pink);font-weight:800}
+      .fitrule{margin-top:14px;border:1px solid rgba(254,44,85,.5);border-radius:14px;padding:15px 17px;background:var(--pink-dim);font-size:15px;line-height:1.6}
+      .fitrule b{color:#ffb3c2}
+      .fitgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+      .fitcard{border:1px solid var(--line);border-radius:var(--radius);padding:21px;background:linear-gradient(165deg,var(--panel2),var(--panel) 75%)}
+      .fitcard.wide{grid-column:1/-1}
+      .fitcard .fk{font-family:"Baloo 2";font-weight:800;font-size:12px;color:var(--cyan);letter-spacing:.16em}
+      .fitcard:nth-child(even) .fk{color:var(--pink)}
+      .fitcard h3{margin:7px 0 10px;font-size:19px}
+      .fitcard ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.75}
+      .fitcard ul b{color:var(--ink);font-weight:600}
+      .fitcard p{color:var(--muted);font-size:14px;line-height:1.65;margin:0 0 10px}
+      .fitcard p b{color:var(--ink)}
+      .nextpack{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:4px}
+      .np{border:1px solid var(--line);border-radius:14px;padding:16px;background:#0a0a12}
+      .np .nl{font-family:"Baloo 2";font-weight:800;font-size:20px;color:var(--cyan)}
+      .np:nth-child(2) .nl{color:var(--pink)}
+      .np h4{margin:6px 0 7px;font-size:15.5px}
+      .np p,.np ul{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0}
+      .np ul{padding-left:17px}
+      .anglechips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+      .anglechips span{border:1px solid rgba(37,244,238,.4);background:var(--cyan-dim);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600}
+      .anglechips span:nth-child(even){border-color:rgba(254,44,85,.4);background:var(--pink-dim)}
+      @media (max-width:920px){
+        .fitflow{grid-template-columns:repeat(2,1fr)}
+        .fitgrid{grid-template-columns:1fr}
+        .nextpack{grid-template-columns:1fr}
+      }
+      @media (max-width:560px){
+        .fitflow{grid-template-columns:1fr}
+      }
 
       footer{margin-top:70px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);
         font-size:13.5px;line-height:1.7;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -375,7 +456,7 @@
         <div>
           <span class="livechip"><span class="dot"></span> Farm online · Both accounts · All of TikTok</span>
           <h1><span class="clay clay-w">The</span> <span class="clay clay-c">TikTok</span><br /><span class="clay clay-w">Farm</span><span class="clay clay-p">.</span></h1>
-          <p class="sub">Not just the Shop — <strong>the whole farm</strong>. One crew of agents runs everything TikTok for both of Glam&rsquo;s accounts: Shop videos that sell, everyday TikToks that grow the page, lives, captions, the hourly posting schedule, and account health. <strong>Start a run below and work it whenever you&rsquo;re ready.</strong></p>
+          <p class="sub">Not just the Shop — <strong>the whole farm</strong>. One crew of agents runs everything TikTok for both of Glam&rsquo;s accounts: Shop videos that sell, everyday TikToks that grow the page, lives, captions, the posting schedule, and account health. <strong>Start a run below and work it whenever you&rsquo;re ready.</strong></p>
           <div class="cta-row">
             <a class="btn btn-pink" href="#intake">＋ Start a run</a>
             <button class="btn btn-ghost" id="launchBtn" type="button">▶ Run the launch sequence</button>
@@ -392,12 +473,12 @@
             <div class="p-notch"></div>
             <span class="p-live">● LIVE + SHOP</span>
             <div class="p-prod">
-              <div class="cap"><span>Now showing</span>Character Glam, on camera — Shop pick or everyday TikTok, the farm builds both.</div>
+              <div class="cap"><span>Now showing</span>A fresh model on every product — Shop pick or everyday TikTok, the farm builds both.</div>
             </div>
             <div class="p-bar"><span class="heart">♥</span><div class="track"><div class="fill" id="phoneFill"></div></div><span style="font-size:11px;color:var(--muted)">0:31</span></div>
             <div class="p-shop">
               <div class="thumb"></div>
-              <div class="t"><b>Pick of the hour</b>Product attached · tap the link</div>
+              <div class="t"><b>Today&rsquo;s pick</b>Product attached · AI label on</div>
               <span class="tag">AI LABEL ON</span>
             </div>
             <span class="float-chip fc1">◈ SCOUTING</span>
@@ -411,13 +492,23 @@
         <div class="stat" role="listitem"><div class="num" data-count="7">0</div><div class="lbl">AI agents on the crew</div></div>
         <div class="stat" role="listitem"><div class="num" data-count="16">0</div><div class="lbl">Video modes in the barn</div></div>
         <div class="stat" role="listitem"><div class="num" data-count="2">0</div><div class="lbl">TikTok accounts covered</div></div>
-        <div class="stat" role="listitem"><div class="num" data-count="10">0</div><div class="lbl">Posts a day, hourly</div></div>
+        <div class="stat" role="listitem"><div class="num" data-count="3">0</div><div class="lbl">Posts a day — Shop account</div></div>
       </div>
 
       <!-- START A RUN -->
       <section id="intake">
         <div class="sec-head"><span class="idx">01</span><h2>Start a Run</h2></div>
-        <p class="sec-sub">This is how you use the farm. Tell it what you want made, hit the button, and the run lands in your queue below with a copy-ready prompt you can hand to the crew in chat. Nothing posts until you say so. Picking <strong style="color:var(--ink)">Account health check</strong>? That&rsquo;s a check only — the product, placement, mode and time fields switch off, nothing gets made, and the prompt asks for a report on the account instead of a video.</p>
+        <p class="sec-sub">Two ways in. <strong style="color:var(--ink)">Start Run</strong> — the red button — and the farm works the whole Run Order by itself: the Scout finds the angle, the Shop Agent picks the product from the showcase, the Story Agent writes the script, and a finished UGC package lands in your queue. <strong style="color:var(--ink)">You don&rsquo;t have to tell it anything.</strong> Or use the form under it when you already know what you want made. Nothing posts until you say so. Picking <strong style="color:var(--ink)">Account health check</strong> in the form? That&rsquo;s a check only — the product, placement, mode and time fields switch off, nothing gets made, and the prompt asks for a report on the account instead of a video.</p>
+
+        <div class="autorun" id="autorun">
+          <h3>▶ Start Run — the farm decides</h3>
+          <p class="ar-sub">One click. No product to name, no angle to pick, no form to fill. The crew runs the Run Order top to bottom and shows its work at every step — and the run still stops at the last gate: <b>Claude&rsquo;s frame check, Nora, then you</b>, and nothing posts while the freeze is on.</p>
+          <button class="btn btn-pink" id="autoRunBtn" type="button">▶ Start Run</button>
+          <span class="okmsg" id="autoRunOk" style="margin-left:12px"></span>
+          <div class="walksteps" id="walkSteps" hidden></div>
+          <div class="walklog" id="walkLog" hidden aria-live="polite"></div>
+          <div class="pkg" id="autoPkg" hidden></div>
+        </div>
         <form class="formcard" id="intakeForm" novalidate>
           <div class="form-grid">
             <div class="field">
@@ -441,7 +532,7 @@
             </div>
             <div class="field full">
               <label for="inAround"><b>What is this run built around?</b><span id="aroundHint"> — a product, a topic, a prompt, your own video, just an idea</span></label>
-              <input id="inAround" type="text" placeholder="e.g. Turmeric soap, nighttime routine angle" autocomplete="off" />
+              <input id="inAround" type="text" placeholder="e.g. nighttime routine angle, morning reset idea" autocomplete="off" />
             </div>
             <div class="field">
               <label for="inProduct">Product name or link <span style="color:var(--muted)">(Shop videos)</span></label>
@@ -468,7 +559,6 @@
                 <option>Beside her — she points and talks, never touches it</option>
                 <option>Next to the result — before &amp; after</option>
                 <option>Held in both hands, label facing the camera</option>
-                <option>Pumped / squeezed onto her hand so viewers see the texture</option>
                 <option>Mirror shot — product on the counter in front of her</option>
                 <option>Pulled from a haul bag, one product at a time</option>
                 <option>On a tray beside her — picked up only at the end</option>
@@ -482,7 +572,7 @@
             <div class="field">
               <label for="inWhen">When should it go out?</label>
               <select id="inWhen">
-                <option>Next open hourly slot</option>
+                <option>Next open slot</option>
                 <option>Today</option>
                 <option>Tomorrow</option>
                 <option>This week</option>
@@ -509,6 +599,23 @@
             </div>
           </div>
         </form>
+      </section>
+
+      <!-- RUN ORDER -->
+      <section id="runorder">
+        <div class="sec-head"><span class="idx">RUN</span><h2>The Run Order</h2></div>
+        <p class="sec-sub">One order for every run — the whole crew works this list, top to bottom, and nothing runs on its own separate steps. The Launch Sequence and the Product-to-Post lane below are the detail for these steps, not orders of their own.</p>
+        <div class="runorder">
+          <div class="ro-row"><span class="ro-n">1</span><p><b>Start a Run form</b> — every run begins up top, in section 01.</p></div>
+          <div class="ro-row"><span class="ro-n">2</span><p><b>TikTok Scout</b></p></div>
+          <div class="ro-row"><span class="ro-n">3</span><p><b>TikTok Shop Agent</b> (product)</p></div>
+          <div class="ro-row"><span class="ro-n">4</span><p><b>Story Agent</b> — real-UGC pain-point script, Glam approves</p></div>
+          <div class="ro-row"><span class="ro-n">5</span><p><b>ONE styled model image</b> — fresh model per GG casting (Glam approves or edits)</p></div>
+          <div class="ro-row"><span class="ro-n">6</span><p><b>&ldquo;Next&rdquo;</b> = Video Express clip prompts + hook + caption</p></div>
+          <div class="ro-row"><span class="ro-n">7</span><p><b>Video Agent builds it in Video Express</b> — Realistic Consistent Character workflow, the approved image is the only reference</p></div>
+          <div class="ro-row"><span class="ro-n">8</span><p><b>Checks:</b> Claude frame check, then Nora, then Glam</p></div>
+          <div class="ro-row"><span class="ro-n">9</span><p><b>Caption &amp; Post</b> — only after Glam lifts the @glamorousgrammyglowup freeze</p></div>
+        </div>
       </section>
 
       <!-- AGENT CREW -->
@@ -562,34 +669,161 @@
         <div class="sec-head"><span class="idx">05</span><h2>The Whole Farm — Every Lane</h2></div>
         <p class="sec-sub">TikTok is bigger than the Shop, so the farm covers all of it. Each lane has a job, and each one can start a run for you.</p>
         <div class="lanes">
-          <div class="lane"><div class="ic">🛍️</div><h3>TikTok Shop Videos</h3><p>The selling line: the exact product on camera, story first, product attached, AI label on — one an hour on @glamorousgrammyglowup, built from what&rsquo;s already selling in the showcase.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="TikTok Shop video">Start this run →</button></div>
+          <div class="lane"><div class="ic">🛍️</div><h3>TikTok Shop Videos</h3><p>The selling line: the exact product on camera, story first, product attached, AI label on — 3 posts a day on @glamorousgrammyglowup, built from what&rsquo;s already selling in the showcase. The posting freeze stays ON until Glam lifts it.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="TikTok Shop video">Start this run →</button></div>
           <div class="lane"><div class="ic">🎥</div><h3>Everyday TikToks</h3><p>Content that grows the page, not just the cart: teaching, storytime, behind the scenes, and prompt breakdowns — for both accounts, in Glam&rsquo;s voice.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Regular TikTok video">Start this run →</button></div>
           <div class="lane"><div class="ic">🔴</div><h3>TikTok Lives</h3><p>Pop-ups and planned lives: hook in the first seconds, pin the product or the lesson, answer in Glam&rsquo;s voice — then the replay gets packaged and posted after.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="TikTok Live">Start this run →</button></div>
-          <div class="lane"><div class="ic">🗓️</div><h3>Posting Schedule</h3><p>The hourly rhythm — about ten posts a day on the shop account — planned around what the Scout says is moving, so no slot ever goes out empty or repeated.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Captions &amp; posting">Start a posting run →</button></div>
+          <div class="lane"><div class="ic">🗓️</div><h3>Posting Schedule</h3><p>3 posts a day on the shop account, planned around what the Scout says is moving, so no slot ever goes out empty or repeated. @glamorousgrammyglowup&rsquo;s posting freeze stays ON until Glam lifts it.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Captions &amp; posting">Start a posting run →</button></div>
           <div class="lane"><div class="ic">✍️</div><h3>Captions</h3><p>Written warm and plain, like talking to a friend — and scrubbed clean before anything goes out. No prices, no sold counts, ever. The product link carries the live price.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Captions &amp; posting">Start this run →</button></div>
           <div class="lane"><div class="ic">🩺</div><h3>Account Health</h3><p>Cadence, labels, violation watch, and what&rsquo;s actually working on both accounts — checked on the regular, so small problems get caught before they become account problems.</p><button class="btn btn-ghost mini lane-start" type="button" data-type="Account health check">Start this run →</button></div>
+        </div>
+      </section>
+
+      <!-- PRODUCT-TO-POST WORKFLOW -->
+      <section id="fitcheck">
+        <div class="sec-head"><span class="idx">PTP</span><h2>Product-to-Post Workflow</h2></div>
+        <p class="sec-sub">The farm&rsquo;s fashion &amp; accessory lane for TikTok Shop — and the detail for steps 5 and 6 of the Run Order up top, not a separate order of its own. One product at a time, one image at a time, in this exact order. The sequence below is non-negotiable: nothing jumps ahead, ever.</p>
+
+        <div class="fitflow">
+          <div class="fitstep"><div class="n">RUN ORDER 5</div><h3>One styled image</h3><p>Upload the product image → generate <b style="color:var(--ink)">ONE</b> styled model image — a fresh model per GG casting. Just one — the product on a model, nothing else yet.</p></div>
+          <div class="fitstep"><div class="n">RUN ORDER 5 · EDIT LOOP</div><h3>Review + edit loop</h3><p>Review the image and edit the <em>existing</em> image until it&rsquo;s approved. Never jump ahead — no script, no caption while the image is still being fixed.</p></div>
+          <div class="fitstep"><div class="n">RUN ORDER 6</div><h3>Say &ldquo;Next&rdquo;</h3><p>&ldquo;Next&rdquo; delivers all three at once: the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line) + the TikTok hook + the ready-to-post caption.</p></div>
+          <div class="fitstep"><div class="n">BACK TO RUN ORDER 1</div><h3>New product</h3><p>A new product restarts the whole run at Run Order step 1 — fresh product photo, fresh model, fresh image.</p></div>
+        </div>
+        <div class="fitstate" aria-label="Product-to-Post state flow">
+          <span class="st">PRODUCT RECEIVED</span><span class="arr">→</span>
+          <span class="st">IMAGE CREATED</span><span class="arr">→</span>
+          <span class="st">IMAGE REVISION LOOP</span><span class="arr">→</span>
+          <span class="st">IMAGE APPROVED</span><span class="arr">→</span>
+          <span class="st">NEXT</span><span class="arr">→</span>
+          <span class="st">VIDEO EXPRESS CLIPS + HOOK + CAPTION</span><span class="arr">→</span>
+          <span class="st">NEW PRODUCT</span>
+        </div>
+        <div class="fitrule"><b>The &ldquo;Next&rdquo; rule:</b> &ldquo;Next&rdquo; <b>never</b> means make another image. It means the image is approved and it&rsquo;s time for the Video Express clip prompts + hook + caption package.</div>
+
+        <form class="formcard" id="fcForm" novalidate style="margin-top:22px">
+          <div class="sec-head" style="margin-bottom:4px"><h3 style="margin:0;font-size:22px">Start a Product-to-Post Run</h3></div>
+          <p style="color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 18px;max-width:52em">Name the product, pick its type, and the run lands in <strong style="color:var(--ink)">My Run Queue</strong> below — with a copy-ready starter prompt for chat that starts the TikTok Shop Product-to-Post Workflow at Run Order step 5 only: one styled model image, no script or caption yet.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="fcName"><b>Product name</b></label>
+              <input id="fcName" type="text" placeholder="e.g. Leopard print wrap dress" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="fcType"><b>Product type</b></label>
+              <select id="fcType">
+                <option>Garment</option>
+                <option>Shoes</option>
+                <option>Bag</option>
+                <option>Accessory</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="fcNotes">Notes for the crew <span style="color:var(--muted)">(optional)</span></label>
+              <input id="fcNotes" type="text" placeholder="e.g. Show the side cutouts clearly, evening setting" autocomplete="off" />
+            </div>
+          </div>
+          <div class="formfoot">
+            <button class="btn btn-pink" type="submit">＋ Start this Product-to-Post run</button>
+            <span class="errmsg" id="fcErr">Name the product first, boo — the Product-to-Post workflow starts with the product.</span>
+            <span class="okmsg" id="fcOk"></span>
+          </div>
+          <div class="promptbox" id="fcOut" hidden>
+            <p class="plabel">Your copy-ready Product-to-Post starter prompt — Run Order step 5 only</p>
+            <textarea class="prompt" id="fcPrompt" readonly></textarea>
+            <div class="rowbtns">
+              <button class="btn btn-cyan mini" id="fcCopy" type="button">Copy starter prompt</button>
+              <a class="btn btn-ghost mini" href="#queue">See it in my queue ↓</a>
+            </div>
+          </div>
+        </form>
+
+        <div class="fitgrid">
+          <div class="fitcard">
+            <div class="fk">CASTING</div>
+            <h3>Fresh face, every product</h3>
+            <ul>
+              <li><b>Adult Black women</b>, generally early 30s — late 30s and 40s included, with real size diversity.</li>
+              <li>A <b>fresh rotating model every product</b>: different face, skin tone, body type and hairstyle — never the same model twice.</li>
+              <li><b>Natural light, phone-camera feel</b> — like a friend shot it, not a studio ad.</li>
+              <li><b>Full figure, head-to-toe</b>, and the product is never obscured.</li>
+            </ul>
+            <p style="margin-top:12px">Plain and simple: <b>this lane uses rotating models on purpose — it does not use the farm&rsquo;s locked character.</b></p>
+          </div>
+          <div class="fitcard">
+            <div class="fk">PRODUCT FIDELITY</div>
+            <h3>The product is the hero</h3>
+            <ul>
+              <li>Preserve it <b>exactly</b>: color, print, logo/lettering, silhouette, hemline, closures, buttons, cutouts, pockets, laces, hardware and material.</li>
+              <li><b>Never add</b> a feature that doesn&rsquo;t exist, and <b>never drop</b> a defining one.</li>
+              <li>The <b>reference photo is the authority</b> — if the image and the photo disagree, the photo wins.</li>
+              <li>Detail unclear? <b>Never invent a claim</b> about it.</li>
+              <li>An AI model is a <b>creative demonstration</b> — never presented as a real buyer testimonial.</li>
+            </ul>
+          </div>
+          <div class="fitcard wide">
+            <div class="fk">THE &ldquo;NEXT&rdquo; PACKAGE</div>
+            <h3>What &ldquo;Next&rdquo; delivers — all three, together</h3>
+            <div class="nextpack">
+              <div class="np"><div class="nl">A</div><h4>Video Express clip prompts — C## format</h4>
+                <ul>
+                  <li><b style="color:var(--ink)">C## format</b> — one prompt per clip, <b style="color:var(--ink)">Realistic Consistent Character</b> workflow</li>
+                  <li><b style="color:var(--ink)">Approved styled image as the only reference</b> — Consistent Character ON</li>
+                  <li><b style="color:var(--ink)">Max 8 spoken words per line</b>, natural movement, lip sync</li>
+                  <li><b style="color:var(--ink)">No music</b>, and <b style="color:var(--ink)">no text or subtitles</b> in the Video Express video</li>
+                </ul>
+              </div>
+              <div class="np"><div class="nl">B</div><h4>One scroll-stopping hook</h4>
+                <p>One line that stops the thumb — and it <b style="color:var(--ink)">never repeats the dialogue</b> from the Video Express clip prompts. The hook and the script say different things.</p>
+              </div>
+              <div class="np"><div class="nl">C</div><h4>Ready-to-post caption</h4>
+                <p>Written and ready to paste, ending with a <b style="color:var(--ink)">comment-driving question</b> so viewers answer back. Hashtags optional.</p>
+              </div>
+            </div>
+          </div>
+          <div class="fitcard">
+            <div class="fk">DIALOGUE PLAYBOOK</div>
+            <h3>Big-sister energy, every line</h3>
+            <p>The Product-to-Post voice is <b>big-sister energy</b> — Southern humor, confidence, grown-woman conversation. Rotate <b>one angle per product</b>:</p>
+            <div class="anglechips"><span>Practical</span><span>Humorous</span><span>Confidence</span><span>Conversational</span><span>Fit Education</span></div>
+            <ul>
+              <li>Never claim <b>&ldquo;true to size&rdquo;</b>, stretch, softness or fit <b>without evidence</b>.</li>
+              <li><b>No invented shopper measurements</b> presented as real — if a real woman didn&rsquo;t say it, the script doesn&rsquo;t either.</li>
+            </ul>
+          </div>
+          <div class="fitcard">
+            <div class="fk">COMPLIANCE</div>
+            <h3>Farm law sits on top</h3>
+            <ul>
+              <li><b>NO prices and NO sold counts</b> in any video or caption — farm law, no exceptions.</li>
+              <li><b>Nothing posts without Glam&rsquo;s approval.</b></li>
+              <li><b>Promotional disclosure on</b> and <b>AI label on</b>, every post.</li>
+              <li>Attach the <b>actual correct product listing</b> — the real one for this product.</li>
+              <li>Before posting, <b>verify in the live listing</b>: title, size chart and availability.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="promptbox" style="margin-top:22px">
+          <p class="plabel">The full Product-to-Post skill prompt — tap to copy, paste it anywhere the workflow runs</p>
+          <textarea class="prompt" id="fcSkill" readonly>You are the TikTok Shop Product-to-Post Workflow. When a product photo is supplied, generate one standalone, ultra-realistic adult Black fashion model image featuring the product as the hero. Vary model identity, size, complexion, hairstyle, hair color, styling, and setting across products; preserve product accuracy. No collage or text unless requested. Revise images according to user feedback. When the user says 'Next,' do not create another image: return (1) Video Express clip prompts in C## format for the Realistic Consistent Character workflow — the approved styled image as the only reference, Consistent Character ON, max 8 spoken words per line, natural movement, short distinct conversational dialogue, no music or overlays; (2) one attention-grabbing hook; and (3) one ready-to-post caption, optionally without hashtags. Use fresh Southern-grown, playful, confident character voices without repetitive sales scripts. Avoid unsupported fit/material and firsthand-experience claims. Restart with image creation when a new product is uploaded. Farm law on top: no prices and no sold counts in any video or caption, AI label on, nothing posts without approval.</textarea>
+          <div class="rowbtns">
+            <button class="btn btn-cyan mini" id="fcSkillCopy" type="button">Copy the full skill prompt</button>
+          </div>
         </div>
       </section>
 
       <!-- PIPELINE -->
       <section id="pipeline">
         <div class="sec-head"><span class="idx">06</span><h2>The Launch Sequence</h2></div>
-        <p class="sec-sub">This is the exact path one video travels, from a trend spotted in the morning to a post live with the product attached. Hit &ldquo;Run the launch sequence&rdquo; up top and watch it move.</p>
+        <p class="sec-sub">The Run Order up top, in motion — steps 2, 3, 4, 7, 8 and 9. Steps 5 and 6 (the styled image and the &ldquo;Next&rdquo; package) are detailed in the Product-to-Post lane above. This is the exact path one video travels, from a trend spotted in the morning to a post live with the product attached. Hit &ldquo;Run the launch sequence&rdquo; up top and watch it move.</p>
         <div class="pipe" id="pipe"></div>
       </section>
 
       <!-- RUN BOARD -->
       <section id="board">
         <div class="sec-head"><span class="idx">07</span><h2>Today&rsquo;s Run Board</h2></div>
-        <p class="sec-sub">Sunday, October 25 — the farm&rsquo;s actual board on @glamorousgrammyglowup: the first six of today&rsquo;s ten hourly slots, built from what&rsquo;s already selling in the showcase.</p>
-        <div class="board">
-          <div class="run"><span class="time">12:03 PM</span><span class="what">IcyMe Ice Roller &amp; Jade Gua Sha Set<small>First post of the rebuilt run — product attached, AI label on</small></span><span class="pill pill-done">Posted</span></div>
-          <div class="run"><span class="time">1:45 PM</span><span class="what">Turmeric Soap<small>The #1 seller gets the spotlight slot</small></span><span class="pill pill-done">Posted</span></div>
-          <div class="run"><span class="time">3:00 PM</span><span class="what">Goli<small>Rebuilt under the exact-product rule</small></span><span class="pill pill-done">Posted</span></div>
-          <div class="run"><span class="time">4:00 PM</span><span class="what">M3<small>Next out of the production line</small></span><span class="pill pill-q">Scheduled</span></div>
-          <div class="run"><span class="time">5:00 PM</span><span class="what">Turmeric Oil<small>Director-QC passed, natural performance cut</small></span><span class="pill pill-q">Scheduled</span></div>
-          <div class="run"><span class="time">6:00 PM</span><span class="what">Cofier<small>Slot six of ten — the rest of the day is in production</small></span><span class="pill pill-q">Scheduled</span></div>
-        </div>
+        <p class="sec-sub">The farm&rsquo;s board on @glamorousgrammyglowup. New runs land here as the crew works them.</p>
+        <div class="qempty"><b>No runs on the board yet.</b><br />Start a run up top and today&rsquo;s board will fill in here.</div>
       </section>
 
       <!-- FARM LAWS -->
@@ -604,6 +838,8 @@
           <div class="law"><div class="ic">🏷️</div><div><h3>AI label on, product attached</h3><p>Every post carries the AI-generated label and the real product link, with the caption scrubbed clean before it goes out.</p></div></div>
           <div class="law"><div class="ic">🔍</div><div><h3>Director QC before anything posts</h3><p>Frames are swept, sound is checked, the product is matched against the listing. A video that fails never reaches the schedule.</p></div></div>
           <div class="law"><div class="ic">🎃</div><div><h3>Live games: real people, real prizes, Glam&rsquo;s call</h3><p>Agent 7 works only from people actually seen on the live — never an invented name or number. Prizes are only the prizes Glam listed, and winners and prize messages always wait for Glam&rsquo;s approval of the exact text before anything is sent.</p></div></div>
+          <div class="law"><div class="ic">👗</div><div><h3>Product-to-Post lane: the sequence is law</h3><p>Image first, edits until approved, &ldquo;Next&rdquo; delivers Video Express clip prompts + hook + caption, never out of order.</p></div></div>
+          <div class="law"><div class="ic">🛑</div><div><h3>Can&rsquo;t use it? Stop and report BLOCKED</h3><p>If any agent can&rsquo;t use something a farm step needs, STOP immediately and report BLOCKED: [what] - [why] to Glam. No substitute tools, no outside sites, no workarounds, never go off on your own.</p></div></div>
         </div>
       </section>
 
@@ -616,7 +852,7 @@
 
       <footer>
         <span><b>TikTok Farm</b> — the agent crew behind @glamorousgrammyglowup and @promptlikeglam.</span>
-        <span>All of TikTok: Shop · content · lives · captions · schedule · health — Sunday, October 25, 2026</span>
+        <span>All of TikTok: Shop · content · lives · captions · schedule · health — Monday, November 23, 2026</span>
       </footer>
     </main>
 
@@ -627,35 +863,35 @@
       var LAWS_LINE = "Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.";
 
       var AGENTS = [
-        { icon:"🔭", tone:"c", name:"Pinterest Scout", role:"Trend Scout",
-          short:"Watches what&rsquo;s popping across Pinterest and TikTok and reports back what&rsquo;s rising — before anybody commits to a build.",
+        { icon:"🔭", tone:"c", name:"TikTok Scout", role:"Trend Scout",
+          short:"Watches what&rsquo;s popping on TikTok first — trending sounds, hashtags, Shop best sellers and top videos in the category — and reports back what&rsquo;s rising, with Pinterest as backup only — before anybody commits to a build.",
           mission:"Find the angles that are already winning, so the farm never guesses.",
-          takes:["Trending pins, saves and searches","What&rsquo;s moving on TikTok right now","Glam&rsquo;s own best-performing posts"],
+          takes:["Trending sounds and hashtags on TikTok","TikTok Shop best sellers and top videos in the category","Glam&rsquo;s own best-performing posts","Pinterest trends — backup only"],
           makes:["A ranked trend report","The adapted angle for each pick","The evidence behind every call"] },
         { icon:"🛍️", tone:"p", name:"TikTok Shop Agent", role:"Product Picker",
           short:"Works the showcase — all 269 products — and picks what should go on camera next, based on what&rsquo;s actually been selling.",
-          mission:"Put the right product in the next slot, every single hour.",
+          mission:"Put the right product in the next slot — 3 posts a day on the Shop account.",
           takes:["The full showcase, paged end to end","Real sold counts from the listings","What the audience already buys"],
-          makes:["The pick of the hour, with its real photo","The listing link, exactly as shown","Why this one, in plain words"] },
+          makes:["The pick for the next slot, with its real photo","The listing link, exactly as shown","Why this one, in plain words"] },
         { icon:"✍️", tone:"c", name:"Story Agent", role:"Hook & Angle Writer",
           short:"Turns the pick into a story a real woman would stop for — a problem she knows, in words she&rsquo;d use herself.",
           mission:"Every video opens on a moment the viewer has lived.",
           takes:["The Scout&rsquo;s winning angle","The product and who it&rsquo;s for","The mode picked from the barn"],
           makes:["The opening hook, word for word","The story beats, scene by scene","A closer that lands on the benefit"] },
-        { icon:"🎬", tone:"p", name:"Muse Video Agent", role:"Video Builder",
-          short:"Builds the video itself — Character Glam on camera, the exact product in her hands, directed like a real performance.",
-          mission:"A 30-second shop video that feels like a friend showing you something.",
-          takes:["The story beats","The listing&rsquo;s real product photo","The staging for every scene"],
-          makes:["The finished vertical video","Natural movement and blinking","Tight edits — no dead air"] },
+        { icon:"🎬", tone:"p", name:"Video Agent (Video Express)", role:"Video Builder",
+          short:"Builds the video in Video Express with the Realistic Consistent Character workflow — a fresh model per product (GG casting), the approved styled image as the only reference, the exact product on camera, directed like a real performance.",
+          mission:"A 30-second shop video that feels like a friend showing you something — a fresh face on every product.",
+          takes:["The story beats","The approved styled image — the only reference","The listing&rsquo;s real product photo"],
+          makes:["The finished vertical video, made in Video Express","Natural movement and blinking","Tight edits — no dead air"] },
         { icon:"🕵️", tone:"c", name:"Director QC", role:"Quality Control",
           short:"Sweeps the finished video frame by frame before it can leave the farm. Wrong product, extra hands, stiff acting — it all gets caught here.",
           mission:"Nothing ships unless it would fool Glam&rsquo;s own eye.",
           takes:["Every frame of the render","The real listing photo to match against","The sound, checked for gaps"],
           makes:["A pass — or a rebuild order","The exact scene that failed, and why","The final approved cut"] },
         { icon:"📣", tone:"p", name:"Caption & Post Agent", role:"Publisher",
-          short:"Writes the caption, attaches the product, turns the AI label on, and drops the video into its hourly slot on @glamorousgrammyglowup.",
+          short:"Writes the caption, attaches the product, turns the AI label on, and drops the video into its slot in the day&rsquo;s 3-post schedule on @glamorousgrammyglowup. The posting freeze stays ON until Glam lifts it — nothing goes out while it&rsquo;s on.",
           mission:"The right video, in the right slot, with everything attached.",
-          takes:["The QC-approved cut","The product link","The day&rsquo;s hourly schedule"],
+          takes:["The QC-approved cut","The product link","The day&rsquo;s schedule — 3 posts a day"],
           makes:["A clean caption — no prices, no sold counts","The post, product attached, AI label on","A verified live post"] },
         { icon:"🎡", tone:"c", name:"TikTok Live Game Agent", role:"Live Games · Live Only",
           short:"Wakes up only when Glam is live. Watches the chat, pulls the real people engaging, and builds a game from them for her to play right there on the live.",
@@ -677,12 +913,12 @@
       ];
 
       var STEPS = [
-        { n:"STEP 1", t:"Scout", d:"Trends spotted and ranked" },
-        { n:"STEP 2", t:"Pick", d:"Best product chosen from the showcase" },
-        { n:"STEP 3", t:"Story", d:"Hook and angle written" },
-        { n:"STEP 4", t:"Build", d:"Video produced by the Muse Video Agent" },
-        { n:"STEP 5", t:"QC", d:"Director sweep — pass or rebuild" },
-        { n:"STEP 6", t:"Post", d:"Live, product attached, AI label on" }
+        { n:"RUN ORDER 2", t:"Scout", d:"Trends spotted and ranked" },
+        { n:"RUN ORDER 3", t:"Pick", d:"Best product chosen from the showcase" },
+        { n:"RUN ORDER 4", t:"Story", d:"Real-UGC pain-point script — Glam approves" },
+        { n:"RUN ORDER 7", t:"Build", d:"Video Agent builds it in Video Express — approved image is the only reference" },
+        { n:"RUN ORDER 8", t:"Checks", d:"Claude frame check, then Nora, then Glam" },
+        { n:"RUN ORDER 9", t:"Post", d:"Caption & Post — only after Glam lifts the freeze" }
       ];
 
       /* ---------------- helpers ---------------- */
@@ -706,6 +942,9 @@
         } else { fallback(); }
       }
       function buildRunPrompt(r){
+        if (r.type === "Product-to-Post"){
+          return buildFitStarter(r.product || r.around, r.productType || "Garment", r.notes);
+        }
         if (r.type === "Account health check"){
           var h = [
             "TIKTOK FARM — ACCOUNT HEALTH CHECK",
@@ -717,7 +956,7 @@
           h.push("");
           h.push("Do NOT build a video, pick a product, choose a placement or a mode, or queue anything to post. No crew order, no farm video laws — nothing gets made and nothing posts.");
           h.push("Check these, one by one, and report what you actually find:");
-          h.push("1. Posting cadence — are the hourly slots being filled (about 10 posts a day on the shop account), with no gaps and no repeats?");
+          h.push("1. Posting cadence — are the day&rsquo;s 3 posts going out on the shop account (3 posts a day), with no gaps and no repeats? And is the @glamorousgrammyglowup posting freeze still ON? It stays on until Glam lifts it.");
           h.push("2. AI labels — does every recent post carry the AI-generated label?");
           h.push("3. Product links — on Shop posts, is the right product attached, matched to the real listing?");
           h.push("4. Captions — scrubbed clean: no prices and no sold counts anywhere.");
@@ -739,9 +978,10 @@
         lines.push("When: " + r.when);
         if (r.notes) lines.push("Notes: " + r.notes);
         lines.push("");
-        lines.push("Crew order: Pinterest Scout → TikTok Shop Agent → Story Agent → Muse Video Agent → Director QC → Caption & Post Agent.");
+        lines.push("Crew order — follow the Run Order: 1) Start a Run form → 2) TikTok Scout → 3) TikTok Shop Agent (product) → 4) Story Agent (real-UGC pain-point script, Glam approves) → 5) ONE styled model image, fresh model per GG casting (Glam approves or edits) → 6) “Next” = Video Express clip prompts + hook + caption → 7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference) → 8) Checks: Claude frame check, then Nora, then Glam → 9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze.");
         lines.push(LAWS_LINE);
         lines.push("Work in Glam’s voice: warm, plain words, step by step. Report back before anything posts.");
+        if (r.pkg){ lines.push(""); lines.push(r.pkg); }
         return lines.join("\n");
       }
 
@@ -789,6 +1029,11 @@
             meta.appendChild(document.createTextNode("Focus: "));
             meta.appendChild(b1);
             meta.appendChild(document.createTextNode(" · A check only — nothing gets made, nothing posts"));
+          } else if (r.type === "Product-to-Post") {
+            b1.textContent = r.around;
+            meta.appendChild(document.createTextNode("Product-to-Post · Product: "));
+            meta.appendChild(b1);
+            meta.appendChild(document.createTextNode(" · Type: " + (r.productType || "Garment") + " · Run Order step 5: one styled model image — no script or caption yet"));
           } else {
             b1.textContent = r.around;
             meta.appendChild(document.createTextNode("Built around: "));
@@ -890,7 +1135,7 @@
           : " — a product, a topic, a prompt, your own video, just an idea";
         inAround.placeholder = isCheck
           ? "Optional — e.g. check my labels this week"
-          : "e.g. Turmeric soap, nighttime routine angle";
+          : "e.g. nighttime routine angle, morning reset idea";
         if (isCheck){
           inErr.style.display = "none";
           inAround.classList.remove("err");
@@ -924,6 +1169,173 @@
           setTimeout(function(){ inAround.focus({ preventScroll:true }); }, 550);
         });
         barn.appendChild(chip);
+      });
+
+      /* ---------------- one-click auto run: the farm works the whole Run Order ---------------- */
+      var AUTO_PKG = [
+        "THE FARM'S RUN SHEET — built by the crew on this run, no brief given",
+        "",
+        "PRODUCT PICK (Run Order step 3 — TikTok Shop Agent, from the showcase): picked fresh when this run runs. The Shop Agent works the showcase live, names the product here, and the real listing photo becomes the anchor — look-alikes fail QC. No product is pre-picked on this page.",
+        "ANGLE (TikTok Scout + Story Agent): set from what is moving today and the fresh step-3 pick. The Story Agent writes the real-UGC pain-point script around that pick at step 4 — Glam approves before anything is built.",
+        "STYLED IMAGE BRIEF (Run Order 5 — Glam approves or edits before any build): fresh model per GG casting — adult Black woman, natural light, phone-camera feel, the picked product in frame, never obscured.",
+        "",
+        "HOOK (step 6, never repeats the dialogue): written fresh for the pick once the script is approved.",
+        "",
+        "VIDEO EXPRESS CLIP PROMPTS (step 6 — C## format, Realistic Consistent Character workflow, the approved styled image as the only reference, Consistent Character ON, natural movement and lip sync, no music, no text or subtitles in the video): written fresh for the picked product from the approved script. No demo is pre-written here — the shots follow the pick and the script, every line under 8 spoken words.",
+        "",
+        "CAPTION (step 6, ready to post, no prices, no sold counts): written fresh for the pick.",
+        "",
+        "CHECKS, IN ORDER: Claude frame check → Nora → Glam. POSTING: held — the @glamorousgrammyglowup freeze stays ON until Glam lifts it. AI label on, real product attached, when it goes."
+      ].join("\n");
+
+      var WALK = [
+        { t:"Start a Run", log:"<b>Run started.</b> No brief, no product named — the farm works its own order. That's the whole point of the workflow." },
+        { t:"TikTok Scout", log:"<span class='wl-step'>Scout:</span> scanned what's rising on TikTok today and handed the findings to the Shop Agent — <b>the angle locks after the step-3 pick</b>, around the product the crew actually chooses." },
+        { t:"TikTok Shop Agent", log:"<span class='wl-step'>Shop Agent:</span> worked the showcase and <b>picked the product fresh at Run Order step 3</b> — what's already selling, matched to the Scout's findings. Real listing photo is the anchor; look-alikes fail QC." },
+        { t:"Story Agent", log:"<span class='wl-step'>Story Agent:</span> wrote the real-UGC pain-point script around the fresh pick — a problem she knows, in words she'd use herself. Every line under 8 spoken words. The run sheet is below." },
+        { t:"Styled model image", log:"<span class='wl-step'>Casting:</span> ONE styled model image briefed per GG casting — a <b>fresh model</b>: adult Black woman, natural light, phone-camera feel, the picked product in frame, never obscured. In a live build this image waits for <b>Glam's approve-or-edit</b> before anything moves." },
+        { t:"“Next” package", log:"<span class='wl-step'>“Next” delivered all three at once:</span> the Video Express clip prompts, written fresh for the pick, + the hook + the ready-to-post caption. The hook says something the dialogue doesn't — farm rule." },
+        { t:"Video Agent builds it", log:"<span class='wl-step'>Video Agent:</span> build order written for Video Express — <b>Realistic Consistent Character</b> workflow, the approved styled image as the only reference, Consistent Character ON, no music, no text or subtitles in the video, edits tight — no dead air." },
+        { t:"Checks", log:"<span class='wl-step'>Checks queued, in order:</span> <b>Claude frame check → Nora → Glam.</b> The maker never grades her own work, and Glam's eye is the last gate." },
+        { t:"Caption & Post", log:"<span class='wl-hold'>HELD at the gate:</span> the caption is written and the product is ready to attach with the AI label on — but the <b>@glamorousgrammyglowup posting freeze is ON</b>, so nothing posts until Glam lifts it. The run waits in the queue at In production." }
+      ];
+
+      var autoBtn = document.getElementById("autoRunBtn");
+      var walkStepsEl = document.getElementById("walkSteps");
+      var walkLogEl = document.getElementById("walkLog");
+      var autoPkgEl = document.getElementById("autoPkg");
+      var autoOk = document.getElementById("autoRunOk");
+      var autoRunning = false;
+
+      WALK.forEach(function(s, i){
+        var d = document.createElement("div");
+        d.className = "wstep";
+        d.innerHTML = '<div class="wn">RUN ORDER ' + (i + 1) + '</div><div class="wt">' + s.t + "</div>";
+        walkStepsEl.appendChild(d);
+      });
+      var wstepEls = walkStepsEl.querySelectorAll(".wstep");
+
+      autoBtn.addEventListener("click", function(){
+        if (autoRunning) return;
+        autoRunning = true;
+        autoBtn.textContent = "Running…";
+        autoOk.textContent = "";
+        autoPkgEl.hidden = true;
+        autoPkgEl.innerHTML = "";
+        walkStepsEl.hidden = false;
+        walkLogEl.hidden = false;
+        walkLogEl.innerHTML = "";
+        for (var k = 0; k < wstepEls.length; k++) wstepEls[k].className = "wstep";
+        document.getElementById("autorun").scrollIntoView({ behavior:"smooth", block:"center" });
+        var i = 0;
+        var delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 60 : 780;
+        function tick(){
+          if (i > 0) wstepEls[i - 1].className = "wstep done";
+          if (i >= WALK.length){ finishAutoRun(); return; }
+          wstepEls[i].className = "wstep on";
+          var p = document.createElement("p");
+          p.innerHTML = WALK[i].log;
+          walkLogEl.appendChild(p);
+          walkLogEl.scrollTop = walkLogEl.scrollHeight;
+          i++;
+          setTimeout(tick, delay);
+        }
+        setTimeout(tick, 350);
+      });
+
+      function finishAutoRun(){
+        var r = {
+          account: "@glamorousgrammyglowup",
+          type: "TikTok Shop video",
+          around: "Fresh pick — no brief given, product chosen at Run Order step 3",
+          product: "Picked fresh at Run Order step 3 from the showcase",
+          show: "Let the Story Agent pick",
+          mode: "Let the Story Agent pick",
+          when: "Next open slot",
+          notes: "One-click Start Run — the crew picks the product fresh at step 3 and builds the angle around it",
+          status: "In production",
+          pkg: AUTO_PKG
+        };
+        queue.unshift(r);
+        renderQueue();
+        autoPkgEl.innerHTML =
+          "<h4>The run sheet — product picked fresh at step 3</h4>" +
+          "<p>Worked by the crew on this run, top to bottom. It's also sitting in <b>My Run Queue</b> below, status <b>In production</b>, with the full copy-ready prompt — hand it to the crew in chat and the Shop Agent names the pick at step 3 before anything is written or built.</p>" +
+          '<div class="pk">THE PICK — RUN ORDER STEP 3</div><p>The Shop Agent works the showcase live and picks what&rsquo;s already selling, matched to the Scout&rsquo;s findings. The real listing photo becomes the anchor — look-alikes fail QC. <b>No product is pre-picked here.</b></p>' +
+          '<div class="pk">WHAT GETS WRITTEN NEXT</div><ul>' +
+          "<li><b>Step 4 — Story Agent:</b> the real-UGC pain-point script, written around the fresh pick. Glam approves.</li>" +
+          "<li><b>Step 5 — Styled image:</b> ONE image, fresh model per GG casting, the picked product in frame and never obscured. Glam approves or edits.</li>" +
+          "<li><b>Step 6 — &ldquo;Next&rdquo;:</b> Video Express clip prompts (C## format) + hook + caption, all written fresh for the pick — the hook never repeats the dialogue.</li></ul>" +
+          '<div class="pk">WHERE IT STANDS</div><p>Checks in order: <b>Claude frame check → Nora → Glam</b>. Posting held — the freeze stays on until Glam lifts it.</p>' +
+          '<div class="rowbtns"><button class="btn btn-cyan mini" id="autoCopy" type="button">Copy the full run prompt</button>' +
+          '<a class="btn btn-ghost mini" href="#queue">See it in my queue ↓</a></div>';
+        autoPkgEl.hidden = false;
+        document.getElementById("autoCopy").addEventListener("click", function(){ copyText(buildRunPrompt(r), this); });
+        autoBtn.textContent = "▶ Run it again";
+        autoOk.textContent = "Run finished — it's in your queue ✓";
+        autoRunning = false;
+      }
+
+      /* ---------------- Product-to-Post lane ---------------- */
+      function buildFitStarter(name, ptype, notes){
+        var lines = [
+          "PRODUCT-TO-POST RUN — RUN ORDER STEP 5 ONLY",
+          "Run the TikTok Shop Product-to-Post Workflow on: " + name,
+          "Product type: " + ptype
+        ];
+        if (notes) lines.push("Notes: " + notes);
+        lines.push("");
+        lines.push("Run Order step 5 only: from the product photo I upload, generate ONE styled model image — a fresh adult Black model per GG casting (rotating casting, never the same model twice), natural light, phone-camera feel, full figure head-to-toe, the product as the hero and never obscured.");
+        lines.push("Do NOT write the Video Express clip prompts, the hook, or the caption yet. I will review the image and ask for edits until I approve it — edit the existing image, never jump ahead. Only when I say “Next” do you deliver the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line) + hook + caption. “Next” never means make another image.");
+        lines.push("Farm law on top: no prices and no sold counts in any video or caption · AI label on · nothing posts without Glam's approval.");
+        return lines.join("\n");
+      }
+
+      var fcForm = document.getElementById("fcForm");
+      var fcName = document.getElementById("fcName");
+      var fcErr = document.getElementById("fcErr");
+      var fcOk = document.getElementById("fcOk");
+      fcForm.addEventListener("submit", function(ev){
+        ev.preventDefault();
+        var name = fcName.value.trim();
+        if (!name){
+          fcErr.style.display = "inline";
+          fcName.classList.add("err");
+          fcName.focus();
+          return;
+        }
+        fcErr.style.display = "none";
+        fcName.classList.remove("err");
+        var ptype = document.getElementById("fcType").value;
+        var notes = document.getElementById("fcNotes").value.trim();
+        var r = {
+          account: "@glamorousgrammyglowup",
+          type: "Product-to-Post",
+          around: name,
+          product: name,
+          productType: ptype,
+          show: "Worn on her body",
+          mode: "Product-to-Post",
+          when: "Next open slot",
+          notes: notes,
+          status: "Queued"
+        };
+        queue.unshift(r);
+        renderQueue();
+        var out = document.getElementById("fcOut");
+        out.hidden = false;
+        document.getElementById("fcPrompt").value = buildFitStarter(name, ptype, notes);
+        fcOk.textContent = "Product-to-Post run added to your queue ✓";
+        document.getElementById("fcCopy").onclick = function(){
+          copyText(document.getElementById("fcPrompt").value, this);
+        };
+      });
+      fcName.addEventListener("input", function(){
+        fcErr.style.display = "none";
+        fcName.classList.remove("err");
+      });
+      document.getElementById("fcSkillCopy").addEventListener("click", function(){
+        copyText(document.getElementById("fcSkill").value, this);
       });
 
       /* ---------------- agent cards + job forms ---------------- */

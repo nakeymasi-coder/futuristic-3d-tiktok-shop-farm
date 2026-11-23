@@ -1,0 +1,794 @@
+GLAM'S DECISION Nov 23
+Follow Gigi's GG workflow: a fresh model per product, rotated per GG's casting rules; ONE styled model image first; Glam approves or revises it; “Next” = the video package, hook and caption. BUT the video is made in Video Express with the Realistic Consistent Character workflow — the approved styled image becomes the chest-up anchor and the only reference, Consistent Character ON — NOT Google Flow.
+GG's “(A) Google Flow 10-second prompt” is replaced by the Video Express clip prompts (C## format, max 8 spoken words per line).
+GG's product fidelity, compliance and dialogue rules stay.
+Glam's farm laws still win on any other conflict.
+The old 7-day cast plan is replaced by this rule. The cast photos are NOT deleted — they stay as a casting pool.
+
+RUN ORDER
+1) Start a Run form
+2) TikTok Scout
+3) TikTok Shop Agent (product)
+4) Story Agent (real-UGC pain-point script, Glam approves)
+5) ONE styled model image, fresh model per GG casting (Glam approves or edits)
+6) "Next" = Video Express clip prompts + hook + caption
+7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference)
+8) Checks: Claude frame check, then Nora, then Glam
+9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze
+
+FARM RULE
+If any agent can't use something a farm step needs, STOP immediately and report BLOCKED: [what] - [why] to Glam. No substitute tools, no outside sites, no workarounds, never go off on your own.
+
+FLAGS (noted, not fixed)
+None open — the Pinterest Scout rename (now TikTok Scout) and the hero 'tap the link' line were both fixed on the page Nov 23 before this export.
+
+PART 1 — TIKTOK SHOP FARM (3D FARM PAGE)
+Farm online · Both accounts · All of TikTok
+The TikTok Farm.
+Not just the Shop — the whole farm. One crew of agents runs everything TikTok for both of Glam’s accounts: Shop videos that sell, everyday TikToks that grow the page, lives, captions, the posting schedule, and account health. Start a run below and work it whenever you’re ready.
+＋ Start a run
+▶ Run the launch sequence
+Open GLAM Command Center ↗
+● LIVE + SHOP
+Now showing A fresh model on every product — Shop pick or everyday TikTok, the farm builds both.
+♥
+0:31
+Today’s pick Product attached · AI label on
+AI LABEL ON
+◈ SCOUTING
+✦ POSTED
+7
+AI agents on the crew
+16
+Video modes in the barn
+2
+TikTok accounts covered
+3
+Posts a day — Shop account
+01 Start a Run
+This is how you use the farm. Tell it what you want made, hit the button, and the run lands in your queue below with a copy-ready prompt you can hand to the crew in chat. Nothing posts until you say so. Picking Account health check? That’s a check only — the product, placement, mode and time fields switch off, nothing gets made, and the prompt asks for a report on the account instead of a video.
+Which account?
+@glamorousgrammyglowup — Shop & selling
+@promptlikeglam — teaching & brand
+None — no specific account
+What kind of run?
+TikTok Shop video
+Regular TikTok video
+TikTok Live
+Captions & posting
+Account health check
+None
+What is this run built around? — a product, a topic, a prompt, your own video, just an idea
+Placeholder: e.g. Turmeric soap, nighttime routine angle
+When “Account health check” is picked above, this field’s hint reads: — optional: name one thing to look at, or leave it blank for a full check
+When “Account health check” is picked above, this field’s placeholder reads: Optional — e.g. check my labels this week
+Product name or link (Shop videos)
+Placeholder: Product name or paste the listing link
+How is the product shown? — holding it, wearing it, or not at all
+Let the Story Agent pick
+None — no product on camera
+Held in her hand, close to the camera
+Held up beside her face
+Held at arm’s length — selfie style
+Worn on her body
+On her face — she applies it on camera
+Used on camera — full live demo
+Sitting on the vanity in front of her
+On the bathroom counter, by the sink
+On the shelf behind her
+On the nightstand
+In the shower / tub setup
+Unboxed on camera
+Flat lay on the table
+Beside her — she points and talks, never touches it
+Next to the result — before & after
+Held in both hands, label facing the camera
+Pumped / squeezed onto her hand so viewers see the texture
+Mirror shot — product on the counter in front of her
+Pulled from a haul bag, one product at a time
+On a tray beside her — picked up only at the end
+On screen only — the listing photo, nothing in her hands
+Video mode
+Let the Story Agent pick
+None
+Problem → Solution
+Get Ready With Me
+Unboxing Reveal
+Nighttime Routine
+Bathroom Vanity Demo
+Before You Buy
+My Honest Take
+Restock Day
+Comment Reply Video
+Side-by-Side Test
+Morning Routine
+What I Actually Use
+Quick Tip
+Shelf Tour
+First Impression
+The Closer Look
+When should it go out?
+Next open slot
+Today
+Tomorrow
+This week
+No rush — queue it
+None — no set time
+Anything else the crew should know?
+Placeholder: Optional notes
+＋ Add this run to my queue
+Tell the farm what this run is built around first, boo.
+Added to your queue ✓
+Your copy-ready run prompt
+Run prompt template — standard run (the farm builds this from the form; [brackets] are the form answers):
+TIKTOK FARM RUN
+Account: [Which account?]
+Run type: [What kind of run?]
+Built around: [What is this run built around?]
+Product / link: [Product name or link — line included when filled in]
+Product shown: [How is the product shown?]
+Mode: [Video mode]
+When: [When should it go out?]
+Notes: [Anything else the crew should know? — line included when filled in]
+
+Crew order — follow the Run Order: 1) Start a Run form → 2) TikTok Scout → 3) TikTok Shop Agent (product) → 4) Story Agent (real-UGC pain-point script, Glam approves) → 5) ONE styled model image, fresh model per GG casting (Glam approves or edits) → 6) “Next” = Video Express clip prompts + hook + caption → 7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference) → 8) Checks: Claude frame check, then Nora, then Glam → 9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Work in Glam’s voice: warm, plain words, step by step. Report back before anything posts.
+Run prompt template — Account health check:
+TIKTOK FARM — ACCOUNT HEALTH CHECK
+Account: [Which account?]
+Run type: Account health check — a check only, NOT a video run
+Focus: [optional focus — or blank for a full check of the whole account]
+Notes: [notes — line included when filled in]
+
+Do NOT build a video, pick a product, choose a placement or a mode, or queue anything to post. No crew order, no farm video laws — nothing gets made and nothing posts.
+Check these, one by one, and report what you actually find:
+1. Posting cadence — are the day&rsquo;s 3 posts going out on the shop account (3 posts a day), with no gaps and no repeats? And is the @glamorousgrammyglowup posting freeze still ON? It stays on until Glam lifts it.
+2. AI labels — does every recent post carry the AI-generated label?
+3. Product links — on Shop posts, is the right product attached, matched to the real listing?
+4. Captions — scrubbed clean: no prices and no sold counts anywhere.
+5. Account standing — any violation warnings, strikes, or Shop health flags?
+6. What is working — which recent posts are performing, and what should the farm do more of?
+
+Report back in Glam’s voice — warm, plain words, step by step: what is healthy, what needs attention, and what to fix first.
+Run prompt template — Product-to-Post runs: the farm uses the Product-to-Post starter prompt (in the Product-to-Post Workflow section below).
+Copy run prompt
+See it in my queue ↓
+RUN The Run Order
+One order for every run — the whole crew works this list, top to bottom, and nothing runs on its own separate steps. The Launch Sequence and the Product-to-Post lane below are the detail for these steps, not orders of their own.
+1
+Start a Run form — every run begins up top, in section 01.
+2
+TikTok Scout
+3
+TikTok Shop Agent (product)
+4
+Story Agent — real-UGC pain-point script, Glam approves
+5
+ONE styled model image — fresh model per GG casting (Glam approves or edits)
+6
+“Next” = Video Express clip prompts + hook + caption
+7
+Video Agent builds it in Video Express — Realistic Consistent Character workflow, the approved image is the only reference
+8
+Checks: Claude frame check, then Nora, then Glam
+9
+Caption & Post — only after Glam lifts the @glamorousgrammyglowup freeze
+MISSING — Video Engine section: the current 3D farm page has no Video Engine section in its source (checked the live page source and its Nov 23 audit text), so there is no Video Engine content to include.
+02 The Agent Crew
+Every agent has one job and does it in order. Nothing skips a step, nothing posts without passing the one before it. Select an agent to open its mission card — and give it a job right there: the card writes you a copy-ready prompt for that agent alone.
+A-01
+🔭
+Trend Scout
+TikTok Scout
+Watches what’s popping on TikTok first — trending sounds, hashtags, Shop best sellers and top videos in the category — and reports back what’s rising, with Pinterest as backup only — before anybody commits to a build.
+On duty
+A-02
+🛍️
+Product Picker
+TikTok Shop Agent
+Works the showcase — all 269 products — and picks what should go on camera next, based on what’s actually been selling.
+On duty
+A-03
+✍️
+Hook & Angle Writer
+Story Agent
+Turns the pick into a story a real woman would stop for — a problem she knows, in words she’d use herself.
+On duty
+A-04
+🎬
+Video Builder
+Video Agent (Video Express)
+Builds the video in Video Express with the Realistic Consistent Character workflow — a fresh model per product (GG casting), the approved styled image as the only reference, the exact product on camera, directed like a real performance.
+On duty
+A-05
+🕵️
+Quality Control
+Director QC
+Sweeps the finished video frame by frame before it can leave the farm. Wrong product, extra hands, stiff acting — it all gets caught here.
+On duty
+A-06
+📣
+Publisher
+Caption & Post Agent
+Writes the caption, attaches the product, turns the AI label on, and drops the video into its slot in the day’s 3-post schedule on @glamorousgrammyglowup. The posting freeze stays ON until Glam lifts it — nothing goes out while it’s on.
+On duty
+A-07
+🎡
+Live Games · Live Only
+TikTok Live Game Agent
+Wakes up only when Glam is live. Watches the chat, pulls the real people engaging, and builds a game from them for her to play right there on the live.
+On duty
+Mission card:
+🔭 TikTok Scout
+Find the angles that are already winning, so the farm never guesses.
+Takes in
+Trending sounds and hashtags on TikTok
+TikTok Shop best sellers and top videos in the category
+Glam’s own best-performing posts
+Pinterest trends — backup only
+Hands off
+A ranked trend report
+The adapted angle for each pick
+The evidence behind every call
+The law it lives by
+Exact products only — matched to the real listing photo
+No prices and no sold counts, ever
+Nothing posts without Director QC
+Account
+@glamorousgrammyglowup
+@promptlikeglam
+Both accounts
+None — no specific account
+Give TikTok Scout a job
+Placeholder: Type the job — the prompt below writes itself
+Your copy-ready prompt for this agent
+AGENT JOB — TikTok Scout (Trend Scout)
+Account: @glamorousgrammyglowup
+Job: [describe the job for this agent]
+Mission: Find the angles that are already winning, so the farm never guesses.
+Takes in: Trending sounds and hashtags on TikTok · TikTok Shop best sellers and top videos in the category · Glam’s own best-performing posts · Pinterest trends — backup only
+Hands off: A ranked trend report · The adapted angle for each pick · The evidence behind every call
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Report back in plain words, step by step, in Glam’s voice — before anything posts.
+Copy this agent's prompt
+Mission card:
+🛍️ TikTok Shop Agent
+Put the right product in the next slot — 3 posts a day on the Shop account.
+Takes in
+The full showcase, paged end to end
+Real sold counts from the listings
+What the audience already buys
+Hands off
+The pick for the next slot, with its real photo
+The listing link, exactly as shown
+Why this one, in plain words
+The law it lives by
+Exact products only — matched to the real listing photo
+No prices and no sold counts, ever
+Nothing posts without Director QC
+Account
+@glamorousgrammyglowup
+@promptlikeglam
+Both accounts
+None — no specific account
+Give TikTok Shop Agent a job
+Placeholder: Type the job — the prompt below writes itself
+Your copy-ready prompt for this agent
+AGENT JOB — TikTok Shop Agent (Product Picker)
+Account: @glamorousgrammyglowup
+Job: [describe the job for this agent]
+Mission: Put the right product in the next slot — 3 posts a day on the Shop account.
+Takes in: The full showcase, paged end to end · Real sold counts from the listings · What the audience already buys
+Hands off: The pick for the next slot, with its real photo · The listing link, exactly as shown · Why this one, in plain words
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Report back in plain words, step by step, in Glam’s voice — before anything posts.
+Copy this agent's prompt
+Mission card:
+✍️ Story Agent
+Every video opens on a moment the viewer has lived.
+Takes in
+The Scout’s winning angle
+The product and who it’s for
+The mode picked from the barn
+Hands off
+The opening hook, word for word
+The story beats, scene by scene
+A closer that lands on the benefit
+The law it lives by
+Exact products only — matched to the real listing photo
+No prices and no sold counts, ever
+Nothing posts without Director QC
+Account
+@glamorousgrammyglowup
+@promptlikeglam
+Both accounts
+None — no specific account
+Give Story Agent a job
+Placeholder: Type the job — the prompt below writes itself
+Your copy-ready prompt for this agent
+AGENT JOB — Story Agent (Hook & Angle Writer)
+Account: @glamorousgrammyglowup
+Job: [describe the job for this agent]
+Mission: Every video opens on a moment the viewer has lived.
+Takes in: The Scout’s winning angle · The product and who it’s for · The mode picked from the barn
+Hands off: The opening hook, word for word · The story beats, scene by scene · A closer that lands on the benefit
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Report back in plain words, step by step, in Glam’s voice — before anything posts.
+Copy this agent's prompt
+Mission card:
+🎬 Video Agent (Video Express)
+A 30-second shop video that feels like a friend showing you something — a fresh face on every product.
+Takes in
+The story beats
+The approved styled image — the only reference
+The listing’s real product photo
+Hands off
+The finished vertical video, made in Video Express
+Natural movement and blinking
+Tight edits — no dead air
+The law it lives by
+Exact products only — matched to the real listing photo
+No prices and no sold counts, ever
+Nothing posts without Director QC
+Account
+@glamorousgrammyglowup
+@promptlikeglam
+Both accounts
+None — no specific account
+Give Video Agent (Video Express) a job
+Placeholder: Type the job — the prompt below writes itself
+Your copy-ready prompt for this agent
+AGENT JOB — Video Agent (Video Express) (Video Builder)
+Account: @glamorousgrammyglowup
+Job: [describe the job for this agent]
+Mission: A 30-second shop video that feels like a friend showing you something — a fresh face on every product.
+Takes in: The story beats · The approved styled image — the only reference · The listing’s real product photo
+Hands off: The finished vertical video, made in Video Express · Natural movement and blinking · Tight edits — no dead air
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Report back in plain words, step by step, in Glam’s voice — before anything posts.
+Copy this agent's prompt
+Mission card:
+🕵️ Director QC
+Nothing ships unless it would fool Glam’s own eye.
+Takes in
+Every frame of the render
+The real listing photo to match against
+The sound, checked for gaps
+Hands off
+A pass — or a rebuild order
+The exact scene that failed, and why
+The final approved cut
+The law it lives by
+Exact products only — matched to the real listing photo
+No prices and no sold counts, ever
+Nothing posts without Director QC
+Account
+@glamorousgrammyglowup
+@promptlikeglam
+Both accounts
+None — no specific account
+Give Director QC a job
+Placeholder: Type the job — the prompt below writes itself
+Your copy-ready prompt for this agent
+AGENT JOB — Director QC (Quality Control)
+Account: @glamorousgrammyglowup
+Job: [describe the job for this agent]
+Mission: Nothing ships unless it would fool Glam&rsquo;s own eye.
+Takes in: Every frame of the render · The real listing photo to match against · The sound, checked for gaps
+Hands off: A pass — or a rebuild order · The exact scene that failed, and why · The final approved cut
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Report back in plain words, step by step, in Glam’s voice — before anything posts.
+Copy this agent's prompt
+Mission card:
+📣 Caption & Post Agent
+The right video, in the right slot, with everything attached.
+Takes in
+The QC-approved cut
+The product link
+The day’s schedule — 3 posts a day
+Hands off
+A clean caption — no prices, no sold counts
+The post, product attached, AI label on
+A verified live post
+The law it lives by
+Exact products only — matched to the real listing photo
+No prices and no sold counts, ever
+Nothing posts without Director QC
+Account
+@glamorousgrammyglowup
+@promptlikeglam
+Both accounts
+None — no specific account
+Give Caption & Post Agent a job
+Placeholder: Type the job — the prompt below writes itself
+Your copy-ready prompt for this agent
+AGENT JOB — Caption & Post Agent (Publisher)
+Account: @glamorousgrammyglowup
+Job: [describe the job for this agent]
+Mission: The right video, in the right slot, with everything attached.
+Takes in: The QC-approved cut · The product link · The day’s schedule — 3 posts a day
+Hands off: A clean caption — no prices, no sold counts · The post, product attached, AI label on · A verified live post
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Report back in plain words, step by step, in Glam’s voice — before anything posts.
+Copy this agent's prompt
+Mission card:
+🎡 TikTok Live Game Agent
+Turn the people actually in the live into a game they can win.
+Takes in
+The live chat, for the window Glam picks — the last 20 minutes is standard
+Recent commenters and the Top 10 Engagers
+Shares, taps, likes and gifts — only the counts TikTok actually shows
+Hands off
+An engager report — real names only, anything unseen marked NOT VISIBLE, partial pulls labeled PARTIAL with their times
+A ready-to-play game built from those real people
+The winner call for Glam to read out loud on the live
+The law it lives by
+Only people actually seen on the live get into a game — no invented names or numbers
+Prizes are only the prizes Glam listed — nothing added, nothing swapped
+Winners and prize messages wait for Glam’s approval of the exact text before anything is sent
+The game menu — all 10 games
+Names Wheel
+Number Wheel 1 to 200
+Top 10 Engagers Wheel
+Top Engager Showdown
+Trivia Pop
+Last One Standing
+Mystery Pumpkin Pick
+Secret Word Drop
+Closest Guess
+Head-to-Head
+Mystery Pumpkin Pick — the prizes inside
+🎃 THE GOLDEN PUMPKIN — a free $27 product
+A free $7 product
+25% off
+20% off
+$5 off
+25 Glow Points
+Account
+@glamorousgrammyglowup
+@promptlikeglam
+Both accounts
+None — no specific account
+Give TikTok Live Game Agent a job
+Placeholder: Type the job — the prompt below writes itself
+Your copy-ready prompt for this agent
+AGENT JOB — TikTok Live Game Agent (Live Games · Live Only)
+Account: @glamorousgrammyglowup
+Job: [describe the job for this agent]
+Mission: Turn the people actually in the live into a game they can win.
+Takes in: The live chat, for the window Glam picks — the last 20 minutes is standard · Recent commenters and the Top 10 Engagers · Shares, taps, likes and gifts — only the counts TikTok actually shows
+Hands off: An engager report — real names only, anything unseen marked NOT VISIBLE, partial pulls labeled PARTIAL with their times · A ready-to-play game built from those real people · The winner call for Glam to read out loud on the live
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+LIVE ONLY: this agent works only while Glam is live on TikTok. It never touches video runs.
+Watch window: the one Glam picks — the last 20 minutes is standard.
+Pull the real people engaging: recent commenters and the Top 10 Engagers.
+Shares, taps, likes and gifts: report a count ONLY when TikTok actually shows it. If a count is not visible, say NOT VISIBLE. Never invent a name or a number. If a pull is partial, label it PARTIAL with its times.
+Game menu (10): Names Wheel · Number Wheel 1 to 200 · Top 10 Engagers Wheel · Top Engager Showdown · Trivia Pop · Last One Standing · Mystery Pumpkin Pick · Secret Word Drop · Closest Guess · Head-to-Head.
+Mystery Pumpkin Pick prizes — the only prizes: THE GOLDEN PUMPKIN = a free $27 product · a free $7 product · 25% off · 20% off · $5 off · 25 Glow Points.
+Winners and prize messages: Glam approves the exact text before anything is sent. Nothing goes to a winner without her say-so.
+Report back in plain words, step by step, in Glam’s voice — before anything posts.
+Copy this agent's prompt
+03 Live Games — Agent 7’s Menu
+Agent 7 works LIVE ONLY. When Glam goes live on TikTok, it watches her live chat for the window she picks — the last 20 minutes is standard — pulls the real people engaging (recent commenters and her Top 10 Engagers), and builds one of these games from those people for her to play on the live. Shares, taps, likes and gifts count only when TikTok actually shows them: anything it can’t see is marked NOT VISIBLE, and a pull that stops early is labeled PARTIAL with its times. No invented names, no invented numbers — ever.
+GAME 01
+Names Wheel
+Everybody who commented in the window goes on the wheel. Glam spins it on the live and the name it lands on wins.
+GAME 02
+Number Wheel 1 to 200
+Viewers guess a number in the comments — Agent 7 logs each name with their guess — then the 1-to-200 wheel spins for the winning number.
+GAME 03
+Top 10 Engagers Wheel
+Only the Top 10 Engagers from the window earn a spot on this wheel. The hardest-working viewers play for the prize.
+GAME 04
+Top Engager Showdown
+The top engagers face off in rounds, head to head, until one champion is left standing.
+GAME 05
+Trivia Pop
+Agent 7 writes a question about the live’s topic. The first right answer in the comments takes it.
+GAME 06
+Last One Standing
+The wheel spins to eliminate one name at a time. The last name left on the wheel is the winner — pure suspense.
+GAME 07
+Mystery Pumpkin Pick
+The winner picks a pumpkin and reveals the mystery prize hiding inside it. The prizes are stocked below — real ones, Glam-approved.
+GAME 08
+Secret Word Drop
+Agent 7 drops a secret word into the live. The first person to comment that exact word wins.
+GAME 09
+Closest Guess
+Viewers guess a number in the comments. Closest guess without going over wins — no spin needed.
+GAME 10
+Head-to-Head
+Two top engagers, one wheel, one spin. Winner takes it — the fastest showdown on the menu.
+🎃 Mystery Pumpkin Pick — the prizes inside
+These are the only prizes stocked in the pumpkins — the ones Glam approved. The pumpkin only shows the prize on the live: the real code or product goes to the winner after, and only after Glam approves the exact message.
+🎃 THE GOLDEN PUMPKIN — a free $27 product A free $7 product 25% off 20% off $5 off 25 Glow Points
+04 My Run Queue
+Every run you start lands here. Move each one along as the crew works it — Queued, In production, Director QC, Posted — copy its prompt any time, or clear it out when it’s done.
+Run queue card — what each queued run's card shows:
+Top line: [run type] · [account] · [status]
+Status menu options: Queued · In production · Director QC · Posted
+Standard run card: Built around: [built around] · Mode: [mode] · When: [when] · Product: [product, when filled in] · Shown: [how the product is shown] · Notes: [notes, when filled in]
+Account health check card: Focus: [focus, or “Full account check”] · A check only — nothing gets made, nothing posts
+Product-to-Post card: Product-to-Post · Product: [product] · Type: [product type] · Run Order step 5: one styled model image — no script or caption yet
+Buttons on every card: Copy prompt · Remove
+No runs yet. Start one up top and it will wait for you right here.
+05 The Whole Farm — Every Lane
+TikTok is bigger than the Shop, so the farm covers all of it. Each lane has a job, and each one can start a run for you.
+🛍️
+TikTok Shop Videos
+The selling line: the exact product on camera, story first, product attached, AI label on — 3 posts a day on @glamorousgrammyglowup, built from what’s already selling in the showcase. The posting freeze stays ON until Glam lifts it.
+Start this run →
+🎥
+Everyday TikToks
+Content that grows the page, not just the cart: teaching, storytime, behind the scenes, and prompt breakdowns — for both accounts, in Glam’s voice.
+Start this run →
+🔴
+TikTok Lives
+Pop-ups and planned lives: hook in the first seconds, pin the product or the lesson, answer in Glam’s voice — then the replay gets packaged and posted after.
+Start this run →
+🗓️
+Posting Schedule
+3 posts a day on the shop account, planned around what the Scout says is moving, so no slot ever goes out empty or repeated. @glamorousgrammyglowup’s posting freeze stays ON until Glam lifts it.
+Start a posting run →
+✍️
+Captions
+Written warm and plain, like talking to a friend — and scrubbed clean before anything goes out. No prices, no sold counts, ever. The product link carries the live price.
+Start this run →
+🩺
+Account Health
+Cadence, labels, violation watch, and what’s actually working on both accounts — checked on the regular, so small problems get caught before they become account problems.
+Start this run →
+PTP Product-to-Post Workflow
+The farm’s fashion & accessory lane for TikTok Shop — and the detail for steps 5 and 6 of the Run Order up top, not a separate order of its own. One product at a time, one image at a time, in this exact order. The sequence below is non-negotiable: nothing jumps ahead, ever.
+RUN ORDER 5
+One styled image
+Upload the product image → generate ONE styled model image — a fresh model per GG casting. Just one — the product on a model, nothing else yet.
+RUN ORDER 5 · EDIT LOOP
+Review + edit loop
+Review the image and edit the existing image until it’s approved. Never jump ahead — no script, no caption while the image is still being fixed.
+RUN ORDER 6
+Say “Next”
+“Next” delivers all three at once: the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line) + the TikTok hook + the ready-to-post caption.
+BACK TO RUN ORDER 1
+New product
+A new product restarts the whole run at Run Order step 1 — fresh product photo, fresh model, fresh image.
+PRODUCT RECEIVED → IMAGE CREATED → IMAGE REVISION LOOP → IMAGE APPROVED → NEXT → VIDEO EXPRESS CLIPS + HOOK + CAPTION → NEW PRODUCT
+The “Next” rule: “Next” never means make another image. It means the image is approved and it’s time for the Video Express clip prompts + hook + caption package.
+Start a Product-to-Post Run
+Name the product, pick its type, and the run lands in My Run Queue below — with a copy-ready starter prompt for chat that starts the TikTok Shop Product-to-Post Workflow at Run Order step 5 only: one styled model image, no script or caption yet.
+Product name
+Placeholder: e.g. Leopard print wrap dress
+Product type
+Garment
+Shoes
+Bag
+Accessory
+Notes for the crew (optional)
+Placeholder: e.g. Show the side cutouts clearly, evening setting
+＋ Start this Product-to-Post run
+Name the product first, boo — the Product-to-Post workflow starts with the product.
+Product-to-Post run added to your queue ✓
+Your copy-ready Product-to-Post starter prompt — Run Order step 5 only
+Product-to-Post starter prompt template (the farm builds this from the form; [brackets] are the form answers):
+PRODUCT-TO-POST RUN — RUN ORDER STEP 5 ONLY
+Run the TikTok Shop Product-to-Post Workflow on: [Product name]
+Product type: [Product type]
+Notes: [Notes for the crew — line included when filled in]
+
+Run Order step 5 only: from the product photo I upload, generate ONE styled model image — a fresh adult Black model per GG casting (rotating casting, never the same model twice), natural light, phone-camera feel, full figure head-to-toe, the product as the hero and never obscured.
+Do NOT write the Video Express clip prompts, the hook, or the caption yet. I will review the image and ask for edits until I approve it — edit the existing image, never jump ahead. Only when I say “Next” do you deliver the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line) + hook + caption. “Next” never means make another image.
+Farm law on top: no prices and no sold counts in any video or caption · AI label on · nothing posts without Glam's approval.
+Copy starter prompt
+See it in my queue ↓
+CASTING
+Fresh face, every product
+Adult Black women, generally early 30s — late 30s and 40s included, with real size diversity.
+A fresh rotating model every product: different face, skin tone, body type and hairstyle — never the same model twice.
+Natural light, phone-camera feel — like a friend shot it, not a studio ad.
+Full figure, head-to-toe, and the product is never obscured.
+Plain and simple: this lane uses rotating models on purpose — it does not use the farm’s locked character.
+PRODUCT FIDELITY
+The product is the hero
+Preserve it exactly: color, print, logo/lettering, silhouette, hemline, closures, buttons, cutouts, pockets, laces, hardware and material.
+Never add a feature that doesn’t exist, and never drop a defining one.
+The reference photo is the authority — if the image and the photo disagree, the photo wins.
+Detail unclear? Never invent a claim about it.
+An AI model is a creative demonstration — never presented as a real buyer testimonial.
+THE “NEXT” PACKAGE
+What “Next” delivers — all three, together
+A
+Video Express clip prompts — C## format
+C## format — one prompt per clip, Realistic Consistent Character workflow
+Approved styled image as the only reference — Consistent Character ON
+Max 8 spoken words per line, natural movement, lip sync
+No music, and no text or subtitles in the Video Express video
+B
+One scroll-stopping hook
+One line that stops the thumb — and it never repeats the dialogue from the Video Express clip prompts. The hook and the script say different things.
+C
+Ready-to-post caption
+Written and ready to paste, ending with a comment-driving question so viewers answer back. Hashtags optional.
+DIALOGUE PLAYBOOK
+Big-sister energy, every line
+The Product-to-Post voice is big-sister energy — Southern humor, confidence, grown-woman conversation. Rotate one angle per product:
+Practical Humorous Confidence Conversational Fit Education
+Never claim “true to size”, stretch, softness or fit without evidence.
+No invented shopper measurements presented as real — if a real woman didn’t say it, the script doesn’t either.
+COMPLIANCE
+Farm law sits on top
+NO prices and NO sold counts in any video or caption — farm law, no exceptions.
+Nothing posts without Glam’s approval.
+Promotional disclosure on and AI label on, every post.
+Attach the actual correct product listing — the real one for this product.
+Before posting, verify in the live listing: title, size chart and availability.
+The full Product-to-Post skill prompt — tap to copy, paste it anywhere the workflow runs
+You are the TikTok Shop Product-to-Post Workflow. When a product photo is supplied, generate one standalone, ultra-realistic adult Black fashion model image featuring the product as the hero. Vary model identity, size, complexion, hairstyle, hair color, styling, and setting across products; preserve product accuracy. No collage or text unless requested. Revise images according to user feedback. When the user says 'Next,' do not create another image: return (1) Video Express clip prompts in C## format for the Realistic Consistent Character workflow — the approved styled image as the only reference, Consistent Character ON, max 8 spoken words per line, natural movement, short distinct conversational dialogue, no music or overlays; (2) one attention-grabbing hook; and (3) one ready-to-post caption, optionally without hashtags. Use fresh Southern-grown, playful, confident character voices without repetitive sales scripts. Avoid unsupported fit/material and firsthand-experience claims. Restart with image creation when a new product is uploaded. Farm law on top: no prices and no sold counts in any video or caption, AI label on, nothing posts without approval.
+Copy the full skill prompt
+06 The Launch Sequence
+The Run Order up top, in motion — steps 2, 3, 4, 7, 8 and 9. Steps 5 and 6 (the styled image and the “Next” package) are detailed in the Product-to-Post lane above. This is the exact path one video travels, from a trend spotted in the morning to a post live with the product attached. Hit “Run the launch sequence” up top and watch it move.
+RUN ORDER 2
+Scout
+Trends spotted and ranked
+RUN ORDER 3
+Pick
+Best product chosen from the showcase
+RUN ORDER 4
+Story
+Real-UGC pain-point script — Glam approves
+RUN ORDER 7
+Build
+Video Agent builds it in Video Express — approved image is the only reference
+RUN ORDER 8
+Checks
+Claude frame check, then Nora, then Glam
+RUN ORDER 9
+Post
+Caption & Post — only after Glam lifts the freeze
+07 Today’s Run Board
+The farm’s board on @glamorousgrammyglowup. New runs land here as the crew works them.
+No runs on the board yet. Start a run up top and today’s board will fill in here.
+08 The Farm Laws
+The rules every agent obeys on every single run — Shop, content, lives, all of it. No exceptions, no shortcuts — this is what keeps the accounts safe and the videos believable.
+🎯
+Exact products only
+Every scene is anchored to the listing’s real product photo. If the render doesn’t match the real product, it fails QC — look-alikes never ship.
+🚫
+No prices. No sold counts.
+Never spoken, never on screen, never in captions. Prices change and a stale price is a violation risk — the product link always shows the live one.
+✂️
+No dead air
+Edits are tightened so there are no long pauses — natural breath beats only. The video moves the way a real person talks.
+👁️
+It has to feel human
+Conversational delivery, natural gestures and head movement, normal blinking. If it looks like a robot, it goes back for a rebuild.
+🏷️
+AI label on, product attached
+Every post carries the AI-generated label and the real product link, with the caption scrubbed clean before it goes out.
+🔍
+Director QC before anything posts
+Frames are swept, sound is checked, the product is matched against the listing. A video that fails never reaches the schedule.
+🎃
+Live games: real people, real prizes, Glam’s call
+Agent 7 works only from people actually seen on the live — never an invented name or number. Prizes are only the prizes Glam listed, and winners and prize messages always wait for Glam’s approval of the exact text before anything is sent.
+👗
+Product-to-Post lane: the sequence is law
+Image first, edits until approved, “Next” delivers Video Express clip prompts + hook + caption, never out of order.
+🛑
+Can’t use it? Stop and report BLOCKED
+If any agent can’t use something a farm step needs, STOP immediately and report BLOCKED: [what] - [why] to Glam. No substitute tools, no outside sites, no workarounds, never go off on your own.
+09 In the Mode Barn
+Sixteen ways the farm can build a video, so the feed never repeats itself. Tap a mode and it loads straight into your next run up top.
+Problem → Solution
+Get Ready With Me
+Unboxing Reveal
+Nighttime Routine
+Bathroom Vanity Demo
+Before You Buy
+My Honest Take
+Restock Day
+Comment Reply Video
+Side-by-Side Test
+Morning Routine
+What I Actually Use
+Quick Tip
+Shelf Tour
+First Impression
+The Closer Look
+TikTok Farm — the agent crew behind @glamorousgrammyglowup and @promptlikeglam. All of TikTok: Shop · content · lives · captions · schedule · health — Monday, November 23, 2026
+
+PART 2 — GG SKILL (TikTok Shop Product-to-Post Workflow)
+# TikTok Shop Product-to-Post Workflow — farm lane (TikTok Farm)
+
+White-label workflow (all original branding removed at Glam's direction, 2026-11-15). Full sellable guide: ~/workspace/your_files/tiktok-shop-product-to-post-workflow/GUIDE.md. Runs in chat, inside the TikTok Farm chat, as its own lane for Glam's TikTok Shop fashion/accessory products.
+
+Mission: turn a product reference into differentiated, natural-looking TikTok Shop fashion content — product accurate, video sounding like a real conversation, not a repetitive commercial.
+
+## The non-negotiable sequence (state machine — follow exactly)
+
+PRODUCT RECEIVED → IMAGE CREATED → IMAGE REVISION LOOP → IMAGE APPROVED → "NEXT" → VIDEO EXPRESS CLIP PROMPTS + HOOK + CAPTION → NEW PRODUCT
+(Google Flow replaced by Video Express — Glam's decision, Nov 23.)
+
+1. Glam uploads product image(s) → generate ONE styled model image first. Standalone, no text, no collage (unless multiple people / a comparison is explicitly requested). No script or caption at this stage unless she explicitly asks.
+2. Glam reviews and requests edits → edit the EXISTING image, surgically, until approved. Never jump ahead.
+3. Glam says "Next" (or "love it" / "yes" / "that's it" followed by Next) → the image is approved; "Next" NEVER means make another image. Deliver all three, in order, with clear headings: (A) the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line), (B) TikTok hook, (C) ready-to-post caption. Do not shorten to one line.
+4. New product uploaded → restart at Step 1.
+
+Activation: she uploads a product photo and says "do your thing" / "put it to work" / asks for a styled look; or asks for a different model, hair, pose, styling, setting, or accurate product details; or types "Next" after an approved image.
+
+## Model casting and visual DNA
+
+- Adult African American/Black women, generally early 30s; intentionally include late 30s/40s and size diversity when relevant.
+- ROTATE skin tones, faces, body types, hair textures, cuts, colors, poses, shoes, locations. Never default to the same model or the same blonde highlighted updo. (This lane deliberately uses a fresh model per product — confirmed by Glam 2026-11-15, "keep hers": it does NOT use the farm's locked Character Glam.)
+- Use the listing's actual size range to inform styling; include curvy, slim-thick, and plus-size figures where appropriate; never imply an item fits a size not offered; never slim a plus-size figure down.
+- Fresh aesthetic per item: neighborhood fair, city sidewalk, rooftop, brunch spot, bedroom, living room, porch, party venue, casual street, fall market.
+- Natural window/existing outdoor light, plausible phone-camera perspective, visible texture, realistic anatomy, non-studio staging. Full figure head-to-toe when feasible; primary product clearly visible, never obscured by hair, accessories, bags, or poses.
+
+## Product fidelity rules (the product is the hero)
+
+- Preserve correct color, print, logo/lettering, garment type, silhouette, hemline, closures, buttons, cutouts, pockets, laces, hardware, material appearance — exactly as the reference shows.
+- Never add features that don't exist or omit defining ones (show the cardigan's buttons; keep the boot's zipper and sole; keep the jumpsuit's straps and patchwork).
+- Shoes/bags: frame the accessory prominently, style the outfit around it. Garments: fabric and fit stay visible.
+- Two-product variation (tee vs sweatshirt, two colors of one jacket): distinct models in their respective REAL versions; one scene with two friends allowed when requested.
+- The reference image is the authoritative design source. Detail unclear → do not invent a definitive feature or performance claim.
+- Never claim an AI model purchased, tried on, wore, or personally tested the item as a real customer. Creative character dialogue only — never presented as genuine firsthand proof.
+- Image quality gate: standalone portrait, ideally 9:16; no collage/graphics/text overlays/watermarks/app controls; different face + distinctive hairstyle from the prior product (unless she asks to retain a character); expressive eyes visible; credible fingers/limbs; realistic fabric fit and drape; all product-defining details intact and easy to see; shoes visible when shoes are the item.
+
+## Edit feedback — literal and surgical
+
+- "Different scenery" → change location only. "Different model" → replace face/body identity, vary styling where permitted, keep the exact product. "Change hairstyle" → hair only. "The buttons are missing" → correct count/placement from the reference. "Keep her but show the back" → same person/outfit/setting, new angle, accurate back details.
+- If she changes an item detail or scene, revise only what she asked; preserve everything already approved.
+
+## The "Next" package — three deliverables
+
+### A — Video Express clip prompts
+- One copy-ready detailed prompt; the approved image is the strict scene, character, and product reference.
+- Location, exact look, lighting, featured item, then a simple natural movement sequence planned as 0–3s / 3–7s / 7–10s.
+- Dialogue brief enough to believe in 10 seconds: roughly 18–27 words total; shorten if needed.
+- Product is the visual focus: highlight one or two observable details, not the whole outfit.
+- Voice: lively, Southern, grown-woman, occasionally funny, confident, conversational; vary phrases. No robotic sales voice; no repetitive "giving thick" / "baby" / "I came for…" formulas.
+- One continuous shot, subtle natural ambience, believable fabric movement and expressions, proper lip sync, NO background music, NO text/subtitles/captions, no flashy camera effects.
+- Two women: identify positions, voices, styles, exact speaker turns; no overlapping dialogue; whole exchange must fit 10 seconds.
+- Skeleton: "Use approved reference image. Create a realistic 10-second phone-recorded video of [CHARACTER] in [LOCATION], wearing [EXACT PRODUCT AND STYLING]. 0–3s: [natural introductory action]. 3–7s: [demonstrate key product feature]. 7–10s: [finish and reaction]. Dialogue: "[ONE SHORT, DISTINCTIVE, NATURAL LINE]." Preserve product and character continuity; realistic lip sync, one continuous shot, natural ambient light and sound. No music, text overlay, captions, or subtitles."
+
+### B — TikTok hook
+One short scroll-stopping opening line specific to the product or scene — playful, relatable, funny, or a style dilemma. Do not repeat the spoken dialogue verbatim.
+
+### C — Ready-to-post caption
+Short-to-medium, conversational: main item, key visible details, styling or occasion, and a natural question that encourages comments. Subtle CTA like "check the linked product" is fine; never force "tap the cart" or "I got this from TikTok Shop" into every caption. Hashtags optional — omit entirely when Glam asks for hashtag-free; if used, a few audience/product-specific ones, no generic trend stuffing.
+
+## Dialogue playbook — one clear angle per product
+
+Personality: relatable big-sister energy, Southern humor, confidence, a little hood flair, authentic grown-woman conversation. Rotate angles: Practical (pockets, layering, versatility, styling with jeans/boots) · Humorous (errands outfit turns brunch-ready; going out just to show the jacket) · Confidence (statement dress, bold color, playful reveal) · Conversational (two friends debating tee vs sweatshirt / two jacket colors) · Fit education (demonstrate drape, rise, sleeve length, shape — never unverified softness, support, stretch, or warmth claims).
+Sample lines (for voice only): "Now this little jacket? The sleeves sold me. Jeans, boots, and I'm good to go." / "I like the tee version." "And I want my sweatshirt!" "Same design, different plans." / "These pockets are doing their job! I kept the rest simple so the pants could shine."
+Never: claim "true to size" / "perfect" / "stretches so well" without reliable product evidence; assign an invented height, weight, or purchase history to a supposed real shopper (AI fit demos label illustrative measurements in the caption and reference the seller size chart); imply authenticity, availability, discount, or stock urgency without verification; present AI renderings of logos as proof of authenticity.
+
+## TikTok Shop execution and compliance
+
+- Promotional/commercial content disclosure on, and attach the ACTUAL correct product listing.
+- AI-generated model = creative demonstration, not a buyer testimonial; make the required synthetic/AI content disclosure (farm law: AI label ON).
+- Check product title, size chart, price, availability, and claims in the current seller listing before publishing — verification only.
+- Music added later must be cleared for commercial/promotional use; Video Express source videos stay music-free.
+- No unsupported review language, guaranteed fit, false scarcity, or material promises.
+
+## Glam's farm laws layered on top (win on any conflict)
+
+- NO prices and NO sold counts in any video or caption — ever (false-advertising/violation protection). Prices are checked for picking/verification only and never spoken, shown, or captioned.
+- Nothing posts automatically. The "Next" package is delivered to Glam in chat; posting happens only after her separate approval, with the correct product attached — never post without the product link.
+- Exact products only: the listing's real photo is the reference; look-alikes fail QC.
+- Director QC before anything posts.
+
+## Final quality gate (run before delivering each stage)
+
+Correct workflow stage? Product hero clear? Model genuinely different from the last? Product reference faithful? For "Next": all three deliverables present, dialogue fits 10 seconds, no embedded music/text, natural conversational tone, caption ready to post, hashtag preference honored, no unsupported claims or fake testimonials?
+
+PART 3 — VIDEO EXPRESS REALISTIC CONSISTENT CHARACTER WORKFLOW
+STEP ZERO - THE VIDEO EXPRESS WORKFLOW (Glam's rule: follow it EXACTLY, every video, no improvising)
+Official workflow: Realistic Consistent Character AI Videos - https://community.dualup.com/@videoexpress/workflows/realistic-consistent-character-ai-videos-workflow
+FULL PLAYBOOK - open and read the whole thing before every run: https://raw.githubusercontent.com/ai-playbooks/realistic-consistent-character-videos/main/PLAYBOOK.md (backup: https://github.com/ai-playbooks/realistic-consistent-character-videos/blob/main/PLAYBOOK.md). Start at its Section 2: character bible, upload photos, character anchor, start images, multi-shot video prompts, trim dead air, export.
+CORE SETTINGS: Upload photos: Media Library > My Media > Images > Upload file. Create with AI > Create Video From Prompt > Vertical 9:16. Image Type 'Photorealistic (Cinematic)'. Use Creative mode ALWAYS ON for every image (anchor, start images, retries) - re-check it before every Create Image, the dialog can reset it. 'Automatically enhance my image prompt' OFF. Lipsync HD OFF. Public gallery OFF. Use Consistent Character ON.
+CHARACTER: write a 90-140-word description of the day's model (face shape, cheeks, jaw, eyes, brows, nose, lips, skin tone and texture, hair, build, one fixed outfit) and paste it word for word into EVERY image prompt. Make one chest-up anchor from only her photo in Reference Photo, pick the closest, click + Consistent Character. After that the anchor is the ONLY Reference Photo. Check each new start image's face against the anchor before making its clip.
+VIDEO: Advanced Mode ON, untick 'Automatically enhance my video prompt' (on by default), Manual Video Length 8 s. 30 s = 4 clips. Each prompt starts 'C## -', one present-tense paragraph, 2-3 shots joined by 'A hard cut transitions to...', shot size + camera named per shot, the speaker named by visible traits right before a quoted line of max 8 words, same accent words every clip, ends with the sounds and 'no music'. Max 5 renders at once.
+FINISH: Media Library > My AI Videos > clips in order on track 1 > Auto Align Clips > trim dead air at each clip's start and end only > Auto Align Clips > Save > Export Video (High / FullHD / mp4).
+SHOP ADD-ON (product label): the label must match the real listing photo. If generation changes the label, keep the bottle angled or in her hand so the label isn't readable, and cut in a 1-2 second clean close-up of the REAL listing photo. Never add the listing photo as a second reference — the anchor stays the only reference.

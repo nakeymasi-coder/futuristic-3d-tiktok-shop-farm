@@ -1,6 +1,6 @@
 GLAM'S DECISION Nov 23
 Follow Gigi's GG workflow: a fresh model per product, rotated per GG's casting rules; ONE styled model image first; Glam approves or revises it; “Next” = the video package, hook and caption. BUT the video is made in Video Express with the Realistic Consistent Character workflow — the approved styled image becomes the chest-up anchor and the only reference, Consistent Character ON — NOT Google Flow.
-GG's “(A) Google Flow 10-second prompt” is replaced by the Video Express clip prompts (C## format, max 8 spoken words per line).
+GG's “(A) Google Flow 10-second prompt” is replaced by the Video Express clip prompts (C## format, max 12 spoken words per line).
 GG's product fidelity, compliance and dialogue rules stay.
 Glam's farm laws still win on any other conflict.
 The old 7-day cast plan is replaced by this rule. The cast photos are NOT deleted — they stay as a casting pool.
@@ -550,7 +550,7 @@ Review + edit loop
 Review the image and edit the existing image until it’s approved. Never jump ahead — no script, no caption while the image is still being fixed.
 RUN ORDER 6
 Say “Next”
-“Next” delivers all three at once: the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line) + the TikTok hook + the ready-to-post caption.
+“Next” delivers all three at once: the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 12 spoken words per line) + the TikTok hook + the ready-to-post caption.
 BACK TO RUN ORDER 1
 New product
 A new product restarts the whole run at Run Order step 1 — fresh product photo, fresh model, fresh image.
@@ -578,7 +578,7 @@ Product type: [Product type]
 Notes: [Notes for the crew — line included when filled in]
 
 Run Order step 5 only: from the product photo I upload, generate ONE styled model image — a fresh adult Black model per GG casting (rotating casting, never the same model twice), natural light, phone-camera feel, framing follows the category (clothes and shoes, full figure head-to-toe; skincare, makeup, and hair, chest-up or face close-up; body care and supplements, chest-up or hands only, with no claims; bags, full figure or waist-up carrying them; fitness equipment, full body in use; home, kitchen, electronics, books, and toys, hands and the product in close-up), the product as the hero and never obscured.
-Do NOT write the Video Express clip prompts, the hook, or the caption yet. I will review the image and ask for edits until I approve it — edit the existing image, never jump ahead. Only when I say “Next” do you deliver the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line) + hook + caption. “Next” never means make another image.
+Do NOT write the Video Express clip prompts, the hook, or the caption yet. I will review the image and ask for edits until I approve it — edit the existing image, never jump ahead. Only when I say “Next” do you deliver the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 12 spoken words per line) + hook + caption. “Next” never means make another image.
 Farm law on top: no prices and no sold counts in any video or caption · AI label on · nothing posts without Glam's approval.
 Copy starter prompt
 See it in my queue ↓
@@ -602,7 +602,7 @@ A
 Video Express clip prompts — C## format
 C## format — one prompt per clip, Realistic Consistent Character workflow
 Approved styled image as the only reference — Consistent Character ON
-Max 8 spoken words per line, natural movement, lip sync
+Max 12 spoken words per line, natural movement, lip sync
 No music, and no text or subtitles in the Video Express video
 B
 One scroll-stopping hook
@@ -625,10 +625,11 @@ No health or beauty claims of your own. Never say or imply a product clears acne
 Before-and-after is not allowed for skincare, body products, and hair products — no before/after shots, no split screens, no 'look at my skin now' comparisons for those categories. No implied before-and-after either — no 'day one versus day seven,' no transformation timelines. And nothing that compares weight or body shape, before or after, in any category.
 This skill covers every category in Glam's showcase — skincare; body and personal care; wellness and supplements; women's clothing; hair care; home; electronics and accessories; makeup; shoes; kitchen; books and stationery; men's clothing; fitness equipment; bags; and toys — not fashion only. The same compliance rules apply to all of them, and each category's demo follows the farm's show-it rule for that category.
 Framing follows the category: clothes and shoes, full figure head-to-toe; skincare, makeup, and hair, chest-up or face close-up; body care, chest-up or hands only, with no claims; supplements, chest-up or hands only, with no claims; bags, full figure or waist-up carrying them; fitness equipment, full body in use; home, kitchen, electronics, books, and toys, hands and the product in close-up. The product is never obscured.
+Every clip is 8 seconds flat, max 12 spoken words in a clip. Four clips make the video. The old 10-second, 18-to-27-word shape is retired — do not use it.
 Attach the actual correct product listing — the real one for this product.
 Before posting, verify in the live listing: title, size chart and availability.
 The full Product-to-Post skill prompt — tap to copy, paste it anywhere the workflow runs
-You are the TikTok Shop Product-to-Post Workflow. When a product photo is supplied, generate one standalone, ultra-realistic adult Black fashion model image featuring the product as the hero. Vary model identity, size, complexion, hairstyle, hair color, styling, and setting across products; preserve product accuracy. No collage or text unless requested. Revise images according to user feedback. When the user says 'Next,' do not create another image: return (1) Video Express clip prompts in C## format for the Realistic Consistent Character workflow — the approved styled image as the only reference, Consistent Character ON, max 8 spoken words per line, natural movement, short distinct conversational dialogue, no music or overlays; (2) one attention-grabbing hook; and (3) one ready-to-post caption, optionally without hashtags. Use fresh Southern-grown, playful, confident character voices without repetitive sales scripts. Avoid unsupported fit/material and firsthand-experience claims. Restart with image creation when a new product is uploaded. Farm law on top: no prices and no sold counts in any video or caption, AI label on, nothing posts without approval.
+You are the TikTok Shop Product-to-Post Workflow. When a product photo is supplied, generate one standalone, ultra-realistic adult Black fashion model image featuring the product as the hero. Vary model identity, size, complexion, hairstyle, hair color, styling, and setting across products; preserve product accuracy. No collage or text unless requested. Revise images according to user feedback. When the user says 'Next,' do not create another image: return (1) Video Express clip prompts in C## format for the Realistic Consistent Character workflow — the approved styled image as the only reference, Consistent Character ON, max 12 spoken words per line, natural movement, short distinct conversational dialogue, no music or overlays; (2) one attention-grabbing hook; and (3) one ready-to-post caption, optionally without hashtags. Use fresh Southern-grown, playful, confident character voices without repetitive sales scripts. Avoid unsupported fit/material and firsthand-experience claims. Restart with image creation when a new product is uploaded. Farm law on top: no prices and no sold counts in any video or caption, AI label on, nothing posts without approval.
 Copy the full skill prompt
 06 The Launch Sequence
 The Run Order up top, in motion — steps 2, 3, 4, 7, 8 and 9. Steps 5 and 6 (the styled image and the “Next” package) are detailed in the Product-to-Post lane above. This is the exact path one video travels, from a trend spotted in the morning to a post live with the product attached. Hit “Run the launch sequence” up top and watch it move.
@@ -716,7 +717,7 @@ PRODUCT RECEIVED → IMAGE CREATED → IMAGE REVISION LOOP → IMAGE APPROVED �
 
 1. Glam uploads product image(s) → generate ONE styled model image first. Standalone, no text, no collage (unless multiple people / a comparison is explicitly requested). No script or caption at this stage unless she explicitly asks.
 2. Glam reviews and requests edits → edit the EXISTING image, surgically, until approved. Never jump ahead.
-3. Glam says "Next" (or "love it" / "yes" / "that's it" followed by Next) → the image is approved; "Next" NEVER means make another image. Deliver all three, in order, with clear headings: (A) the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line), (B) TikTok hook, (C) ready-to-post caption. Do not shorten to one line.
+3. Glam says "Next" (or "love it" / "yes" / "that's it" followed by Next) → the image is approved; "Next" NEVER means make another image. Deliver all three, in order, with clear headings: (A) the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 12 spoken words per line), (B) TikTok hook, (C) ready-to-post caption. Do not shorten to one line.
 4. New product uploaded → restart at Step 1.
 
 Activation: she uploads a product photo and says "do your thing" / "put it to work" / asks for a styled look; or asks for a different model, hair, pose, styling, setting, or accurate product details; or types "Next" after an approved image.
@@ -749,11 +750,11 @@ Activation: she uploads a product photo and says "do your thing" / "put it to wo
 ### A — Video Express clip prompts
 - One copy-ready detailed prompt; the approved image is the strict scene, character, and product reference.
 - Location, exact look, lighting, featured item, then a simple natural movement sequence planned as 0–3s / 3–6s / 6–8s (every clip is 8 seconds flat).
-- Dialogue: every clip is 8 seconds flat and carries max 8 spoken words; a line that needs more words is split across clips, never stretched. Four clips make the video. (Clip rule, Glam + Claude, Nov 24 — the old 10-second shape and its 18–27 words are retired.)
+- Dialogue: every clip is 8 seconds flat and carries max 12 spoken words; a line that needs more words is split across clips, never stretched. Four clips make the video. (Clip rule, Glam + Claude, Nov 24 — the old 10-second shape and its 18–27 words are retired.)
 - Product is the visual focus: highlight one or two observable details, not the whole outfit.
 - Voice: lively, Southern, grown-woman, occasionally funny, confident, conversational; vary phrases. No robotic sales voice; no repetitive "giving thick" / "baby" / "I came for…" formulas.
 - One continuous shot, subtle natural ambience, believable fabric movement and expressions, proper lip sync, NO background music, NO text/subtitles/captions, no flashy camera effects.
-- Two women: identify positions, voices, styles, exact speaker turns; no overlapping dialogue; each line fits its own 8-second clip, max 8 spoken words.
+- Two women: identify positions, voices, styles, exact speaker turns; no overlapping dialogue; each line fits its own 8-second clip, max 12 spoken words.
 - Skeleton: "Use approved reference image. Create a realistic 8-second phone-recorded video of [CHARACTER] in [LOCATION], wearing [EXACT PRODUCT AND STYLING]. 0–3s: [natural introductory action]. 3–6s: [demonstrate key product feature]. 6–8s: [finish and reaction]. Dialogue: "[ONE SHORT, DISTINCTIVE, NATURAL LINE]." Preserve product and character continuity; realistic lip sync, one continuous shot, natural ambient light and sound. No music, text overlay, captions, or subtitles."
 
 ### B — TikTok hook
@@ -785,7 +786,7 @@ Never: claim "true to size" / "perfect" / "stretches so well" without reliable p
 
 ## Final quality gate (run before delivering each stage)
 
-Correct workflow stage? Product hero clear? Model genuinely different from the last? Product reference faithful? For "Next": all three deliverables present, every clip 8 seconds flat with max 8 spoken words a line, no embedded music/text, natural conversational tone, caption ready to post, hashtag preference honored, no unsupported claims or fake testimonials?
+Correct workflow stage? Product hero clear? Model genuinely different from the last? Product reference faithful? For "Next": all three deliverables present, every clip 8 seconds flat with max 12 spoken words a line, no embedded music/text, natural conversational tone, caption ready to post, hashtag preference honored, no unsupported claims or fake testimonials?
 
 PART 3 — VIDEO EXPRESS REALISTIC CONSISTENT CHARACTER WORKFLOW
 STEP ZERO - THE VIDEO EXPRESS WORKFLOW (Glam's rule: follow it EXACTLY, every video, no improvising)
@@ -793,7 +794,7 @@ Official workflow: Realistic Consistent Character AI Videos - https://community.
 FULL PLAYBOOK - open and read the whole thing before every run: https://raw.githubusercontent.com/ai-playbooks/realistic-consistent-character-videos/main/PLAYBOOK.md (backup: https://github.com/ai-playbooks/realistic-consistent-character-videos/blob/main/PLAYBOOK.md). Start at its Section 2: character bible, upload photos, character anchor, start images, multi-shot video prompts, trim dead air, export.
 CORE SETTINGS: Upload photos: Media Library > My Media > Images > Upload file. Create with AI > Create Video From Prompt > Vertical 9:16. Image Type 'Photorealistic (Cinematic)'. Use Creative mode ALWAYS ON for every image (anchor, start images, retries) - re-check it before every Create Image, the dialog can reset it. 'Automatically enhance my image prompt' OFF. Lipsync HD OFF. Public gallery OFF. Use Consistent Character ON.
 CHARACTER: write a 90-140-word description of the day's model (face shape, cheeks, jaw, eyes, brows, nose, lips, skin tone and texture, hair, build, one fixed outfit) and paste it word for word into EVERY image prompt. Make one chest-up anchor from only her photo in Reference Photo, pick the closest, click + Consistent Character. After that the anchor is the ONLY Reference Photo. Check each new start image's face against the anchor before making its clip.
-VIDEO: Advanced Mode ON, untick 'Automatically enhance my video prompt' (on by default), Manual Video Length 8 s. 30 s = 4 clips. Each prompt starts 'C## -', one present-tense paragraph, 2-3 shots joined by 'A hard cut transitions to...', shot size + camera named per shot, the speaker named by visible traits right before a quoted line of max 8 words, same accent words every clip, ends with the sounds and 'no music'. Max 5 renders at once.
+VIDEO: Advanced Mode ON, untick 'Automatically enhance my video prompt' (on by default), Manual Video Length 8 s. 30 s = 4 clips. Each prompt starts 'C## -', one present-tense paragraph, 2-3 shots joined by 'A hard cut transitions to...', shot size + camera named per shot, the speaker named by visible traits right before a quoted line of max 12 words, same accent words every clip, ends with the sounds and 'no music'. Max 5 renders at once.
 FINISH: Media Library > My AI Videos > clips in order on track 1 > Auto Align Clips > trim dead air at each clip's start and end only > Auto Align Clips > Save > Export Video (High / FullHD / mp4).
 SHOP ADD-ON (product label): the label must match the real listing photo. If generation changes the label, keep the bottle angled or in her hand so the label isn't readable, and cut in a 1-2 second clean close-up of the REAL listing photo. Never add the listing photo as a second reference — the anchor stays the only reference.
 SHOW-IT SHOT ADD-ON (Glam + Claude, Nov 24 — every category gets one): a video may carry exactly ONE show-it shot — the product shown doing what it is for. Skincare: the texture shot — the product on skin only (a drop or smear on the back of the hand), and the bottle STAYS ON THE COUNTER during that shot; the hand never holds or lifts the bottle, which keeps the label from getting warped. Clothes: fabric moving. Shoes: shoes on feet, walking. Gadgets and everything else: the product in use. Any show-it shot — hands or motion — needs a proven test build on file FIRST (staging-proof.md: a test build that proved that exact shot holds the product true). One shot per video, proven first. A pour, a hand-off, or a held/raised bottle is a send-back always; no proof waives handling.

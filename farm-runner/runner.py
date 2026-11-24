@@ -39,7 +39,7 @@ Evidence map (what clears each step):
   5 Photo Match    steps/step5-match/match-verdict.md with verdict: MATCH,
                    signed by a checker who is NOT the grabber of record
   6 Script         steps/step6-script/script.md non-empty AND passing the
-                   Step 6 script check (script_findings: <=8 words a line,
+                   Step 6 script check (script_findings: <=12 words a line,
                    person-first hook not just the mode name, soft CTA on
                    file, no specs/prices/sold counts/use claims) AND
                    steps/step6-script/glam-approval.md (approved_by: Glam)
@@ -338,7 +338,9 @@ def script_findings(run):
     """The Step 6 SCRIPT CHECK (Glam + Claude, Nov 24): the mechanical bars
     a script must pass BEFORE Glam's approval gate, so she is not the first
     filter. Returns a list of (category, message); empty = passing.
-    Bars: every spoken line <= 8 words; no 'tap the link'; no spec/measure
+    Bars: every spoken line <= 12 words; one short spoken CTA allowed in
+    the final line only (like 'tap the orange cart') — 'tap the link'
+    never; no spec/measure
     words or numbers in spoken lines; no price and no sold counts; no
     'I used it' use claims (the model is AI); the first spoken line is a
     person-first HOOK, not just the mode name; and the soft CTA up top is
@@ -354,12 +356,22 @@ def script_findings(run):
     for i, line in enumerate(lines, 1):
         low = line.lower()
         n_words = len(line.split())
-        if n_words > 8:
+        if n_words > 12:
             findings.append(("line-length", f"LINE {i} is {n_words} spoken "
-                             "words (bar: 8 max)"))
+                             "words (bar: 12 max)"))
         if "tap the link" in low:
             findings.append(("tap-the-link", f"LINE {i} says 'tap the "
-                             "link' — the soft CTA points below instead"))
+                             "link' — that phrase is banned; the one "
+                             "allowed spoken CTA sits in the final line, "
+                             "like 'tap the orange cart'"))
+        elif (any(p in low for p in ("tap the orange cart",
+                                     "tap the orange card", "tap the cart",
+                                     "tap the card", "click the cart",
+                                     "click the card"))
+              and i != len(lines)):
+            findings.append(("cta-position", f"LINE {i} carries a spoken "
+                             "CTA — only the final line may carry one, "
+                             "one short CTA at the end"))
         if any(ch.isdigit() for ch in line):
             findings.append(("spec", f"LINE {i} contains a number — spoken "
                              "lines carry no specs"))

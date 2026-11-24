@@ -13,7 +13,7 @@ RUN ORDER
 5) ONE styled model image, fresh model per GG casting (Glam approves or edits)
 6) "Next" = Video Express clip prompts + hook + caption
 7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference)
-8) Checks: Claude frame check, then Nora, then Glam
+8) Checks: Mila's frame-by-frame check, then Glam
 9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze
 
 FARM RULE
@@ -131,8 +131,8 @@ Mode: [Video mode]
 When: [When should it go out?]
 Notes: [Anything else the crew should know? — line included when filled in]
 
-Crew order — follow the Run Order: 1) Start a Run form → 2) TikTok Scout → 3) TikTok Shop Agent (product) → 4) Story Agent (real-UGC pain-point script, Glam approves) → 5) ONE styled model image, fresh model per GG casting (Glam approves or edits) → 6) “Next” = Video Express clip prompts + hook + caption → 7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference) → 8) Checks: Claude frame check, then Nora, then Glam → 9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze.
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Crew order — follow the Run Order: 1) Start a Run form → 2) TikTok Scout → 3) TikTok Shop Agent (product) → 4) Story Agent (real-UGC pain-point script, Glam approves) → 5) ONE styled model image, fresh model per GG casting (Glam approves or edits) → 6) “Next” = Video Express clip prompts + hook + caption → 7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference) → 8) Checks: Mila's frame-by-frame check, then Glam → 9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 Work in Glam’s voice: warm, plain words, step by step. Report back before anything posts.
 Run prompt template — Account health check:
 TIKTOK FARM — ACCOUNT HEALTH CHECK
@@ -171,7 +171,7 @@ ONE styled model image — fresh model per GG casting (Glam approves or edits)
 7
 Video Agent builds it in Video Express — Realistic Consistent Character workflow, the approved image is the only reference
 8
-Checks: Claude frame check, then Nora, then Glam
+Checks: Mila's frame-by-frame check, then Glam
 9
 Caption & Post — only after Glam lifts the @glamorousgrammyglowup freeze
 MISSING — Video Engine section: the current 3D farm page has no Video Engine section in its source (checked the live page source and its Nov 23 audit text), so there is no Video Engine content to include.
@@ -204,7 +204,7 @@ On duty
 A-05
 🕵️
 Quality Control
-Director QC
+Mila
 Sweeps the finished video frame by frame before it can leave the farm. Wrong product, extra hands, stiff acting — it all gets caught here.
 On duty
 A-06
@@ -234,7 +234,7 @@ The evidence behind every call
 The law it lives by
 Exact products only — matched to the real listing photo
 No prices and no sold counts, ever
-Nothing posts without Director QC
+Nothing posts without Mila's QC pass and Glam's final verdict
 Account
 @glamorousgrammyglowup
 @promptlikeglam
@@ -249,7 +249,7 @@ Job: [describe the job for this agent]
 Mission: Find the angles that are already winning, so the farm never guesses.
 Takes in: Trending sounds and hashtags on TikTok · TikTok Shop best sellers and top videos in the category · Glam’s own best-performing posts · Pinterest trends — backup only
 Hands off: A ranked trend report · The adapted angle for each pick · The evidence behind every call
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 Report back in plain words, step by step, in Glam’s voice — before anything posts.
 Copy this agent's prompt
 Mission card:
@@ -266,7 +266,7 @@ Why this one, in plain words
 The law it lives by
 Exact products only — matched to the real listing photo
 No prices and no sold counts, ever
-Nothing posts without Director QC
+Nothing posts without Mila's QC pass and Glam's final verdict
 Account
 @glamorousgrammyglowup
 @promptlikeglam
@@ -281,7 +281,7 @@ Job: [describe the job for this agent]
 Mission: Put the right product in the next slot — 3 posts a day on the Shop account.
 Takes in: The full showcase, paged end to end · Real sold counts from the listings · What the audience already buys
 Hands off: The pick for the next slot, with its real photo · The listing link, exactly as shown · Why this one, in plain words
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 Report back in plain words, step by step, in Glam’s voice — before anything posts.
 Copy this agent's prompt
 Mission card:
@@ -298,7 +298,7 @@ A closer that lands on the benefit
 The law it lives by
 Exact products only — matched to the real listing photo
 No prices and no sold counts, ever
-Nothing posts without Director QC
+Nothing posts without Mila's QC pass and Glam's final verdict
 Account
 @glamorousgrammyglowup
 @promptlikeglam
@@ -313,7 +313,7 @@ Job: [describe the job for this agent]
 Mission: Every video opens on a moment the viewer has lived.
 Takes in: The Scout’s winning angle · The product and who it’s for · The mode picked from the barn
 Hands off: The opening hook, word for word · The story beats, scene by scene · A closer that lands on the benefit
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 Report back in plain words, step by step, in Glam’s voice — before anything posts.
 Copy this agent's prompt
 Mission card:
@@ -330,7 +330,7 @@ Tight edits — no dead air
 The law it lives by
 Exact products only — matched to the real listing photo
 No prices and no sold counts, ever
-Nothing posts without Director QC
+Nothing posts without Mila's QC pass and Glam's final verdict
 Account
 @glamorousgrammyglowup
 @promptlikeglam
@@ -345,11 +345,11 @@ Job: [describe the job for this agent]
 Mission: A 30-second shop video that feels like a friend showing you something — a fresh face on every product.
 Takes in: The story beats · The approved styled image — the only reference · The listing’s real product photo
 Hands off: The finished vertical video, made in Video Express · Natural movement and blinking · Tight edits — no dead air
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 Report back in plain words, step by step, in Glam’s voice — before anything posts.
 Copy this agent's prompt
 Mission card:
-🕵️ Director QC
+🕵️ Mila
 Nothing ships unless it would fool Glam’s own eye.
 Takes in
 Every frame of the render
@@ -362,22 +362,22 @@ The final approved cut
 The law it lives by
 Exact products only — matched to the real listing photo
 No prices and no sold counts, ever
-Nothing posts without Director QC
+Nothing posts without Mila's QC pass and Glam's final verdict
 Account
 @glamorousgrammyglowup
 @promptlikeglam
 Both accounts
 None — no specific account
-Give Director QC a job
+Give Mila a job
 Placeholder: Type the job — the prompt below writes itself
 Your copy-ready prompt for this agent
-AGENT JOB — Director QC (Quality Control)
+AGENT JOB — Mila (Quality Control)
 Account: @glamorousgrammyglowup
 Job: [describe the job for this agent]
 Mission: Nothing ships unless it would fool Glam&rsquo;s own eye.
 Takes in: Every frame of the render · The real listing photo to match against · The sound, checked for gaps
 Hands off: A pass — or a rebuild order · The exact scene that failed, and why · The final approved cut
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 Report back in plain words, step by step, in Glam’s voice — before anything posts.
 Copy this agent's prompt
 Mission card:
@@ -394,7 +394,7 @@ A verified live post
 The law it lives by
 Exact products only — matched to the real listing photo
 No prices and no sold counts, ever
-Nothing posts without Director QC
+Nothing posts without Mila's QC pass and Glam's final verdict
 Account
 @glamorousgrammyglowup
 @promptlikeglam
@@ -409,7 +409,7 @@ Job: [describe the job for this agent]
 Mission: The right video, in the right slot, with everything attached.
 Takes in: The QC-approved cut · The product link · The day’s schedule — 3 posts a day
 Hands off: A clean caption — no prices, no sold counts · The post, product attached, AI label on · A verified live post
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 Report back in plain words, step by step, in Glam’s voice — before anything posts.
 Copy this agent's prompt
 Mission card:
@@ -459,7 +459,7 @@ Job: [describe the job for this agent]
 Mission: Turn the people actually in the live into a game they can win.
 Takes in: The live chat, for the window Glam picks — the last 20 minutes is standard · Recent commenters and the Top 10 Engagers · Shares, taps, likes and gifts — only the counts TikTok actually shows
 Hands off: An engager report — real names only, anything unseen marked NOT VISIBLE, partial pulls labeled PARTIAL with their times · A ready-to-play game built from those real people · The winner call for Glam to read out loud on the live
-Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.
+Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Mila's QC, then Glam, before anything posts.
 LIVE ONLY: this agent works only while Glam is live on TikTok. It never touches video runs.
 Watch window: the one Glam picks — the last 20 minutes is standard.
 Pull the real people engaging: recent commenters and the Top 10 Engagers.
@@ -505,10 +505,10 @@ Two top engagers, one wheel, one spin. Winner takes it — the fastest showdown 
 These are the only prizes stocked in the pumpkins — the ones Glam approved. The pumpkin only shows the prize on the live: the real code or product goes to the winner after, and only after Glam approves the exact message.
 🎃 THE GOLDEN PUMPKIN — a free $27 product A free $7 product 25% off 20% off $5 off 25 Glow Points
 04 My Run Queue
-Every run you start lands here. Move each one along as the crew works it — Queued, In production, Director QC, Posted — copy its prompt any time, or clear it out when it’s done.
+Every run you start lands here. Move each one along as the crew works it — Queued, In production, Mila's QC, Posted — copy its prompt any time, or clear it out when it’s done.
 Run queue card — what each queued run's card shows:
 Top line: [run type] · [account] · [status]
-Status menu options: Queued · In production · Director QC · Posted
+Status menu options: Queued · In production · Mila's QC · Posted
 Standard run card: Built around: [built around] · Mode: [mode] · When: [when] · Product: [product, when filled in] · Shown: [how the product is shown] · Notes: [notes, when filled in]
 Account health check card: Focus: [focus, or “Full account check”] · A check only — nothing gets made, nothing posts
 Product-to-Post card: Product-to-Post · Product: [product] · Type: [product type] · Run Order step 5: one styled model image — no script or caption yet
@@ -642,7 +642,7 @@ Build
 Video Agent builds it in Video Express — approved image is the only reference
 RUN ORDER 8
 Checks
-Claude frame check, then Nora, then Glam
+Mila's frame-by-frame check, then Glam
 RUN ORDER 9
 Post
 Caption & Post — only after Glam lifts the freeze
@@ -667,7 +667,7 @@ Conversational delivery, natural gestures and head movement, normal blinking. If
 AI label on, product attached
 Every post carries the AI-generated label and the real product link, with the caption scrubbed clean before it goes out.
 🔍
-Director QC before anything posts
+Mila's QC, then Glam, before anything posts
 Frames are swept, sound is checked, the product is matched against the listing. A video that fails never reaches the schedule.
 🎃
 Live games: real people, real prizes, Glam’s call
@@ -777,7 +777,7 @@ Never: claim "true to size" / "perfect" / "stretches so well" without reliable p
 - NO prices and NO sold counts in any video or caption — ever (false-advertising/violation protection). Prices are checked for picking/verification only and never spoken, shown, or captioned.
 - Nothing posts automatically. The "Next" package is delivered to Glam in chat; posting happens only after her separate approval, with the correct product attached — never post without the product link.
 - Exact products only: the listing's real photo is the reference; look-alikes fail QC.
-- Director QC before anything posts.
+- Mila's QC, then Glam, before anything posts.
 
 ## Final quality gate (run before delivering each stage)
 

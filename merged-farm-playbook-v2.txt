@@ -621,6 +621,7 @@ Farm law sits on top
 NO prices and NO sold counts in any video or caption — farm law, no exceptions.
 Nothing posts without Glam’s approval.
 Promotional disclosure on and AI label on, every post.
+No health or beauty claims of your own. Never say or imply a product clears acne, is anti-aging, heals, treats, cures, or is FDA approved — spoken, on screen, or in the caption. No medical claims and no weight loss claims of any kind, ever. Banned claims are never allowed, even if the listing says them — TikTok flags this account, not the seller. Any other benefit goes in only if the listing states it, word for word. When in doubt, the claim does not go in. Describe only what the camera sees.
 Attach the actual correct product listing — the real one for this product.
 Before posting, verify in the live listing: title, size chart and availability.
 The full Product-to-Post skill prompt — tap to copy, paste it anywhere the workflow runs

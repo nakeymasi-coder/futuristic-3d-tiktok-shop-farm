@@ -143,3 +143,13 @@ create → scout/pick evidence → photo attached → match (independent checker
     use-claim 'been using'). A clean dress script passes. Regressions:
     turmeric script still INVALID on all five categories; story pair
     unchanged (label fails, real sentence clears).
+
+(m) CLIP RULE SETTLED (Nov 24, Claude's correction + Glam's yes): every
+    clip is 8 SECONDS FLAT (the VideoExpress workflow locks clips at 8s),
+    max 8 spoken words in a clip; four clips make the ~30-second video.
+    NOT 4–8 seconds (Indigo's first draft — corrected on the call). The
+    old 10-second clip shape and its 18–27 words of dialogue are retired
+    everywhere in the playbook (skeleton re-timed 0–3 / 3–6 / 6–8). The
+    1–2 second clean close-up of the REAL listing photo is KEPT — it is
+    what protects the label from being rendered wrong. Runbook Step 8
+    carries the rule; the farm page edit carries it to the page.

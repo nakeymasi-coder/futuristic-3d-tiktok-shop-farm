@@ -109,3 +109,13 @@ create → scout/pick evidence → photo attached → match (independent checker
     all winter, and I just want to feel soft again.") CLEARS Step 2 with
     "smart story check passed". The old 5-word count alone would have passed
     the label line (9 words); the new check fails it on the spec screen.
+
+(j) STEP 6 SCRIPT CHECK (Nov 24, Glam-approved + Claude's three additions):
+    the REAL rejected turmeric script (run-2026-11-24-2, copied to /tmp)
+    derives Step 6 INVALID — line-length x3 (18/15/15 spoken words vs the
+    8-word bar), spec 'milliliters' on LINE 3, no-cta — and approve-script
+    REFUSES to record an approval on it (no glam-approval.md written).
+    Probe script: LINE 1 "Get ready with me." alone fails mode-name-hook;
+    "I used it every single morning." fails use-claim. A clean 3-line
+    script (8/7/6 words, person-first hook, CTA: line pointing below)
+    passes the check and takes Glam's approval normally.

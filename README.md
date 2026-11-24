@@ -6,10 +6,10 @@ Glam's futuristic 3D TikTok Shop agent farm - a showcase page in TikTok colors (
 
 ## The 7 agents
 
-1. Pinterest Scout
+1. TikTok Scout
 2. TikTok Shop Agent
 3. Story Agent
-4. Muse Video Agent
+4. Video Agent
 5. Director QC
 6. Caption & Post
 7. TikTok Live Game Agent (LIVE ONLY) - watches Glam's TikTok Live chat, pulls the real people engaging (recent commenters, Top 10 Engagers), and builds a live game from those people: Names Wheel, Number Wheel 1 to 200, Top 10 Engagers Wheel, Top Engager Showdown, Trivia Pop, Last One Standing, Mystery Pumpkin Pick, Secret Word Drop, Closest Guess, Head-to-Head.

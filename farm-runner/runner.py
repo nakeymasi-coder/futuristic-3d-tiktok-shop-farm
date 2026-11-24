@@ -211,12 +211,26 @@ def nonempty_file(path):
 
 
 # Spec / label words that make a "story sentence" label copy, not a story
-# (Glam + Claude, Nov 24 — the smart story check, first version).
+# (Glam + Claude, Nov 24 — the smart story check, first version). WIDENED
+# Nov 24 (Glam's worry: it only worked for turmeric oil) — the list now
+# covers fashion and general categories too: fabric percentages and
+# materials, true to size, sizes, stretchy, waterproof, and measures and
+# tech specs of every kind. One shared list: the story check and the
+# Step 6 script check both read it.
 STORY_SPEC_WORDS = (
     "ml", "milliliter", "milliliters", "millilitre", "millilitres",
     "oz", "ounce", "ounces", "gram", "grams", "kg", "mg", "percent", "%",
     "plant-based", "plant based", "made with", "formula", "ingredient",
     "ingredients", "net wt", "fl oz",
+    "true to size", "runs small", "runs large", "size up", "size down",
+    "stretchy", "waterproof", "water resistant", "water-resistant",
+    "non slip", "nonslip", "non-slip", "leakproof",
+    "polyester", "spandex", "elastane", "nylon", "rayon", "viscose",
+    "acrylic", "linen", "silk", "wool", "denim", "leather", "suede",
+    "liter", "liters", "litre", "litres", "quart", "quarts", "gallon",
+    "gallons", "inches", "inch", "pounds", "lbs", "watts", "watt",
+    "volts", "volt", "mah", "battery", "batteries", "usb", "bluetooth",
+    "led", "stainless", "bpa", "dishwasher safe", "microwave safe",
 )
 # The sentence must be about a PERSON — one of these has to be in it. The
 # list is spelled out on purpose (Claude, Nov 24): the check needs something
@@ -268,12 +282,10 @@ def story_sentence_state(path):
     return (True, "story sentence on file and passing the smart story check")
 
 
-# Measures / spec words banned from SPOKEN script lines (the "two hundred
-# milliliters" class) — Step 6 script check (Glam + Claude, Nov 24).
-SCRIPT_SPEC_WORDS = (
-    "ml", "milliliter", "milliliters", "millilitre", "millilitres",
-    "oz", "ounce", "ounces", "gram", "grams", "%", "net wt", "fl oz",
-)
+# Spec words banned from SPOKEN script lines — the same shared, widened
+# list the story check reads (beauty measures, fashion specs, general
+# tech/home specs), so the bars hold for any product, not just the oil.
+SCRIPT_SPEC_WORDS = STORY_SPEC_WORDS
 # Mode names (the Mode Barn) — a first line that is ONLY the mode name is a
 # label, not a hook (Claude, Nov 24).
 MODE_NAMES = (
@@ -293,6 +305,10 @@ USE_CLAIM_PATTERNS = (
     # "I use it," said sideways.
     r"\bliving on my\b",
     r"\bhas been living\b",
+    # The pattern, not just the phrase (Claude, Nov 24 — widened past
+    # beauty): been using / wearing / reaching for, and "my go-to."
+    r"\bbeen (?:using|wearing|reaching for|grabbing|taking)\b",
+    r"\bmy go[- ]to\b",
 )
 
 
@@ -353,12 +369,24 @@ def script_findings(run):
         if re.search(r"\bsold\b", low):
             findings.append(("sold-count", f"LINE {i} carries a sold "
                              "count — never in a script"))
+        claimed = False
         for pat in USE_CLAIM_PATTERNS:
             if re.search(pat, low):
                 findings.append(("use-claim", f"LINE {i} makes an 'I used "
                                  "it' claim — the model is AI and never "
                                  "used it"))
+                claimed = True
                 break
+        if not claimed and re.search(r"\ball (?:week|month)\b", low):
+            # "all week / all month" is a use claim only in the model's own
+            # mouth (first person) — in the viewer's moment ("your feet
+            # hurt all week") it is a hook, and it passes.
+            toks = set(re.findall(r"[a-z']+", low))
+            if toks.intersection({"i", "i've", "i'm", "my", "me", "mine"}):
+                findings.append(("use-claim", f"LINE {i} makes an 'I used "
+                                 "it' claim ('all week/month' in the "
+                                 "model's own voice) — the model is AI and "
+                                 "never used it"))
     first_low = re.sub(r"\s+", " ", re.sub(
         r"[^a-z' ]", " ", lines[0].lower())).strip()
     for mode in MODE_NAMES:

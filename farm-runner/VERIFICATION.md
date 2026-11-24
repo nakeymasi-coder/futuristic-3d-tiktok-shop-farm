@@ -129,3 +129,17 @@ create → scout/pick evidence → photo attached → match (independent checker
     rejected script: SEVEN findings — line-length x3, use-claim (LINE 1),
     spec 'milliliters', mode-name-hook, no-cta — approval refused. The
     clean test script still passes unchanged.
+
+(l) CHECKS WIDENED PAST BEAUTY (Nov 24, Glam's worry + Claude's list): one
+    shared spec list now covers fabric percentages/materials, true to
+    size, sizes, stretchy, waterproof, liters, watts, tech specs; the
+    story check and the script check both read it. Use-claim patterns
+    widened: been using/wearing/reaching for, "my go-to," and "all
+    week/month" in the model's own first-person voice (a viewer's-moment
+    "all week" still passes). THREE-PRODUCT TEST: dress script fails
+    (spec 'percent' on the polyester/true-to-size line, use-claim
+    'my go to'); shoes fail (use-claim 'been wearing... all week',
+    spec 'waterproof'); non-beauty bottle fails (spec 'leakproof',
+    use-claim 'been using'). A clean dress script passes. Regressions:
+    turmeric script still INVALID on all five categories; story pair
+    unchanged (label fails, real sentence clears).

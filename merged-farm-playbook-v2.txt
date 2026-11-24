@@ -577,7 +577,7 @@ Run the TikTok Shop Product-to-Post Workflow on: [Product name]
 Product type: [Product type]
 Notes: [Notes for the crew — line included when filled in]
 
-Run Order step 5 only: from the product photo I upload, generate ONE styled model image — a fresh adult Black model per GG casting (rotating casting, never the same model twice), natural light, phone-camera feel, full figure head-to-toe, the product as the hero and never obscured.
+Run Order step 5 only: from the product photo I upload, generate ONE styled model image — a fresh adult Black model per GG casting (rotating casting, never the same model twice), natural light, phone-camera feel, framing follows the category (clothes and shoes, full figure head-to-toe; skincare, makeup, and hair, chest-up or face close-up; body care and supplements, chest-up or hands only, with no claims; bags, full figure or waist-up carrying them; fitness equipment, full body in use; home, kitchen, electronics, books, and toys, hands and the product in close-up), the product as the hero and never obscured.
 Do NOT write the Video Express clip prompts, the hook, or the caption yet. I will review the image and ask for edits until I approve it — edit the existing image, never jump ahead. Only when I say “Next” do you deliver the Video Express clip prompts (C## format, Realistic Consistent Character workflow, approved styled image as the only reference, max 8 spoken words per line) + hook + caption. “Next” never means make another image.
 Farm law on top: no prices and no sold counts in any video or caption · AI label on · nothing posts without Glam's approval.
 Copy starter prompt
@@ -587,7 +587,7 @@ Fresh face, every product
 Adult Black women, generally early 30s — late 30s and 40s included, with real size diversity.
 A fresh rotating model every product: different face, skin tone, body type and hairstyle — never the same model twice.
 Natural light, phone-camera feel — like a friend shot it, not a studio ad.
-Full figure, head-to-toe, and the product is never obscured.
+Framing follows the category: clothes and shoes, full figure head-to-toe; skincare, makeup, and hair, chest-up or face close-up; body care, chest-up or hands only, with no claims; supplements, chest-up or hands only, with no claims; bags, full figure or waist-up carrying them; fitness equipment, full body in use; home, kitchen, electronics, books, and toys, hands and the product in close-up. The product is never obscured.
 Plain and simple: this lane uses rotating models on purpose — it does not use the farm’s locked character.
 PRODUCT FIDELITY
 The product is the hero
@@ -623,6 +623,8 @@ Nothing posts without Glam’s approval.
 Promotional disclosure on and AI label on, every post.
 No health or beauty claims of your own. Never say or imply a product clears acne, is anti-aging, heals, treats, cures, or is FDA approved — spoken, on screen, or in the caption. No medical claims and no weight loss claims of any kind, ever. Banned claims are never allowed, even if the listing says them — TikTok flags this account, not the seller. Any other benefit goes in only if the listing states it, word for word. When in doubt, the claim does not go in. Describe only what the camera sees.
 Before-and-after is not allowed for skincare, body products, and hair products — no before/after shots, no split screens, no 'look at my skin now' comparisons for those categories. No implied before-and-after either — no 'day one versus day seven,' no transformation timelines. And nothing that compares weight or body shape, before or after, in any category.
+This skill covers every category in Glam's showcase — skincare; body and personal care; wellness and supplements; women's clothing; hair care; home; electronics and accessories; makeup; shoes; kitchen; books and stationery; men's clothing; fitness equipment; bags; and toys — not fashion only. The same compliance rules apply to all of them, and each category's demo follows the farm's show-it rule for that category.
+Framing follows the category: clothes and shoes, full figure head-to-toe; skincare, makeup, and hair, chest-up or face close-up; body care, chest-up or hands only, with no claims; supplements, chest-up or hands only, with no claims; bags, full figure or waist-up carrying them; fitness equipment, full body in use; home, kitchen, electronics, books, and toys, hands and the product in close-up. The product is never obscured.
 Attach the actual correct product listing — the real one for this product.
 Before posting, verify in the live listing: title, size chart and availability.
 The full Product-to-Post skill prompt — tap to copy, paste it anywhere the workflow runs
@@ -725,7 +727,7 @@ Activation: she uploads a product photo and says "do your thing" / "put it to wo
 - ROTATE skin tones, faces, body types, hair textures, cuts, colors, poses, shoes, locations. Never default to the same model or the same blonde highlighted updo. (This lane deliberately uses a fresh model per product — confirmed by Glam 2026-11-15, "keep hers": it does NOT use the farm's locked Character Glam.)
 - Use the listing's actual size range to inform styling; include curvy, slim-thick, and plus-size figures where appropriate; never imply an item fits a size not offered; never slim a plus-size figure down.
 - Fresh aesthetic per item: neighborhood fair, city sidewalk, rooftop, brunch spot, bedroom, living room, porch, party venue, casual street, fall market.
-- Natural window/existing outdoor light, plausible phone-camera perspective, visible texture, realistic anatomy, non-studio staging. Full figure head-to-toe when feasible; primary product clearly visible, never obscured by hair, accessories, bags, or poses.
+- Natural window/existing outdoor light, plausible phone-camera perspective, visible texture, realistic anatomy, non-studio staging. Framing follows the category (see the casting rule in Compliance); primary product clearly visible, never obscured by hair, accessories, bags, or poses.
 
 ## Product fidelity rules (the product is the hero)
 

@@ -103,9 +103,16 @@ STEP_DIRS = {
 # make the model invent the product and its lettering.
 # STAGING BAR (farm Steps 6 & 8): product stationary by default — on the
 # counter, no hands on it, clean close-up at the end. A pour, hand-off, or any
-# handling/full-motion product shot is a send-back unless a staging proof
-# (steps/step8-package/staging-proof.md) records a test build that proved
-# that exact staging.
+# handling of the product container is a send-back, ALWAYS — no proof waives
+# it. SHOW-IT SHOT (Glam + Claude, Nov 24 — the texture rule, gone deeper so
+# every category has one): a package may declare exactly ONE show-it shot —
+# the product shown doing what it is for. Skincare: a "Texture shot:" line,
+# the product on skin only, the bottle stays on the counter. Other
+# categories: a "Show-it shot:" line stating the action — fabric moving for
+# clothes, shoes on feet walking, a gadget in use. ANY show-it shot needs
+# steps/step8-package/staging-proof.md on file first: a test build that
+# proved that exact shot holds the product true. The proof clears that one
+# shot and nothing else.
 # ----------------------------------------------------------------------------
 
 LABEL_WORDING_PATTERNS = [
@@ -461,9 +468,36 @@ def lint_package(run):
                 break
         for pat in STAGING_PATTERNS:
             if re.search(pat, low):
-                cat = "STAGING (proof on file)" if staging_proof else "STAGING"
-                findings.append((cat, i, line))
+                findings.append(("STAGING", i, line))
                 break
+
+    # SHOW-IT SHOT — the one legal motion/hand shot per video, any category
+    # (Glam + Claude, Nov 24): exactly one declared shot, proven first.
+    showit = [(i, raw.strip()) for i, raw in enumerate(lines, start=1)
+              if re.match(r"(?i)\s*(texture|show-it)\s+shot\s*:", raw)]
+    if len(showit) > 1:
+        findings.append(("SHOW-IT SHOT", 0, "more than one show-it shot "
+                         "declared — exactly ONE show-it shot per video"))
+    elif len(showit) == 1:
+        tno, tline = showit[0]
+        tlow = tline.lower()
+        if tlow.startswith("texture"):
+            if "on skin" not in tlow or "counter" not in tlow:
+                findings.append(("SHOW-IT SHOT", tno, "the texture shot "
+                                 "declaration must state the product ON "
+                                 "SKIN only and the bottle stays on the "
+                                 "COUNTER during the shot"))
+        elif not any(w in tlow for w in ("moving", "walking", "in use",
+                                         "on feet")):
+            findings.append(("SHOW-IT SHOT", tno, "the show-it shot must "
+                             "state what the product is DOING — fabric "
+                             "moving (clothes), shoes on feet walking, "
+                             "the gadget in use"))
+        if not staging_proof:
+            findings.append(("SHOW-IT SHOT", tno, "show-it shot declared "
+                             "but no staging-proof.md on file — any shot "
+                             "with hands or motion needs a test build "
+                             "proving that exact shot first"))
 
     if not REFERENCES_LINE.search(text):
         findings.append(("REFERENCES", 0,
@@ -477,8 +511,10 @@ def lint_package(run):
 
 
 def blocking_findings(findings):
-    """Findings that block Step 8 (staging findings are waived only by proof)."""
-    return [f for f in findings if f[0] != "STAGING (proof on file)"]
+    """Every lint finding blocks Step 8. (Nov 24 narrowing: a staging proof
+    no longer waives handling findings — it only validates the one declared
+    texture shot, which produces no finding when it is in order.)"""
+    return list(findings)
 
 
 # ----------------------------------------------------------------------------
@@ -841,7 +877,7 @@ def cmd_lint(args):
     if bad:
         print(f"LINT RESULT: FAIL — {len(bad)} blocking finding(s). Step 8 cannot clear.")
         return 2
-    print("LINT RESULT: PASS with staging proof on file (staging findings waived by proof).")
+    print("LINT RESULT: PASS.")
     return 0
 
 

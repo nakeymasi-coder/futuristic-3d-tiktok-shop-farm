@@ -119,3 +119,13 @@ create → scout/pick evidence → photo attached → match (independent checker
     "I used it every single morning." fails use-claim. A clean 3-line
     script (8/7/6 words, person-first hook, CTA: line pointing below)
     passes the check and takes Glam's approval normally.
+
+(k) SCRIPT CHECK TIGHTENED (Nov 24, Claude's catch): the mode-name bar
+    first failed only a first line that was JUST the mode name — but the
+    rejected turmeric script OPENS with "Get ready with me — ..." and
+    slipped that bar. Bar now fails any first line that OPENS with a mode
+    name. "Has been living on my counter all week" added as an applied
+    use claim ("living on my" / "has been living"). Retest on the exact
+    rejected script: SEVEN findings — line-length x3, use-claim (LINE 1),
+    spec 'milliliters', mode-name-hook, no-cta — approval refused. The
+    clean test script still passes unchanged.

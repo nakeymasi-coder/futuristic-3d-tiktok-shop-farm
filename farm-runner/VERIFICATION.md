@@ -100,3 +100,12 @@ create → scout/pick evidence → photo attached → match (independent checker
 - **Test B** (same copy + a Story: line added): Step 2 = CLEARED — "scout findings + story sentence on file"; Steps 3–5 clear. ✅
 - **Live consequence, stated plainly:** the real run `run-2026-11-24-2` (Turmeric) now derives WAITING at Step 2 — its scout.md never had a story sentence, which is exactly why its Step 6 script came out as label copy and was rejected. The run cannot move until a real story sentence is on its scout file.
 - Farm page half of the same fix dispatched the same hour (artifact edit: Scout role text, Start Run prompt opening — person first, Scout QC lines, Story Agent send-back, farm laws).
+
+(i) SMART STORY CHECK (Nov 24, Glam-approved, first version): on a /tmp copy
+    of the mock run — a label-copy Story line ("Plant based massage oil made
+    with turmeric and honey, two hundred milliliters.") leaves Step 2 WAITING
+    with the reason naming the spec word 'milliliters' ("it names a spec,
+    not a person"); a real person sentence ("My skin has been dry and tight
+    all winter, and I just want to feel soft again.") CLEARS Step 2 with
+    "smart story check passed". The old 5-word count alone would have passed
+    the label line (9 words); the new check fails it on the spec screen.

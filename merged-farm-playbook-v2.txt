@@ -744,13 +744,13 @@ Activation: she uploads a product photo and says "do your thing" / "put it to wo
 
 ### A — Video Express clip prompts
 - One copy-ready detailed prompt; the approved image is the strict scene, character, and product reference.
-- Location, exact look, lighting, featured item, then a simple natural movement sequence planned as 0–3s / 3–7s / 7–10s.
-- Dialogue brief enough to believe in 10 seconds: roughly 18–27 words total; shorten if needed.
+- Location, exact look, lighting, featured item, then a simple natural movement sequence planned as 0–3s / 3–6s / 6–8s (every clip is 8 seconds flat).
+- Dialogue: every clip is 8 seconds flat and carries max 8 spoken words; a line that needs more words is split across clips, never stretched. Four clips make the video. (Clip rule, Glam + Claude, Nov 24 — the old 10-second shape and its 18–27 words are retired.)
 - Product is the visual focus: highlight one or two observable details, not the whole outfit.
 - Voice: lively, Southern, grown-woman, occasionally funny, confident, conversational; vary phrases. No robotic sales voice; no repetitive "giving thick" / "baby" / "I came for…" formulas.
 - One continuous shot, subtle natural ambience, believable fabric movement and expressions, proper lip sync, NO background music, NO text/subtitles/captions, no flashy camera effects.
-- Two women: identify positions, voices, styles, exact speaker turns; no overlapping dialogue; whole exchange must fit 10 seconds.
-- Skeleton: "Use approved reference image. Create a realistic 10-second phone-recorded video of [CHARACTER] in [LOCATION], wearing [EXACT PRODUCT AND STYLING]. 0–3s: [natural introductory action]. 3–7s: [demonstrate key product feature]. 7–10s: [finish and reaction]. Dialogue: "[ONE SHORT, DISTINCTIVE, NATURAL LINE]." Preserve product and character continuity; realistic lip sync, one continuous shot, natural ambient light and sound. No music, text overlay, captions, or subtitles."
+- Two women: identify positions, voices, styles, exact speaker turns; no overlapping dialogue; each line fits its own 8-second clip, max 8 spoken words.
+- Skeleton: "Use approved reference image. Create a realistic 8-second phone-recorded video of [CHARACTER] in [LOCATION], wearing [EXACT PRODUCT AND STYLING]. 0–3s: [natural introductory action]. 3–6s: [demonstrate key product feature]. 6–8s: [finish and reaction]. Dialogue: "[ONE SHORT, DISTINCTIVE, NATURAL LINE]." Preserve product and character continuity; realistic lip sync, one continuous shot, natural ambient light and sound. No music, text overlay, captions, or subtitles."
 
 ### B — TikTok hook
 One short scroll-stopping opening line specific to the product or scene — playful, relatable, funny, or a style dilemma. Do not repeat the spoken dialogue verbatim.
@@ -781,7 +781,7 @@ Never: claim "true to size" / "perfect" / "stretches so well" without reliable p
 
 ## Final quality gate (run before delivering each stage)
 
-Correct workflow stage? Product hero clear? Model genuinely different from the last? Product reference faithful? For "Next": all three deliverables present, dialogue fits 10 seconds, no embedded music/text, natural conversational tone, caption ready to post, hashtag preference honored, no unsupported claims or fake testimonials?
+Correct workflow stage? Product hero clear? Model genuinely different from the last? Product reference faithful? For "Next": all three deliverables present, every clip 8 seconds flat with max 8 spoken words a line, no embedded music/text, natural conversational tone, caption ready to post, hashtag preference honored, no unsupported claims or fake testimonials?
 
 PART 3 — VIDEO EXPRESS REALISTIC CONSISTENT CHARACTER WORKFLOW
 STEP ZERO - THE VIDEO EXPRESS WORKFLOW (Glam's rule: follow it EXACTLY, every video, no improvising)

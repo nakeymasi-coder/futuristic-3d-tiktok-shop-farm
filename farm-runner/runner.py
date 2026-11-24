@@ -207,17 +207,62 @@ def nonempty_file(path):
         encoding="utf-8", errors="replace").strip() != ""
 
 
-def story_sentence_on_file(path):
-    """The Scout's story sentence: a 'Story:' line in scout.md with a real
-    sentence after it (at least 5 words). One real sentence in Glam's voice —
-    who this is for and why they'd care. Findings without it do not hand off."""
+# Spec / label words that make a "story sentence" label copy, not a story
+# (Glam + Claude, Nov 24 — the smart story check, first version).
+STORY_SPEC_WORDS = (
+    "ml", "milliliter", "milliliters", "millilitre", "millilitres",
+    "oz", "ounce", "ounces", "gram", "grams", "kg", "mg", "percent", "%",
+    "plant-based", "plant based", "made with", "formula", "ingredient",
+    "ingredients", "net wt", "fl oz",
+)
+# The sentence must be about a PERSON — one of these has to be in it. The
+# list is spelled out on purpose (Claude, Nov 24): the check needs something
+# concrete to look for.
+STORY_PERSON_WORDS = (
+    "you", "your", "yours", "her", "hers", "she", "i", "i'm", "my", "me",
+    "we", "our", "mom", "grandma", "sister", "friend", "girl", "woman",
+    "women", "ladies", "he", "his", "him",
+)
+
+
+def story_sentence_state(path):
+    """The Scout's story sentence, checked the smart way. Returns
+    (ok, reason). The 'Story:' line in scout.md must carry ONE real sentence
+    in Glam's voice that (1) is a real sentence (>= 5 words), (2) contains
+    NO spec/label word and no number — label copy fails, and (3) names a
+    PERSON (you, her, my, she, a mom, a grandma, a friend...) and her
+    moment. Findings without a passing sentence do not hand off."""
     if not path.exists():
-        return False
+        return (False, "no scout file on file")
+    sentence = None
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
         s = line.strip().lstrip("#").strip()
         if s.lower().startswith("story:"):
-            return len(s.split(":", 1)[1].split()) >= 5
-    return False
+            sentence = s.split(":", 1)[1].strip()
+            break
+    if sentence is None:
+        return (False, "no 'Story:' line in scout.md")
+    if len(sentence.split()) < 5:
+        return (False, "the 'Story:' line is under 5 words — not a real sentence")
+    if any(ch.isdigit() for ch in sentence):
+        return (False, "story sentence FAILED the smart story check — it "
+                       "contains a number: it names a spec, not a person "
+                       "(label copy does not leave the Scout)")
+    low = sentence.lower()
+    for w in STORY_SPEC_WORDS:
+        hit = (re.search(r"\b" + re.escape(w) + r"\b", low)
+               if w.replace("-", "").isalpha() else w in low)
+        if hit:
+            return (False, f"story sentence FAILED the smart story check — "
+                           f"it contains the spec/label word '{w}': it names "
+                           "a spec, not a person (label copy does not leave "
+                           "the Scout)")
+    tokens = set(re.findall(r"[a-z']+", low))
+    if not tokens.intersection(STORY_PERSON_WORDS):
+        return (False, "story sentence FAILED the smart story check — it "
+                       "names nobody: no person word (you, her, my, she, a "
+                       "mom, a grandma, a friend) and no real moment")
+    return (True, "story sentence on file and passing the smart story check")
 
 
 def sheet_log(run, message):
@@ -302,13 +347,15 @@ def eval_step(run, cfg, n):
         scout = steps / STEP_DIRS[2] / "scout.md"
         if not nonempty_file(scout):
             return ("WAITING", "no scout findings on file (steps/step2-scout/scout.md)")
-        if not story_sentence_on_file(scout):
-            return ("WAITING", "scout findings on file but NO STORY SENTENCE — the Scout "
-                               "does not hand off without one real sentence in Glam's voice: "
-                               "who this is for and why they'd care. Add a line starting "
-                               "'Story:' to steps/step2-scout/scout.md. If it reads like a "
-                               "product label, it does not leave the Scout")
-        return ("CLEARED", "scout findings + story sentence on file")
+        ok, why = story_sentence_state(scout)
+        if not ok:
+            return ("WAITING", f"scout findings on file but the story sentence "
+                               f"does not pass — {why}. The Scout does not hand "
+                               "off without one real sentence in Glam's voice: "
+                               "who this is for and why they'd care (a 'Story:' "
+                               "line in steps/step2-scout/scout.md)")
+        return ("CLEARED", "scout findings + story sentence on file "
+                           "(smart story check passed)")
     if n == 3:
         if nonempty_file(steps / STEP_DIRS[3] / "pick.md") and cfg.get("pick"):
             return ("CLEARED", f"pick recorded: {cfg['pick']}")

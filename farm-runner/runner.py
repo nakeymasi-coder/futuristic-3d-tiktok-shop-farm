@@ -38,7 +38,10 @@ Evidence map (what clears each step):
   4 Product Photo  an image file in steps/step4-photo/
   5 Photo Match    steps/step5-match/match-verdict.md with verdict: MATCH,
                    signed by a checker who is NOT the grabber of record
-  6 Script         steps/step6-script/script.md non-empty AND
+  6 Script         steps/step6-script/script.md non-empty AND passing the
+                   Step 6 script check (script_findings: <=8 words a line,
+                   person-first hook not just the mode name, soft CTA on
+                   file, no specs/prices/sold counts/use claims) AND
                    steps/step6-script/glam-approval.md (approved_by: Glam)
   7 Styled Image   an image file in steps/step7-styled/
   8 Package        steps/step8-package/package.md present AND passing lint
@@ -265,6 +268,116 @@ def story_sentence_state(path):
     return (True, "story sentence on file and passing the smart story check")
 
 
+# Measures / spec words banned from SPOKEN script lines (the "two hundred
+# milliliters" class) — Step 6 script check (Glam + Claude, Nov 24).
+SCRIPT_SPEC_WORDS = (
+    "ml", "milliliter", "milliliters", "millilitre", "millilitres",
+    "oz", "ounce", "ounces", "gram", "grams", "%", "net wt", "fl oz",
+)
+# Mode names (the Mode Barn) — a first line that is ONLY the mode name is a
+# label, not a hook (Claude, Nov 24).
+MODE_NAMES = (
+    "get ready with me", "grwm", "bathroom vanity demo", "before you buy",
+    "morning routine", "nighttime routine", "restock day",
+    "unboxing reveal",
+)
+# Use claims the AI model can never make (the hook speaks to the VIEWER's
+# moment, never "I used it" — Claude's line, Nov 24).
+USE_CLAIM_PATTERNS = (
+    r"\bi (?:used|use|tried|bought|ordered)\b",
+    r"\bbeen using\b",
+    r"\bworks for me\b",
+    r"\bmy results\b",
+)
+
+
+def spoken_lines(script_path):
+    """The script's spoken lines: the quoted text on LINE rows of script.md."""
+    out = []
+    if not script_path.exists():
+        return out
+    for raw in script_path.read_text(
+            encoding="utf-8", errors="replace").splitlines():
+        if not raw.strip().lower().startswith("line"):
+            continue
+        m = re.search(r'"([^"]+)"', raw) or re.search(r"“([^”]+)”", raw)
+        if m:
+            out.append(m.group(1).strip())
+    return out
+
+
+def script_findings(run):
+    """The Step 6 SCRIPT CHECK (Glam + Claude, Nov 24): the mechanical bars
+    a script must pass BEFORE Glam's approval gate, so she is not the first
+    filter. Returns a list of (category, message); empty = passing.
+    Bars: every spoken line <= 8 words; no 'tap the link'; no spec/measure
+    words or numbers in spoken lines; no price and no sold counts; no
+    'I used it' use claims (the model is AI); the first spoken line is a
+    person-first HOOK, not just the mode name; and the soft CTA up top is
+    on file (a 'CTA:' line pointing below — on screen + the caption's
+    first line)."""
+    findings = []
+    script = run / "steps" / STEP_DIRS[6] / "script.md"
+    lines = spoken_lines(script)
+    if not lines:
+        return [("no-spoken-lines", "script.md carries no LINE rows with "
+                 "quoted spoken lines — there is nothing the script check "
+                 "can read")]
+    for i, line in enumerate(lines, 1):
+        low = line.lower()
+        n_words = len(line.split())
+        if n_words > 8:
+            findings.append(("line-length", f"LINE {i} is {n_words} spoken "
+                             "words (bar: 8 max)"))
+        if "tap the link" in low:
+            findings.append(("tap-the-link", f"LINE {i} says 'tap the "
+                             "link' — the soft CTA points below instead"))
+        if any(ch.isdigit() for ch in line):
+            findings.append(("spec", f"LINE {i} contains a number — spoken "
+                             "lines carry no specs"))
+        for w in SCRIPT_SPEC_WORDS:
+            hit = (re.search(r"\b" + re.escape(w) + r"\b", low)
+                   if w.replace("-", "").isalpha() else w in low)
+            if hit:
+                findings.append(("spec", f"LINE {i} contains the spec word "
+                                 f"'{w}' — label copy is not spoken"))
+                break
+        if "$" in line or "dollar" in low or "price" in low:
+            findings.append(("price", f"LINE {i} carries a price — no "
+                             "prices in spoken lines"))
+        if re.search(r"\bsold\b", low):
+            findings.append(("sold-count", f"LINE {i} carries a sold "
+                             "count — never in a script"))
+        for pat in USE_CLAIM_PATTERNS:
+            if re.search(pat, low):
+                findings.append(("use-claim", f"LINE {i} makes an 'I used "
+                                 "it' claim — the model is AI and never "
+                                 "used it"))
+                break
+    first_low = re.sub(r"\s+", " ", re.sub(
+        r"[^a-z' ]", " ", lines[0].lower())).strip()
+    for mode in MODE_NAMES:
+        if first_low == mode or first_low.startswith(mode + " "):
+            if len(first_low[len(mode):].strip().split()) < 3:
+                findings.append(("mode-name-hook", "LINE 1 is just the "
+                                 f"mode name ('{mode}') — a label, not a "
+                                 "person-first hook"))
+            break
+    tokens = set(re.findall(r"[a-z']+", lines[0].lower()))
+    if not tokens.intersection(STORY_PERSON_WORDS):
+        findings.append(("hook", "LINE 1 names no person (you, her, my, "
+                         "she...) — the hook is person-first or it fails"))
+    text = (script.read_text(encoding="utf-8", errors="replace")
+            if script.exists() else "")
+    cta_ok = any(l.strip().lower().startswith("cta:") and "below" in l.lower()
+                 for l in text.splitlines())
+    if not cta_ok:
+        findings.append(("no-cta", "no soft CTA up top on file — script.md "
+                         "needs a 'CTA:' line pointing below (on screen + "
+                         "the caption's first line)"))
+    return findings
+
+
 def sheet_log(run, message):
     """Append one line to the run sheet's GATE LOG (runner-written only)."""
     sheet = run / "RUN-SHEET.md"
@@ -398,15 +511,22 @@ def eval_step(run, cfg, n):
         return ("CLEARED", f"photo MATCH recorded by {checker} "
                            f"(grabber: {grabber}) against the listing's own image")
     if n == 6:
-        script_ok = nonempty_file(steps / STEP_DIRS[6] / "script.md")
+        script = steps / STEP_DIRS[6] / "script.md"
+        if not nonempty_file(script):
+            return ("WAITING", "no script on file (steps/step6-script/script.md)")
+        bad = script_findings(run)
+        if bad:
+            cats = ", ".join(sorted({f[0] for f in bad}))
+            return ("INVALID", f"script FAILS the Step 6 script check "
+                               f"({cats}) — {bad[0][1]}; fix the script — "
+                               "Glam is not the first filter")
         approval = parse_kv(steps / STEP_DIRS[6] / "glam-approval.md")
         approved = approval.get("approved_by", "").lower() == "glam"
-        if script_ok and approved:
-            return ("CLEARED", "script on file and Glam's approval recorded")
-        if script_ok and not approved:
-            return ("WAITING", "script is written but Glam has not approved it — "
-                               "human gate: Glam's script approval")
-        return ("WAITING", "no script on file (steps/step6-script/script.md)")
+        if approved:
+            return ("CLEARED", "script on file, passing the script check, "
+                               "and Glam's approval recorded")
+        return ("WAITING", "script on file and passing the script check — "
+                           "human gate: Glam's script approval")
     if n == 7:
         imgs = files_with_ext(steps / STEP_DIRS[7], IMAGE_EXTS)
         if imgs:
@@ -650,6 +770,15 @@ def cmd_record_match(args):
 
 def cmd_approve_script(args):
     run = resolve_run(args.run)
+    bad = script_findings(run)
+    if bad:
+        print("APPROVAL REFUSED — the script FAILS the Step 6 script check; "
+              "Glam's approval is not recorded on a failing script:")
+        for cat, msg in bad:
+            print(f"  [{cat}] {msg}")
+        sheet_log(run, "Step 6: script approval REFUSED — script fails the "
+                       f"script check ({len(bad)} finding(s)).")
+        return 2
     dest = run / "steps" / STEP_DIRS[6] / "glam-approval.md"
     body = (f"approved_by: Glam\n"
             f"recorded_by: {args.recorded_by}\n"

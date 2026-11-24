@@ -606,7 +606,7 @@ Max 12 spoken words per line, natural movement, lip sync
 No music, and no text or subtitles in the Video Express video
 B
 One scroll-stopping hook
-One line that stops the thumb — and it never repeats the dialogue from the Video Express clip prompts. The hook and the script say different things.
+One line that stops the thumb — the hook IS the first spoken line of the script, spoken in the first 3 seconds and shown as on-screen text in the first 3 seconds.
 C
 Ready-to-post caption
 Written and ready to paste, ending with a comment-driving question so viewers answer back. Hashtags optional.
@@ -626,6 +626,7 @@ Before-and-after is not allowed for skincare, body products, and hair products �
 This skill covers every category in Glam's showcase — skincare; body and personal care; wellness and supplements; women's clothing; hair care; home; electronics and accessories; makeup; shoes; kitchen; books and stationery; men's clothing; fitness equipment; bags; and toys — not fashion only. The same compliance rules apply to all of them, and each category's demo follows the farm's show-it rule for that category.
 Framing follows the category: clothes and shoes, full figure head-to-toe; skincare, makeup, and hair, chest-up or face close-up; body care, chest-up or hands only, with no claims; supplements, chest-up or hands only, with no claims; bags, full figure or waist-up carrying them; fitness equipment, full body in use; home, kitchen, electronics, books, and toys, hands and the product in close-up. The product is never obscured.
 Every clip is 8 seconds flat, max 12 spoken words in a clip. Four clips make the video. The old 10-second, 18-to-27-word shape is retired — do not use it.
+The hook is spoken out loud in the first 3 seconds. It is the first spoken line of the script, built from the story sentence, spoken to the viewer's moment. The hook always shows as on screen text in the first three seconds. Every video gets a sound off check before approval — if it wouldn't stop the scroll on mute, it gets reworked. This replaces the old rule that the hook must never repeat the dialogue.
 Attach the actual correct product listing — the real one for this product.
 Before posting, verify in the live listing: title, size chart and availability.
 The full Product-to-Post skill prompt — tap to copy, paste it anywhere the workflow runs

@@ -288,6 +288,11 @@ USE_CLAIM_PATTERNS = (
     r"\bbeen using\b",
     r"\bworks for me\b",
     r"\bmy results\b",
+    # Applied use claims (Claude, Nov 24): "has been living on my counter
+    # all week" claims the product lives with the model — same claim as
+    # "I use it," said sideways.
+    r"\bliving on my\b",
+    r"\bhas been living\b",
 )
 
 
@@ -358,10 +363,11 @@ def script_findings(run):
         r"[^a-z' ]", " ", lines[0].lower())).strip()
     for mode in MODE_NAMES:
         if first_low == mode or first_low.startswith(mode + " "):
-            if len(first_low[len(mode):].strip().split()) < 3:
-                findings.append(("mode-name-hook", "LINE 1 is just the "
-                                 f"mode name ('{mode}') — a label, not a "
-                                 "person-first hook"))
+            findings.append(("mode-name-hook", "LINE 1 opens with the mode "
+                             f"name ('{mode}') — the hook leads with a "
+                             "label, not the viewer's moment (Claude, "
+                             "Nov 24: opening with it fails, even with "
+                             "more words after it)"))
             break
     tokens = set(re.findall(r"[a-z']+", lines[0].lower()))
     if not tokens.intersection(STORY_PERSON_WORDS):

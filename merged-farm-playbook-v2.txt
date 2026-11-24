@@ -399,7 +399,8 @@ MAJOR — must fix. Any one of these and the video goes back before it can pass:
 - No on-screen hook text in the first three seconds.
 - A failed sound-off check — the video would not stop the scroll on mute.
 - Hashtags that do not match the product — generic tags like #fyp or #viral, or tags for the wrong product, type, color, or style.
-MINOR — scored 1 to 5 each: Pacing. Lighting. Music fit. Caption keywords.
+- Caption keywords — the first line of every caption names the product in words people actually search. Indigo also adds a short visible text overlay with that keyword near the top at posting if the editor allows it. If the caption keyword is missing, the post fails and gets fixed before it goes up.
+MINOR — scored 1 to 5 each: Pacing. Lighting. Music fit.
 THE PASS BAR: zero criticals, zero majors, and the minor scores average 4 or higher.
 THE SIGN-OFF: Mila signs every video with her score and her notes — what she checked, what she found, and the exact scene and second of anything she failed, with a screenshot attached of anything she fails. Nothing reaches Glam without Mila's sign-off.
 Mission card:

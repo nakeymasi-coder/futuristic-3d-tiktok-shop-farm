@@ -56,7 +56,7 @@ python3 ~/workspace/farm-runner/runner.py approve-script <run>
 Cast photo used as-is → image lands in `steps/step7-styled/`. The product enters every later step as the **listing photo reference** — never described in words.
 
 ### 7. Package + lint (Step 8)
-Package (VideoExpress prompts, hook, caption) → `steps/step8-package/package.md`. It must carry a `References:` line naming the approved styled image **and** the real listing photo.
+Package (VideoExpress prompts, hook, caption) → `steps/step8-package/package.md`. It must carry a `References:` line naming the approved styled image **and** the real listing photo. **CLIP RULE (Glam + Claude, Nov 24): every clip is 8 seconds flat, max 8 spoken words in a clip — four clips make the video. The old 10-second clip shape (and its 18–27 words of dialogue) is RETIRED. The video ends with a 1–2 second clean close-up of the REAL listing photo — kept on purpose: it is what protects the label from being rendered wrong.**
 ```
 python3 ~/workspace/farm-runner/runner.py lint <run>
 ```

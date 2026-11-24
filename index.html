@@ -249,6 +249,12 @@
       .agent .role{color:var(--cyan);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
       .agent:nth-child(even) .role{color:var(--pink)}
       .agent p{color:var(--muted);font-size:14px;line-height:1.55;margin:10px 0 14px}
+      .agent .roleline{font-size:12.5px;line-height:1.6;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin:0 0 12px}
+      .agent .roleline b{color:var(--ink)}
+      .rolebox{grid-column:1/-1;border:1px solid rgba(37,244,238,.35);border-radius:14px;padding:16px 18px;background:#0a0a12}
+      .rolebox h4{margin:0 0 8px}
+      .rolebox p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+      .rolebox p b{color:var(--ink)}
       .agent .status{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
       .agent .status i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block}
       .agent .num-tag{position:absolute;top:16px;right:18px;font-family:"Baloo 2";font-weight:800;color:rgba(255,255,255,.22);font-size:15px}
@@ -489,7 +495,7 @@
 
       <!-- STATS -->
       <div class="stats" role="list" aria-label="Farm numbers">
-        <div class="stat" role="listitem"><div class="num" data-count="7">0</div><div class="lbl">AI agents on the crew</div></div>
+        <div class="stat" role="listitem"><div class="num" data-count="9">0</div><div class="lbl">AI agents on the crew</div></div>
         <div class="stat" role="listitem"><div class="num" data-count="16">0</div><div class="lbl">Video modes in the barn</div></div>
         <div class="stat" role="listitem"><div class="num" data-count="2">0</div><div class="lbl">TikTok accounts covered</div></div>
         <div class="stat" role="listitem"><div class="num" data-count="3">0</div><div class="lbl">Posts a day — Shop account</div></div>
@@ -498,11 +504,11 @@
       <!-- START A RUN -->
       <section id="intake">
         <div class="sec-head"><span class="idx">01</span><h2>Start a Run</h2></div>
-        <p class="sec-sub">Two ways in. <strong style="color:var(--ink)">Start Run</strong> — the red button — and the farm works the whole Run Order by itself: the Scout finds the angle, the Shop Agent picks the product from the showcase, the Story Agent writes the script, and a finished UGC package lands in your queue. <strong style="color:var(--ink)">You don&rsquo;t have to tell it anything.</strong> Or use the form under it when you already know what you want made. Nothing posts until you say so. Picking <strong style="color:var(--ink)">Account health check</strong> in the form? That&rsquo;s a check only — the product, placement, mode and time fields switch off, nothing gets made, and the prompt asks for a report on the account instead of a video.</p>
+        <p class="sec-sub">Two ways in. <strong style="color:var(--ink)">Start Run</strong> — the red button — opens a run and holds it at each gate. Each step lands only when it has really been done, with the real thing attached — no Scout findings, no product pick, and no script is marked done until it exists on the run. <strong style="color:var(--ink)">Nothing is ever marked done on a promise.</strong> Or use the form under it when you already know what you want made. Nothing posts until you say so. Picking <strong style="color:var(--ink)">Account health check</strong> in the form? That&rsquo;s a check only — the product, placement, mode and time fields switch off, nothing gets made, and the prompt asks for a report on the account instead of a video.</p>
 
         <div class="autorun" id="autorun">
-          <h3>▶ Start Run — the farm decides</h3>
-          <p class="ar-sub">One click. No product to name, no angle to pick, no form to fill. The crew runs the Run Order top to bottom and shows its work at every step — and the run still stops at the last gate: <b>Claude&rsquo;s frame check, Nora, then you</b>, and nothing posts while the freeze is on.</p>
+          <h3>▶ Start Run — opens a gated run</h3>
+          <p class="ar-sub">One click opens a run and holds it at Step 1, waiting. Each step shows WAITING or BLOCKED until the real thing is attached — Scout findings, the Step 3 pick and its real listing photo from the showcase in the TikTok app, a Glam-approved script and image — and nothing downstream starts while Step 3 is blocked. <b>Every step passes quality control before the next step starts: Indigo checks, the maker never checks her own work, and a fail is sent back to the agent who did it with what&rsquo;s wrong written down.</b> The run still stops at the last gate: <b>Claude&rsquo;s frame check, then you</b>, and nothing posts while the freeze is on.</p>
           <button class="btn btn-pink" id="autoRunBtn" type="button">▶ Start Run</button>
           <span class="okmsg" id="autoRunOk" style="margin-left:12px"></span>
           <div class="walksteps" id="walkSteps" hidden></div>
@@ -613,9 +619,10 @@
           <div class="ro-row"><span class="ro-n">5</span><p><b>ONE styled model image</b> — fresh model per GG casting (Glam approves or edits)</p></div>
           <div class="ro-row"><span class="ro-n">6</span><p><b>&ldquo;Next&rdquo;</b> = Video Express clip prompts + hook + caption</p></div>
           <div class="ro-row"><span class="ro-n">7</span><p><b>Video Agent builds it in Video Express</b> — Realistic Consistent Character workflow, the approved image is the only reference</p></div>
-          <div class="ro-row"><span class="ro-n">8</span><p><b>Checks:</b> Claude frame check, then Nora, then Glam</p></div>
+          <div class="ro-row"><span class="ro-n">8</span><p><b>Checks:</b> Claude frame check, then Glam</p></div>
           <div class="ro-row"><span class="ro-n">9</span><p><b>Caption &amp; Post</b> — only after Glam lifts the @glamorousgrammyglowup freeze</p></div>
         </div>
+        <div class="fitrule" style="margin-top:16px"><b>QC gate law:</b> Every step passes quality control before the next step starts. Indigo checks; the maker never checks her own work. Fail = sent back to the agent who did it, with what&rsquo;s wrong written down. The run does not move forward on a fail.</div>
       </section>
 
       <!-- AGENT CREW -->
@@ -659,7 +666,7 @@
       <!-- RUN QUEUE -->
       <section id="queue">
         <div class="sec-head"><span class="idx">04</span><h2>My Run Queue</h2></div>
-        <p class="sec-sub">Every run you start lands here. Move each one along as the crew works it — Queued, In production, Director QC, Posted — copy its prompt any time, or clear it out when it&rsquo;s done.</p>
+        <p class="sec-sub">Every run you start lands here. Move each one along as the crew works it — Waiting — Step 1 · Blocked — Step 3 pick · Waiting — Glam (script) · Waiting — Glam (image) · In production · Sent back — QC · Waiting — Claude&rsquo;s check · Waiting — Glam&rsquo;s verdict · Held — freeze ON — copy its prompt any time, or clear it out when it&rsquo;s done. <strong style="color:var(--ink)">In production</strong> only describes a run whose Step 3 pick and real listing photo are actually attached.</p>
         <div id="queueList" aria-live="polite"></div>
         <div class="qempty" id="queueEmpty"><b>No runs yet.</b><br />Start one up top and it will wait for you right here.</div>
       </section>
@@ -836,9 +843,10 @@
           <div class="law"><div class="ic">✂️</div><div><h3>No dead air</h3><p>Edits are tightened so there are no long pauses — natural breath beats only. The video moves the way a real person talks.</p></div></div>
           <div class="law"><div class="ic">👁️</div><div><h3>It has to feel human</h3><p>Conversational delivery, natural gestures and head movement, normal blinking. If it looks like a robot, it goes back for a rebuild.</p></div></div>
           <div class="law"><div class="ic">🏷️</div><div><h3>AI label on, product attached</h3><p>Every post carries the AI-generated label and the real product link, with the caption scrubbed clean before it goes out.</p></div></div>
-          <div class="law"><div class="ic">🔍</div><div><h3>Director QC before anything posts</h3><p>Frames are swept, sound is checked, the product is matched against the listing. A video that fails never reaches the schedule.</p></div></div>
+          <div class="law"><div class="ic">🔍</div><div><h3>Quality control before anything posts</h3><p>Indigo checks each step at its gate, Claude frame-checks the finished video against the listing, then Glam gives the final verdict. A video that fails never reaches the schedule.</p></div></div>
           <div class="law"><div class="ic">🎃</div><div><h3>Live games: real people, real prizes, Glam&rsquo;s call</h3><p>Agent 7 works only from people actually seen on the live — never an invented name or number. Prizes are only the prizes Glam listed, and winners and prize messages always wait for Glam&rsquo;s approval of the exact text before anything is sent.</p></div></div>
           <div class="law"><div class="ic">👗</div><div><h3>Product-to-Post lane: the sequence is law</h3><p>Image first, edits until approved, &ldquo;Next&rdquo; delivers Video Express clip prompts + hook + caption, never out of order.</p></div></div>
+          <div class="law"><div class="ic">✅</div><div><h3>QC gate between every step</h3><p>Every step passes quality control before the next step starts. Indigo checks; the maker never checks her own work. Fail = sent back to the agent who did it, with what&rsquo;s wrong written down. The run does not move forward on a fail — no fixing it forward, no skipping, no marking done on a promise.</p></div></div>
           <div class="law"><div class="ic">🛑</div><div><h3>Can&rsquo;t use it? Stop and report BLOCKED</h3><p>If any agent can&rsquo;t use something a farm step needs, STOP immediately and report BLOCKED: [what] - [why] to Glam. No substitute tools, no outside sites, no workarounds, never go off on your own.</p></div></div>
         </div>
       </section>
@@ -859,41 +867,51 @@
     <script>
       /* ---------------- data ---------------- */
       var MODES = ["Problem → Solution","Get Ready With Me","Unboxing Reveal","Nighttime Routine","Bathroom Vanity Demo","Before You Buy","My Honest Take","Restock Day","Comment Reply Video","Side-by-Side Test","Morning Routine","What I Actually Use","Quick Tip","Shelf Tour","First Impression","The Closer Look"];
-      var STATUSES = ["Queued","In production","Director QC","Posted"];
-      var LAWS_LINE = "Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · Director QC before anything posts.";
+      var STATUSES = ["Waiting — Step 1","Blocked — Step 3 pick","Waiting — Glam (script)","Waiting — Glam (image)","In production","Sent back — QC","Waiting — Claude's check","Waiting — Glam's verdict","Held — freeze ON"];
+      var LAWS_LINE = "Farm laws on every run: exact products only, matched to the real listing photo · no prices and no sold counts anywhere · no dead air · natural human performance with normal blinking · AI label on · QC gate between every step — Indigo checks, the maker never checks her own work, fail = sent back to the agent who did it with what's wrong written down, the run does not move forward on a fail · Checks at step 8: Claude frame check, then Glam.";
 
       var AGENTS = [
-        { icon:"🔭", tone:"c", name:"TikTok Scout", role:"Trend Scout",
+        { icon:"🔭", tone:"c", name:"TikTok Scout", role:"Trend Scout", clearRole:{acts:"the trend scout", owns:"finding what is rising on TikTok today (sounds, hashtags, Shop best sellers, top videos in the category) and putting real, named findings on the run", hands:"the Shop Agent", never:"picks the product, never writes the script"},
           short:"Watches what&rsquo;s popping on TikTok first — trending sounds, hashtags, Shop best sellers and top videos in the category — and reports back what&rsquo;s rising, with Pinterest as backup only — before anybody commits to a build.",
           mission:"Find the angles that are already winning, so the farm never guesses.",
           takes:["Trending sounds and hashtags on TikTok","TikTok Shop best sellers and top videos in the category","Glam&rsquo;s own best-performing posts","Pinterest trends — backup only"],
           makes:["A ranked trend report","The adapted angle for each pick","The evidence behind every call"] },
-        { icon:"🛍️", tone:"p", name:"TikTok Shop Agent", role:"Product Picker",
+        { icon:"🛍️", tone:"p", name:"TikTok Shop Agent", role:"Product Picker", clearRole:{acts:"the product picker", owns:"working the showcase, picking the product fresh at step 3, and attaching the product’s REAL listing photo to the run", hands:"the Story Agent, after QC", never:"invents a product or a look-alike photo, never writes the script"},
           short:"Works the showcase — all 269 products — and picks what should go on camera next, based on what&rsquo;s actually been selling.",
           mission:"Put the right product in the next slot — 3 posts a day on the Shop account.",
           takes:["The full showcase, paged end to end","Real sold counts from the listings","What the audience already buys"],
           makes:["The pick for the next slot, with its real photo","The listing link, exactly as shown","Why this one, in plain words"] },
-        { icon:"✍️", tone:"c", name:"Story Agent", role:"Hook & Angle Writer",
+        { icon:"✍️", tone:"c", name:"Story Agent", role:"Scriptwriter", clearRole:{acts:"the scriptwriter", owns:"the real-UGC pain-point script for the picked product, every line under 8 spoken words, camera-sees-only words, hook that says something the dialogue doesn’t", hands:"Glam for script approval, then Casting", never:"picks the product, never uses “tap the link” or claims/results language"},
           short:"Turns the pick into a story a real woman would stop for — a problem she knows, in words she&rsquo;d use herself.",
           mission:"Every video opens on a moment the viewer has lived.",
           takes:["The Scout&rsquo;s winning angle","The product and who it&rsquo;s for","The mode picked from the barn"],
           makes:["The opening hook, word for word","The story beats, scene by scene","A closer that lands on the benefit"] },
-        { icon:"🎬", tone:"p", name:"Video Agent (Video Express)", role:"Video Builder",
+        { icon:"🎭", tone:"c", name:"Casting / Image Agent", role:"Casting Director", clearRole:{acts:"the casting director", owns:"ONE styled model image per GG casting plus the face lock (headshot + body sheet that match)", hands:"Glam for approve/edit, then the Video Agent", never:"starts before the script is approved, never swaps the product out of frame"},
+          short:"Owns one job only: ONE styled model image per GG casting, with the face lock — headshot + body sheet that match — and the picked product in frame, never obscured.",
+          mission:"One approved styled image that locks the model and the real product before any build.",
+          takes:["The Glam-approved script","The picked product and its real listing photo","GG casting for this product"],
+          makes:["ONE styled model image","The face lock — headshot + body sheet that match","The approved image for the Video Agent"] },
+        { icon:"🎬", tone:"p", name:"Video Agent (Video Express)", role:"Video Builder", clearRole:{acts:"the builder", owns:"building the video in Video Express, Realistic Consistent Character workflow, the approved styled image as the only reference, no text/subtitles, no dead air", hands:"Indigo’s build QC, then Claude’s frame check", never:"checks its own work, never builds without the real listing photo on the run"},
           short:"Builds the video in Video Express with the Realistic Consistent Character workflow — a fresh model per product (GG casting), the approved styled image as the only reference, the exact product on camera, directed like a real performance.",
           mission:"A 30-second shop video that feels like a friend showing you something — a fresh face on every product.",
           takes:["The story beats","The approved styled image — the only reference","The listing&rsquo;s real product photo"],
           makes:["The finished vertical video, made in Video Express","Natural movement and blinking","Tight edits — no dead air"] },
-        { icon:"🕵️", tone:"c", name:"Director QC", role:"Quality Control",
-          short:"Sweeps the finished video frame by frame before it can leave the farm. Wrong product, extra hands, stiff acting — it all gets caught here.",
-          mission:"Nothing ships unless it would fool Glam&rsquo;s own eye.",
-          takes:["Every frame of the render","The real listing photo to match against","The sound, checked for gaps"],
-          makes:["A pass — or a rebuild order","The exact scene that failed, and why","The final approved cut"] },
-        { icon:"📣", tone:"p", name:"Caption & Post Agent", role:"Publisher",
+        { icon:"🕵️", tone:"c", name:"Indigo (Quality Control)", role:"Checker at Every Gate", clearRole:{acts:"the checker at every gate", owns:"QC on each step before the next agent starts; passing work forward or sending it back to the agent who did it with what’s wrong written down", hands:"the next agent — only on a QC pass", never:"does the agents’ jobs for them, never passes a fail"},
+          short:"Checks every step before the next agent starts. Passes work forward, or sends it back to the agent who did it with what&rsquo;s wrong written down. The maker never checks her own work.",
+          mission:"No step hands off without a QC pass — and a fail never moves forward.",
+          takes:["Each finished step, before the next agent starts","The step’s QC standard, printed on the run sheet","The real listing photo to match against"],
+          makes:["QC: passed — the work moves forward","QC: SENT BACK — exactly what’s wrong, back to the agent who did it","A run that stops on a fail until the redo passes"] },
+        { icon:"📣", tone:"p", name:"Caption & Post Agent", role:"Publisher", clearRole:{acts:"the publisher", owns:"the caption (no prices, no sold counts), attaching the real product, AI label on, and posting only after Glam lifts the freeze and gives the final verdict", hands:"the day’s schedule — only after Claude’s frame check and Glam’s verdict", never:"posts while the freeze is ON, never posts a run that has not passed QC and checks"},
           short:"Writes the caption, attaches the product, turns the AI label on, and drops the video into its slot in the day&rsquo;s 3-post schedule on @glamorousgrammyglowup. The posting freeze stays ON until Glam lifts it — nothing goes out while it&rsquo;s on.",
           mission:"The right video, in the right slot, with everything attached.",
           takes:["The QC-approved cut","The product link","The day&rsquo;s schedule — 3 posts a day"],
           makes:["A clean caption — no prices, no sold counts","The post, product attached, AI label on","A verified live post"] },
-        { icon:"🎡", tone:"c", name:"TikTok Live Game Agent", role:"Live Games · Live Only",
+{ icon:"🔍", tone:"c", name:"Claude", role:"Frame Checker", clearRole:{acts:"the frame checker on the finished video", owns:"the frame check on the finished video, matched against the real listing photo", hands:"Glam — the final verdict; her eye is the last gate", never:"builds the video, never posts, never replaces Glam’s verdict"},
+          short:"Frame-checks the finished video against the real listing photo. Then it goes straight to Glam — her eye is the last gate.",
+          mission:"A real frame-check reply on the run before Glam gives the final verdict.",
+          takes:["The finished video that passed Indigo’s build QC","The real listing photo to match against"],
+          makes:["Claude’s actual frame-check reply","A pass — or the exact frame that failed, and why"] },
+        { icon:"🎡", tone:"c", name:"TikTok Live Game Agent", role:"Live Games · Live Only", clearRole:{acts:"the live games builder — LIVE ONLY", owns:"building one game from the real people actually engaging on Glam’s live, in the window she picks", hands:"Glam, to play on the live", never:"invents a name or a number, never touches video runs, never sends a prize message without Glam’s approval of the exact text"},
           short:"Wakes up only when Glam is live. Watches the chat, pulls the real people engaging, and builds a game from them for her to play right there on the live.",
           mission:"Turn the people actually in the live into a game they can win.",
           takes:["The live chat, for the window Glam picks — the last 20 minutes is standard","Recent commenters and the Top 10 Engagers","Shares, taps, likes and gifts — only the counts TikTok actually shows"],
@@ -917,11 +935,13 @@
         { n:"RUN ORDER 3", t:"Pick", d:"Best product chosen from the showcase" },
         { n:"RUN ORDER 4", t:"Story", d:"Real-UGC pain-point script — Glam approves" },
         { n:"RUN ORDER 7", t:"Build", d:"Video Agent builds it in Video Express — approved image is the only reference" },
-        { n:"RUN ORDER 8", t:"Checks", d:"Claude frame check, then Nora, then Glam" },
+        { n:"RUN ORDER 8", t:"Checks", d:"Claude frame check, then Glam" },
         { n:"RUN ORDER 9", t:"Post", d:"Caption & Post — only after Glam lifts the freeze" }
       ];
 
       /* ---------------- helpers ---------------- */
+      function roleLine(a){ if(!a.clearRole) return ""; return "ACTS AS " + a.clearRole.acts + " \u00b7 OWNS " + a.clearRole.owns + " \u00b7 HANDS TO " + a.clearRole.hands + " \u00b7 NEVER " + a.clearRole.never; }
+      function crewRolesText(){ var out = ["AGENT ROLES \u2014 one clear role each (ACTS AS \u00b7 OWNS \u00b7 HANDS TO \u00b7 NEVER):"]; AGENTS.forEach(function(a){ if(a.clearRole) out.push(a.name + ": " + roleLine(a)); }); out.push("Glam: ACTS AS the final verdict \u00b7 OWNS the last gate on every run \u00b7 HANDS TO no one \u00b7 NEVER is replaced by an agent\u2019s check \u2014 her eye is the last gate."); return out.join("\n"); }
       function plain(s){ return String(s).replace(/&rsquo;/g, "’").replace(/&amp;/g, "&").replace(/&ldquo;/g, "“").replace(/&rdquo;/g, "”"); }
       function copyText(text, btn){
         function done(){
@@ -978,7 +998,8 @@
         lines.push("When: " + r.when);
         if (r.notes) lines.push("Notes: " + r.notes);
         lines.push("");
-        lines.push("Crew order — follow the Run Order: 1) Start a Run form → 2) TikTok Scout → 3) TikTok Shop Agent (product) → 4) Story Agent (real-UGC pain-point script, Glam approves) → 5) ONE styled model image, fresh model per GG casting (Glam approves or edits) → 6) “Next” = Video Express clip prompts + hook + caption → 7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference) → 8) Checks: Claude frame check, then Nora, then Glam → 9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze.");
+        lines.push("Crew order — follow the Run Order: 1) Start a Run form → 2) TikTok Scout → 3) TikTok Shop Agent (product) → 4) Story Agent (real-UGC pain-point script, Glam approves) → 5) ONE styled model image, fresh model per GG casting (Glam approves or edits) → 6) “Next” = Video Express clip prompts + hook + caption → 7) Video Agent builds it in Video Express (Realistic Consistent Character workflow, the approved image is the only reference) → 8) Checks: Claude frame check, then Glam → 9) Caption & Post, only after Glam lifts the @glamorousgrammyglowup freeze.");
+        lines.push(crewRolesText());
         lines.push(LAWS_LINE);
         lines.push("Work in Glam’s voice: warm, plain words, step by step. Report back before anything posts.");
         if (r.pkg){ lines.push(""); lines.push(r.pkg); }
@@ -1002,7 +1023,7 @@
       var queue = [];
       var queueList = document.getElementById("queueList");
       var queueEmpty = document.getElementById("queueEmpty");
-      var statusClass = ["qp-queued","qp-prod","qp-qc","qp-posted"];
+      var statusClass = ["qp-queued","qp-qc","qp-queued","qp-queued","qp-prod","qp-qc","qp-qc","qp-qc","qp-qc"];
 
       function renderQueue(){
         queueList.innerHTML = "";
@@ -1103,7 +1124,7 @@
           mode: isCheck ? "None" : inMode.value,
           when: document.getElementById("inWhen").value,
           notes: document.getElementById("inNotes").value.trim(),
-          status: "Queued"
+          status: "Waiting — Step 1"
         };
         queue.unshift(r);
         renderQueue();
@@ -1171,33 +1192,33 @@
         barn.appendChild(chip);
       });
 
-      /* ---------------- one-click auto run: the farm works the whole Run Order ---------------- */
+      /* ---------------- one-click auto run: proof-gated run sheet + QC gate between every step ---------------- */
       var AUTO_PKG = [
-        "THE FARM'S RUN SHEET — built by the crew on this run, no brief given",
+        "RUN SHEET — proof-gated, opened by Start Run. Nothing below is done until the real thing is attached to this run and passes QC.",
+        "QC LAW: Every step passes quality control before the next step starts. Indigo checks; the maker never checks her own work. Fail = SENT BACK to the agent who did it, with what's wrong written down. The run does not move forward on a fail. QC states on every step: QC: not checked yet · QC: passed · QC: SENT BACK — [exactly what's wrong]. A step with no QC pass cannot hand off, and nothing downstream starts.",
         "",
-        "PRODUCT PICK (Run Order step 3 — TikTok Shop Agent, from the showcase): picked fresh when this run runs. The Shop Agent works the showcase live, names the product here, and the real listing photo becomes the anchor — look-alikes fail QC. No product is pre-picked on this page.",
-        "ANGLE (TikTok Scout + Story Agent): set from what is moving today and the fresh step-3 pick. The Story Agent writes the real-UGC pain-point script around that pick at step 4 — Glam approves before anything is built.",
-        "STYLED IMAGE BRIEF (Run Order 5 — Glam approves or edits before any build): fresh model per GG casting — adult Black woman, natural light, phone-camera feel, the picked product in frame, never obscured.",
-        "",
-        "HOOK (step 6, never repeats the dialogue): written fresh for the pick once the script is approved.",
-        "",
-        "VIDEO EXPRESS CLIP PROMPTS (step 6 — C## format, Realistic Consistent Character workflow, the approved styled image as the only reference, Consistent Character ON, natural movement and lip sync, no music, no text or subtitles in the video): written fresh for the picked product from the approved script. No demo is pre-written here — the shots follow the pick and the script, every line under 8 spoken words.",
-        "",
-        "CAPTION (step 6, ready to post, no prices, no sold counts): written fresh for the pick.",
-        "",
-        "CHECKS, IN ORDER: Claude frame check → Nora → Glam. POSTING: held — the @glamorousgrammyglowup freeze stays ON until Glam lifts it. AI label on, real product attached, when it goes."
+        "AGENT ROLES — one clear role each: TikTok Scout: ACTS AS the trend scout · OWNS finding what is rising on TikTok today and putting real, named findings on the run · HANDS TO the Shop Agent · NEVER picks the product, never writes the script. TikTok Shop Agent: ACTS AS the product picker · OWNS picking the product fresh at step 3 and attaching its REAL listing photo · HANDS TO the Story Agent, after QC · NEVER invents a product or a look-alike photo, never writes the script. Story Agent: ACTS AS the scriptwriter · OWNS the script, every line under 8 spoken words, camera-sees-only, hook different from dialogue · HANDS TO Glam for approval, then Casting · NEVER picks the product, never uses tap the link or claims language. Casting / Image Agent: ACTS AS the casting director · OWNS ONE styled model image plus the face lock · HANDS TO Glam for approve/edit, then the Video Agent · NEVER starts before the script is approved, never swaps the product out of frame. Video Agent: ACTS AS the builder · OWNS the Video Express build, approved image as only reference, no text/subtitles, no dead air · HANDS TO Indigo’s build QC, then Claude’s frame check · NEVER checks its own work, never builds without the real listing photo. Indigo (Quality Control): ACTS AS the checker at every gate · OWNS QC on each step, pass forward or send back with what’s wrong written down · HANDS TO the next agent only on a QC pass · NEVER does the agents’ jobs, never passes a fail. Claude: ACTS AS the frame checker · OWNS the frame check on the finished video · HANDS TO Glam, the final verdict · NEVER builds or posts. Glam: the final verdict — her eye is the last gate.",
+        "Step 1 — Start a Run: DONE — the run is open. QC: not checked yet.",
+        "Step 2 — TikTok Scout: WAITING — no findings yet. Done only when real Scout findings are on the run. QC: not checked yet. Scout QC: findings are real and on the run — today's rising sounds/sellers, named, not vibes.",
+        "Step 3 — TikTok Shop Agent (product): BLOCKED — no product picked. The pick happens from the showcase in the TikTok app. Until the picked product AND its real listing photo are attached to this run, this step stays BLOCKED and nothing downstream can start. QC: not checked yet. Pick QC: the pick is a real showcase product AND its real listing photo is attached to the run. Missing photo or look-alike = sent back.",
+        "Step 4 — Story Agent (script): WAITING — no script exists until one is written for the picked product and Glam approves it. QC: not checked yet. Script QC: every line under 8 spoken words; no 'tap the link'; no results or claims language — the words describe only what the camera sees; hook says something the dialogue doesn't.",
+        "Step 5 — ONE styled model image: WAITING — done only when the styled image exists and Glam approves or edits it. QC: not checked yet. Image QC: the styled image is the picked product, in frame, never obscured; the face lock (headshot + body sheet) matches.",
+        "Step 6 — 'Next' package: WAITING — the Video Express clip prompts + hook + caption are written fresh for the pick, only after steps 3–5 are real. QC: not checked yet. Package QC: clip prompts written fresh for the pick; hook + caption present; caption carries no price and no sold counts.",
+        "Step 7 — Video Agent build: WAITING — No video build starts without the real listing photo attached to this run. Look-alikes fail. QC: not checked yet. Build QC: the built video's product matches the listing photo; the approved styled image was the only reference; no text or subtitles burned in; no dead air.",
+        "Step 8 — Checks: WAITING — Claude's frame check, then Glam's final verdict. A run is not checked until Claude's actual frame-check reply exists; Glam's eye is the last gate. This gate is on top of Indigo's step QC, not instead of it. QC: not checked yet.",
+        "Step 9 — Caption & Post: HELD — the @glamorousgrammyglowup posting freeze is ON; nothing posts until Glam lifts it. QC: not checked yet."
       ].join("\n");
 
       var WALK = [
-        { t:"Start a Run", log:"<b>Run started.</b> No brief, no product named — the farm works its own order. That's the whole point of the workflow." },
-        { t:"TikTok Scout", log:"<span class='wl-step'>Scout:</span> scanned what's rising on TikTok today and handed the findings to the Shop Agent — <b>the angle locks after the step-3 pick</b>, around the product the crew actually chooses." },
-        { t:"TikTok Shop Agent", log:"<span class='wl-step'>Shop Agent:</span> worked the showcase and <b>picked the product fresh at Run Order step 3</b> — what's already selling, matched to the Scout's findings. Real listing photo is the anchor; look-alikes fail QC." },
-        { t:"Story Agent", log:"<span class='wl-step'>Story Agent:</span> wrote the real-UGC pain-point script around the fresh pick — a problem she knows, in words she'd use herself. Every line under 8 spoken words. The run sheet is below." },
-        { t:"Styled model image", log:"<span class='wl-step'>Casting:</span> ONE styled model image briefed per GG casting — a <b>fresh model</b>: adult Black woman, natural light, phone-camera feel, the picked product in frame, never obscured. In a live build this image waits for <b>Glam's approve-or-edit</b> before anything moves." },
-        { t:"“Next” package", log:"<span class='wl-step'>“Next” delivered all three at once:</span> the Video Express clip prompts, written fresh for the pick, + the hook + the ready-to-post caption. The hook says something the dialogue doesn't — farm rule." },
-        { t:"Video Agent builds it", log:"<span class='wl-step'>Video Agent:</span> build order written for Video Express — <b>Realistic Consistent Character</b> workflow, the approved styled image as the only reference, Consistent Character ON, no music, no text or subtitles in the video, edits tight — no dead air." },
-        { t:"Checks", log:"<span class='wl-step'>Checks queued, in order:</span> <b>Claude frame check → Nora → Glam.</b> The maker never grades her own work, and Glam's eye is the last gate." },
-        { t:"Caption & Post", log:"<span class='wl-hold'>HELD at the gate:</span> the caption is written and the product is ready to attach with the AI label on — but the <b>@glamorousgrammyglowup posting freeze is ON</b>, so nothing posts until Glam lifts it. The run waits in the queue at In production." }
+        { t:"Start a Run", log:"<b>Step 1 — Start a Run: DONE</b> — the run is open. <br>QC: not checked yet." },
+        { t:"TikTok Scout", log:"<b>Step 2 — TikTok Scout: WAITING</b> — no findings yet. This step is done only when real Scout findings are on the run. <br>QC: not checked yet. <b>Scout QC:</b> findings are real and on the run — today&rsquo;s rising sounds/sellers, named, not vibes. Fail = QC: SENT BACK — [exactly what&rsquo;s wrong], back to the Scout, and the run stops there." },
+        { t:"TikTok Shop Agent (product)", log:"<b>Step 3 — TikTok Shop Agent (product): BLOCKED</b> — no product picked. The pick happens from the showcase in the TikTok app. Until the picked product AND its real listing photo are attached to this run, this step stays BLOCKED and nothing downstream can start. <br>QC: not checked yet. <b>Pick QC:</b> the pick is a real showcase product AND its real listing photo is attached to the run. Missing photo or look-alike = sent back." },
+        { t:"Story Agent (script)", log:"<b>Step 4 — Story Agent (script): WAITING</b> — no script exists until one is written for the picked product and Glam approves it. <br>QC: not checked yet. <b>Script QC:</b> every line under 8 spoken words; no &ldquo;tap the link&rdquo;; no results or claims language — the words describe only what the camera sees; hook says something the dialogue doesn&rsquo;t." },
+        { t:"ONE styled model image", log:"<b>Step 5 — ONE styled model image: WAITING</b> — done only when the styled image exists and Glam approves or edits it. <br>QC: not checked yet. <b>Image QC:</b> the styled image is the picked product, in frame, never obscured; the face lock (headshot + body sheet) matches." },
+        { t:"“Next” package", log:"<b>Step 6 — &ldquo;Next&rdquo; package: WAITING</b> — the Video Express clip prompts + hook + caption are written fresh for the pick, only after steps 3–5 are real. <br>QC: not checked yet. <b>Package QC:</b> clip prompts written fresh for the pick; hook + caption present; caption carries no price and no sold counts." },
+        { t:"Video Agent build", log:"<b>Step 7 — Video Agent build: WAITING</b> — No video build starts without the real listing photo attached to this run. Look-alikes fail. <br>QC: not checked yet. <b>Build QC:</b> the built video&rsquo;s product matches the listing photo; the approved styled image was the only reference; no text or subtitles burned in; no dead air." },
+        { t:"Checks", log:"<b>Step 8 — Checks: WAITING</b> — the chain is Claude&rsquo;s frame check, then Glam&rsquo;s final verdict. A run is not checked until Claude&rsquo;s actual frame-check reply exists; Glam&rsquo;s eye is the last gate. This gate is on top of Indigo&rsquo;s step QC, not instead of it. <br>QC: not checked yet." },
+        { t:"Caption & Post", log:"<span class='wl-hold'><b>Step 9 — Caption &amp; Post: HELD</b></span> — the @glamorousgrammyglowup posting freeze is ON; nothing posts until Glam lifts it. <br>QC: not checked yet." }
       ];
 
       var autoBtn = document.getElementById("autoRunBtn");
@@ -1218,7 +1239,7 @@
       autoBtn.addEventListener("click", function(){
         if (autoRunning) return;
         autoRunning = true;
-        autoBtn.textContent = "Running…";
+        autoBtn.textContent = "Opening run…";
         autoOk.textContent = "";
         autoPkgEl.hidden = true;
         autoPkgEl.innerHTML = "";
@@ -1230,7 +1251,7 @@
         var i = 0;
         var delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 60 : 780;
         function tick(){
-          if (i > 0) wstepEls[i - 1].className = "wstep done";
+          if (i > 0) wstepEls[i - 1].className = (i - 1 === 0) ? "wstep done" : "wstep on";
           if (i >= WALK.length){ finishAutoRun(); return; }
           wstepEls[i].className = "wstep on";
           var p = document.createElement("p");
@@ -1247,32 +1268,45 @@
         var r = {
           account: "@glamorousgrammyglowup",
           type: "TikTok Shop video",
-          around: "Fresh pick — no brief given, product chosen at Run Order step 3",
-          product: "Picked fresh at Run Order step 3 from the showcase",
+          around: "Run opened — no product picked yet (Step 3 blocked)",
+          product: "No product picked yet — Step 3 BLOCKED until the pick and its real listing photo are attached",
           show: "Let the Story Agent pick",
           mode: "Let the Story Agent pick",
           when: "Next open slot",
-          notes: "One-click Start Run — the crew picks the product fresh at step 3 and builds the angle around it",
-          status: "In production",
+          notes: "One-click Start Run — run opened at Step 1, waiting. Step 3 blocked until pick + real listing photo attached. QC gate between every step: QC: not checked yet on every step.",
+          status: "Waiting — Step 1",
           pkg: AUTO_PKG
         };
         queue.unshift(r);
         renderQueue();
         autoPkgEl.innerHTML =
-          "<h4>The run sheet — product picked fresh at step 3</h4>" +
-          "<p>Worked by the crew on this run, top to bottom. It's also sitting in <b>My Run Queue</b> below, status <b>In production</b>, with the full copy-ready prompt — hand it to the crew in chat and the Shop Agent names the pick at step 3 before anything is written or built.</p>" +
-          '<div class="pk">THE PICK — RUN ORDER STEP 3</div><p>The Shop Agent works the showcase live and picks what&rsquo;s already selling, matched to the Scout&rsquo;s findings. The real listing photo becomes the anchor — look-alikes fail QC. <b>No product is pre-picked here.</b></p>' +
-          '<div class="pk">WHAT GETS WRITTEN NEXT</div><ul>' +
-          "<li><b>Step 4 — Story Agent:</b> the real-UGC pain-point script, written around the fresh pick. Glam approves.</li>" +
-          "<li><b>Step 5 — Styled image:</b> ONE image, fresh model per GG casting, the picked product in frame and never obscured. Glam approves or edits.</li>" +
-          "<li><b>Step 6 — &ldquo;Next&rdquo;:</b> Video Express clip prompts (C## format) + hook + caption, all written fresh for the pick — the hook never repeats the dialogue.</li></ul>" +
-          '<div class="pk">WHERE IT STANDS</div><p>Checks in order: <b>Claude frame check → Nora → Glam</b>. Posting held — the freeze stays on until Glam lifts it.</p>' +
+          "<h4>Run opened — proof-gated run sheet</h4>" +
+          "<p>It's in <b>My Run Queue</b> below, status <b>Waiting — Step 1</b>, with the full copy-ready prompt. No step below is done — each one waits for the real thing to be attached and to pass QC.</p>" +
+          '<div class="pk">AGENT ROLES — ONE CLEAR ROLE EACH</div><ul>' +
+          "<li><b>TikTok Scout:</b> ACTS AS the trend scout · OWNS real, named findings on the run · HANDS TO the Shop Agent · NEVER picks the product, never writes the script.</li>" +
+          "<li><b>TikTok Shop Agent:</b> ACTS AS the product picker · OWNS the step-3 pick + its REAL listing photo attached · HANDS TO the Story Agent, after QC · NEVER invents a product or look-alike photo, never writes the script.</li>" +
+          "<li><b>Story Agent:</b> ACTS AS the scriptwriter · OWNS the script — under 8 spoken words a line, camera-sees-only, hook different from dialogue · HANDS TO Glam for approval, then Casting · NEVER picks the product, never uses &ldquo;tap the link&rdquo; or claims language.</li>" +
+          "<li><b>Casting / Image Agent:</b> ACTS AS the casting director · OWNS ONE styled image + the face lock (headshot + body sheet that match) · HANDS TO Glam for approve/edit, then the Video Agent · NEVER starts before the script is approved, never swaps the product out of frame.</li>" +
+          "<li><b>Video Agent:</b> ACTS AS the builder · OWNS the Video Express build, approved image as only reference, no text/subtitles, no dead air · HANDS TO Indigo&rsquo;s build QC, then Claude&rsquo;s frame check · NEVER checks its own work, never builds without the real listing photo.</li>" +
+          "<li><b>Indigo (Quality Control):</b> ACTS AS the checker at every gate · OWNS QC on each step — pass forward or send back with what&rsquo;s wrong written down · HANDS TO the next agent only on a QC pass · NEVER does the agents&rsquo; jobs, never passes a fail.</li>" +
+          "<li><b>Claude:</b> ACTS AS the frame checker on the finished video · OWNS the frame check · HANDS TO Glam — the final verdict · NEVER builds or posts. <b>Glam:</b> the final verdict; her eye is the last gate.</li></ul>" +
+          '<div class="pk">QC GATE — BETWEEN EVERY STEP</div><p>Every step passes quality control before the next step starts. <b>Indigo checks; the maker never checks her own work.</b> Each step carries one of three QC states: <b>QC: not checked yet</b> · <b>QC: passed</b> · <b>QC: SENT BACK — [exactly what&rsquo;s wrong]</b>. A step with no QC pass cannot hand off, and nothing downstream starts. If QC fails, the step goes back to the agent who did it, with what&rsquo;s wrong written on the run, and the run stops there until the redo passes QC. No fixing it forward, no skipping, no marking done on a promise.</p>' +
+          '<div class="pk">WHERE EACH STEP STANDS</div><ul>' +
+          "<li><b>Step 1 — Start a Run: DONE</b> — the run is open. QC: not checked yet.</li>" +
+          "<li><b>Step 2 — TikTok Scout: WAITING</b> — no findings yet. Done only when real Scout findings are on the run. QC: not checked yet. Scout QC: findings are real and on the run — today&rsquo;s rising sounds/sellers, named, not vibes.</li>" +
+          "<li><b>Step 3 — TikTok Shop Agent (product): BLOCKED</b> — no product picked. The pick happens from the showcase in the TikTok app. Until the picked product AND its real listing photo are attached, this step stays BLOCKED and nothing downstream can start. QC: not checked yet. Pick QC: real showcase product AND real listing photo attached. Missing photo or look-alike = sent back.</li>" +
+          "<li><b>Step 4 — Story Agent (script): WAITING</b> — no script exists until one is written for the picked product and Glam approves it. QC: not checked yet. Script QC: every line under 8 spoken words; no &ldquo;tap the link&rdquo;; no results or claims language — words describe only what the camera sees; hook says something the dialogue doesn&rsquo;t.</li>" +
+          "<li><b>Step 5 — ONE styled model image: WAITING</b> — done only when the styled image exists and Glam approves or edits it. QC: not checked yet. Image QC: styled image is the picked product, in frame, never obscured; face lock (headshot + body sheet) matches.</li>" +
+          "<li><b>Step 6 — &ldquo;Next&rdquo; package: WAITING</b> — Video Express clip prompts + hook + caption written fresh for the pick, only after steps 3–5 are real. QC: not checked yet. Package QC: clip prompts written fresh for the pick; hook + caption present; caption carries no price and no sold counts.</li>" +
+          "<li><b>Step 7 — Video Agent build: WAITING</b> — No video build starts without the real listing photo attached to this run. Look-alikes fail. QC: not checked yet. Build QC: built video&rsquo;s product matches the listing photo; approved styled image was the only reference; no text or subtitles burned in; no dead air.</li>" +
+          "<li><b>Step 8 — Checks: WAITING</b> — Claude&rsquo;s frame check, then Glam&rsquo;s final verdict. A run is not checked until Claude&rsquo;s actual frame-check reply exists; Glam&rsquo;s eye is the last gate. On top of Indigo&rsquo;s step QC, not instead of it. QC: not checked yet.</li>" +
+          "<li><b>Step 9 — Caption &amp; Post: HELD</b> — the @glamorousgrammyglowup posting freeze is ON; nothing posts until Glam lifts it. QC: not checked yet.</li></ul>" +
           '<div class="rowbtns"><button class="btn btn-cyan mini" id="autoCopy" type="button">Copy the full run prompt</button>' +
           '<a class="btn btn-ghost mini" href="#queue">See it in my queue ↓</a></div>';
         autoPkgEl.hidden = false;
         document.getElementById("autoCopy").addEventListener("click", function(){ copyText(buildRunPrompt(r), this); });
-        autoBtn.textContent = "▶ Run it again";
-        autoOk.textContent = "Run finished — it's in your queue ✓";
+        autoBtn.textContent = "▶ Start Run";
+        autoOk.textContent = "Run opened — it's in your queue at Step 1, waiting ✓";
         autoRunning = false;
       }
 
@@ -1318,7 +1352,7 @@
           mode: "Product-to-Post",
           when: "Next open slot",
           notes: notes,
-          status: "Queued"
+          status: "Waiting — Step 1"
         };
         queue.unshift(r);
         renderQueue();
@@ -1350,6 +1384,7 @@
           "Account: " + j.acct,
           "Job: " + (j.job ? j.job : "[describe the job for this agent]"),
           "Mission: " + a.mission,
+          "Clear role: " + roleLine(a),
           "Takes in: " + a.takes.map(plain).join(" · "),
           "Hands off: " + a.makes.map(plain).join(" · "),
           LAWS_LINE
@@ -1361,7 +1396,7 @@
 
       function renderDetail(i){
         var a = AGENTS[i];
-        var lawItems = a.law || ["Exact products only — matched to the real listing photo","No prices and no sold counts, ever","Nothing posts without Director QC"];
+        var lawItems = a.law || ["Exact products only — matched to the real listing photo","No prices and no sold counts, ever","Nothing posts without a QC pass and the checks — Claude frame check, then Glam"];
         var extra = "";
         if (a.games){
           extra = '<div class="jobbox">' +
@@ -1373,6 +1408,7 @@
         }
         detail.innerHTML =
           '<div class="d-title"><h3>' + a.icon + " " + a.name + '</h3><span>' + a.mission + "</span></div>" +
+          (a.clearRole ? '<div class="rolebox"><h4>Clear role — one job</h4><p><b>ACTS AS</b> ' + a.clearRole.acts + ' <b>\u00b7 OWNS</b> ' + a.clearRole.owns + ' <b>\u00b7 HANDS TO</b> ' + a.clearRole.hands + ' <b>\u00b7 NEVER</b> ' + a.clearRole.never + "</p></div>" : "") +
           "<div><h4>Takes in</h4><ul>" + a.takes.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
           "<div><h4>Hands off</h4><ul>" + a.makes.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
           "<div><h4>The law it lives by</h4><ul>" + lawItems.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
@@ -1411,6 +1447,7 @@
           '<div class="role">' + a.role + "</div>" +
           "<h3>" + a.name + "</h3>" +
           "<p>" + a.short + "</p>" +
+          (a.clearRole ? '<p class="roleline"><b>ACTS AS</b> ' + a.clearRole.acts + ' <b>\u00b7 OWNS</b> ' + a.clearRole.owns + ' <b>\u00b7 HANDS TO</b> ' + a.clearRole.hands + ' <b>\u00b7 NEVER</b> ' + a.clearRole.never + "</p>" : "") +
           '<span class="status"><i></i> On duty</span>';
         b.addEventListener("click", function(){
           var all = grid.querySelectorAll(".agent");

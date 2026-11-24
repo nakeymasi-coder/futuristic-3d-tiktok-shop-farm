@@ -153,3 +153,18 @@ create → scout/pick evidence → photo attached → match (independent checker
     1–2 second clean close-up of the REAL listing photo is KEPT — it is
     what protects the label from being rendered wrong. Runbook Step 8
     carries the rule; the farm page edit carries it to the page.
+
+(n) TEXTURE SHOT, THEN SHOW-IT FOR EVERY CATEGORY (Nov 24, Glam + Claude):
+    the staging proof used to waive ANY handling finding — narrowed so
+    handling (pour, held bottle, hand-off) fails ALWAYS, proof or not.
+    The one exception is a declared show-it shot. Lint tests: (a) pour +
+    proof -> FAIL (was PASS before the narrowing); (b) one well-formed
+    Texture shot (on skin + counter stated) + proof -> PASS; (c) texture
+    shot without proof -> FAIL; (d) two texture shots -> FAIL; (e) texture
+    declaration missing "counter" -> FAIL. Generalized the same hour at
+    Claude's "go deeper": clothes = fabric moving, shoes = on feet
+    walking, gadgets = in use, all declared on a "Show-it shot:" line,
+    one show-it shot total per video, proof required for all. Tests:
+    (f) dress fabric moving + proof -> PASS; (g) shoes walking + proof
+    -> PASS; (h) gadget in use, no proof -> FAIL; (i) texture + show-it
+    both declared -> FAIL; (j) show-it with no action stated -> FAIL.

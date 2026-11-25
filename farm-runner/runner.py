@@ -17,9 +17,12 @@ This runner fixes that mechanically:
   doesn't hold.
 - `drive` advances a run automatically through every step that does not
   need a human, and stops cold at the human gates:
-    * Step 6  — Glam's script approval
+    * Step 6  — Mila's script approval
+    * Step 7  — Mila's model photo approval
     * Step 10 — Mila's QC verdict (Mila is QC owner; Glam is final gate)
-    * Review  — Glam's final review of the finished video
+    * Review  — Glam's final review of the finished video (Approve or Redo)
+  Glam, Nov 25: "Don't wait for my approval to make the video." Nothing
+  before the video waits on Glam; she rules once, on the finished video.
 - Step 11 (Caption & Post) is FREEZE-LOCKED in code. The runner has no
   posting action of any kind. A finished run ends at
   "Ready for Glam — freeze on." Automation NEVER posts.
@@ -34,25 +37,32 @@ Evidence map (what clears each step):
                    "Story:" line — one real sentence in Glam's voice: who
                    this is for and why they'd care. No story line, no
                    handoff: findings alone never clear this step.
-  3 Pick           steps/step3-pick/pick.md, non-empty (pick also in config)
+  3 Pick           steps/step3-pick/pick.md, non-empty — the pick is its
+                   "product:" line (a run is created empty; the Shop Agent
+                   picks here, not at create)
   4 Product Photo  an image file in steps/step4-photo/
   5 Photo Match    steps/step5-match/match-verdict.md with verdict: MATCH,
                    signed by a checker who is NOT the grabber of record
   6 Script         steps/step6-script/script.md non-empty AND passing the
-                   Step 6 script check (script_findings: <=12 words a line,
+                   Step 6 script check (script_findings: farm-rules.json word cap a line,
                    person-first hook not just the mode name, soft CTA on
                    file, no specs/prices/sold counts/use claims) AND
-                   steps/step6-script/glam-approval.md (approved_by: Glam)
+                   steps/step6-script/mila-script-approval.md (approved_by: Mila)
+                   whose script_sha256 matches the script on file — an edit
+                   after her approval needs her approval again
   7 Styled Image   an image file in steps/step7-styled/
   8 Package        steps/step8-package/package.md present AND passing lint
                    (references-only, no product words, staging bar)
   9 Build          a video file in steps/step9-builds/
  10 Checks         steps/step10-qc/mila-verdict.md with verdict: PASS,
-                   checker: Mila (collected from the QC handoff folder)
+                   checker: Mila (collected ONCE from the QC handoff folder)
+                   covering exactly the current build files (verdict-
+                   covers.json) — a new or changed build waits on Mila
  11 Caption & Post FREEZE-LOCKED — never clears, by design
 """
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -66,6 +76,89 @@ HANDOFF_DIR = WORKSPACE / "farm-qc-handoff"
 RUNNER_DIR = WORKSPACE / "farm-runner"
 MANIFEST_JSON = RUNNER_DIR / "review-manifest.json"
 REVIEW_HTML = RUNNER_DIR / "review-section.html"
+
+# ----------------------------------------------------------------------------
+# THE MASTER RULES FILE (Glam, Nov 24: "Yes, that's how it's supposed to be")
+# Every rule this runner checks — word limits, clip rule, spec words, person
+# words, mode names, use claims, CTAs, staging/handling patterns — lives in
+# ONE file: farm-rules.json. The runner keeps NO copy of its own. If the file
+# is missing or broken, every command stops (exit 4); there is no silent
+# fallback. Lookup order: $FARM_RULES, next to runner.py, its parent folder,
+# ~/workspace/farm-rules.json.
+# ----------------------------------------------------------------------------
+
+REQUIRED_RULE_KEYS = {
+    "numbers": ["max_spoken_words_per_line", "clip_seconds",
+                "clips_per_video", "closeup_seconds", "video_seconds_about"],
+    "checks": ["spec_words", "spec_exempt_phrases", "person_words",
+               "first_person_words", "mode_names", "use_claim_patterns",
+               "spoken_cta_patterns", "banned_spoken_phrases",
+               "banned_spoken_patterns", "price_patterns",
+               "urgency_patterns", "sold_count_patterns",
+               "label_wording_patterns", "product_description_terms",
+               "product_description_patterns", "staging_patterns",
+               "handling_nouns", "handling_verbs", "guard_patterns"],
+    "laws": [], "run_order": [], "mila_scorecard": [], "form": [],
+    "version": [], "agents": [],
+}
+
+
+def rules_candidates():
+    import os
+    here = Path(__file__).resolve().parent
+    out = []
+    if os.environ.get("FARM_RULES"):
+        return [Path(os.environ["FARM_RULES"]).expanduser()]
+    out.append(here / "farm-rules.json")
+    out.append(here.parent / "farm-rules.json")
+    out.append(Path.home() / "workspace" / "farm-rules.json")
+    return out
+
+
+def rules_problems(data):
+    probs = []
+    for top, subs in REQUIRED_RULE_KEYS.items():
+        if top not in data:
+            probs.append(f"missing '{top}'")
+            continue
+        for k in subs:
+            if k not in data[top]:
+                probs.append(f"missing '{top}.{k}'")
+    return probs
+
+
+def load_rules():
+    tried = rules_candidates()
+    for p in tried:
+        if p.is_file():
+            try:
+                data = json.loads(p.read_text(encoding="utf-8"))
+            except ValueError as e:
+                print(f"FARM RULES BROKEN — {p} is not valid JSON ({e}). "
+                      "The runner keeps no copy of the rules, so it stops "
+                      "here. Fix farm-rules.json, then run check-rules.")
+                sys.exit(4)
+            probs = rules_problems(data)
+            if probs:
+                print(f"FARM RULES INCOMPLETE — {p}: " + "; ".join(probs) +
+                      ". The runner stops here.")
+                sys.exit(4)
+            return p, data
+    print("FARM RULES NOT FOUND — the runner reads every rule from "
+          "farm-rules.json and keeps no copy of its own, so it stops here. "
+          "Looked in: " + ", ".join(str(p) for p in tried) +
+          ". Put farm-rules.json next to runner.py (or set FARM_RULES).")
+    sys.exit(4)
+
+
+RULES_PATH, RULES = load_rules()
+NUM = RULES["numbers"]
+CHK = RULES["checks"]
+MAX_WORDS = int(NUM["max_spoken_words_per_line"])
+CLIP_SECONDS = float(NUM["clip_seconds"])
+CLIPS_PER_VIDEO = int(NUM["clips_per_video"])
+CLOSEUP_SECONDS = str(NUM["closeup_seconds"])
+
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 VIDEO_EXTS = {".mp4", ".mov", ".m4v", ".webm"}
@@ -115,53 +208,30 @@ STEP_DIRS = {
 # shot and nothing else.
 # ----------------------------------------------------------------------------
 
-LABEL_WORDING_PATTERNS = [
-    r"label\s+(reads|says|shows|that\s+reads)",
-    r"the\s+label\s+(reads|says|shows)",
-    r"\blabel\s*:\s*[\"“\w]",
-    r"\breads\s+[\"“][^\"”]{2,}[\"”]\s+on\s+(the\s+)?(label|bottle|packaging)",
-]
 
-PRODUCT_DESCRIPTION_TERMS = [
-    "the exact product",
-    "clear bottle", "rectangular bottle", "tall bottle", "small bottle",
-    "amber bottle", "white bottle", "glass bottle", "plastic bottle",
-    "gold cap", "screw cap", "dropper cap", "metallic cap", "small cap",
-    "golden oil", "yellow-gold", "yellow gold oil",
-    "200ml", "6.76oz", "6.76 oz",
-]
 
-PRODUCT_DESCRIPTION_PATTERNS = [
-    r"\b(tall|small|clear|rectangular|amber|white|glass|plastic|slim)\s+(\w+\s+)?bottle\b",
-    r"\bbottle\s+of\s+[^,.\"]{0,50}\boil\b",
-]
 
-STAGING_PATTERNS = [
-    r"\bpour(s|ing|ed)?\b",
-    r"\btips?\s+the\s+bottle\b",
-    r"\btipping\b",
-    r"\bhand-?off\b",
-    r"\bhands?\s+(her|him|them|the\s+model)\s+the\s+bottle\b",
-    r"\bpasses\s+the\s+bottle\b",
-    r"\braises?\s+the\s+bottle\b",
-    r"\braised\s+beside\b",
-    r"\bholds?\s+the\s+bottle\b",
-    r"\bholding\s+the\s+bottle\b",
-    r"\bbottle\s+in\s+(her|his|one|the)\s+hand\b",
-    r"\bin\s+her\s+other\s+hand\b",
-    r"\bshakes?\s+the\s+bottle\b",
-    r"\bunscrew",
-    r"\bopens?\s+the\s+bottle\b",
-    r"\bpools?\s+in\s+(her|his|the)\s+palm\b",
-    r"\bsmooths?\s+[^.]{0,40}\bbottle\s+in\s+hand\b",
-]
 
-GUARD_PATTERNS = [
-    r"never\s+spoken,\s+never\s+mouthed",
-    r"the\s+only\s+spoken\s+words\s+in\s+this\s+entire\s+video",
-    r"silent\s+visual\s+direction",
-]
+# Generic handling (audit fix #4, Nov 24): the staging bar holds for ANY
+# product, not just bottles — a jar, tube, spray, compact or "the product in
+# her hand" is handling too. These are NOT applied to the one declared
+# Texture shot: / Show-it shot: line (that shot is judged by its own rules).
 
+
+LABEL_WORDING_PATTERNS = CHK["label_wording_patterns"]
+PRODUCT_DESCRIPTION_TERMS = CHK["product_description_terms"]
+PRODUCT_DESCRIPTION_PATTERNS = CHK["product_description_patterns"]
+STAGING_PATTERNS = CHK["staging_patterns"]
+HANDLING_NOUNS = CHK["handling_nouns"]
+HANDLING_VERBS = CHK["handling_verbs"]
+GENERIC_HANDLING_PATTERNS = [
+    r"\b" + HANDLING_VERBS + r"\s+(?:up\s+)?(?:the|her|his|a|an|one|this|that|"
+    r"their)\s+(?:\w+\s+){0,2}?" + HANDLING_NOUNS + r"\b",
+    r"\b" + HANDLING_NOUNS + r"\s+in\s+(?:her|his|one|both|the|their)\s+hands?\b",
+] + list(CHK.get("handling_extra_patterns", []))
+GUARD_PATTERNS = CHK["guard_patterns"]
+
+CLIP_HEADER = re.compile(r"(?i)\s*(?:\*\*)?(?:C\d{2}\b|clip\s+\d+\b)")
 REFERENCES_LINE = re.compile(r"references?\s*:", re.IGNORECASE)
 LISTING_PHOTO_MENTION = re.compile(r"listing\s+photo", re.IGNORECASE)
 
@@ -212,6 +282,46 @@ def files_with_ext(folder, exts):
     )
 
 
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def build_set(folder):
+    """{name: sha256} for the video files in a folder."""
+    return {v.name: sha256_file(v) for v in files_with_ext(folder, VIDEO_EXTS)}
+
+
+def image_set_sha(folder):
+    """One fingerprint for the image(s) in a folder (Glam's image approval
+    covers exactly these files)."""
+    h = hashlib.sha256()
+    for f in files_with_ext(folder, IMAGE_EXTS):
+        h.update(f.name.encode() + b"\0" + sha256_file(f).encode() + b"\n")
+    return h.hexdigest()
+
+
+def pick_from_record(run, cfg):
+    """The pick is whatever steps/step3-pick/pick.md names (a 'product:' line,
+    else its first non-empty line); the config pick is used only if present
+    and the record is missing (audit fix #13 — a run starts empty and the
+    Shop Agent picks at Step 3)."""
+    rec = run / "steps" / "step3-pick" / "pick.md"
+    if rec.exists():
+        lines = [l.strip() for l in rec.read_text(
+            encoding="utf-8", errors="replace").splitlines() if l.strip()]
+        for l in lines:
+            m = re.match(r"(?i)\s*(?:product|pick)\s*:\s*(.+)", l)
+            if m:
+                return m.group(1).strip()
+        if lines:
+            return lines[0].lstrip("#").strip()
+    return (cfg.get("pick") or "").strip()
+
+
 def nonempty_file(path):
     return path.exists() and path.read_text(
         encoding="utf-8", errors="replace").strip() != ""
@@ -224,29 +334,26 @@ def nonempty_file(path):
 # materials, true to size, sizes, stretchy, waterproof, and measures and
 # tech specs of every kind. One shared list: the story check and the
 # Step 6 script check both read it.
-STORY_SPEC_WORDS = (
-    "ml", "milliliter", "milliliters", "millilitre", "millilitres",
-    "oz", "ounce", "ounces", "gram", "grams", "kg", "mg", "percent", "%",
-    "plant-based", "plant based", "made with", "formula", "ingredient",
-    "ingredients", "net wt", "fl oz",
-    "true to size", "runs small", "runs large", "size up", "size down",
-    "stretchy", "waterproof", "water resistant", "water-resistant",
-    "non slip", "nonslip", "non-slip", "leakproof",
-    "polyester", "spandex", "elastane", "nylon", "rayon", "viscose",
-    "acrylic", "linen", "silk", "wool", "denim", "leather", "suede",
-    "liter", "liters", "litre", "litres", "quart", "quarts", "gallon",
-    "gallons", "inches", "inch", "pounds", "lbs", "watts", "watt",
-    "volts", "volt", "mah", "battery", "batteries", "usb", "bluetooth",
-    "led", "stainless", "bpa", "dishwasher safe", "microwave safe",
-)
 # The sentence must be about a PERSON — one of these has to be in it. The
 # list is spelled out on purpose (Claude, Nov 24): the check needs something
 # concrete to look for.
-STORY_PERSON_WORDS = (
-    "you", "your", "yours", "her", "hers", "she", "i", "i'm", "my", "me",
-    "we", "our", "mom", "grandma", "sister", "friend", "girl", "woman",
-    "women", "ladies", "he", "his", "him",
-)
+# First-person words: a hook built only on these speaks for the model, not
+# to the viewer (audit fix #26 — "the hook speaks to the VIEWER's moment").
+
+
+# Everyday phrases that contain a spec word but are not specs (audit fix #25).
+
+
+STORY_SPEC_WORDS = tuple(CHK["spec_words"])
+STORY_PERSON_WORDS = tuple(CHK["person_words"])
+FIRST_PERSON_WORDS = tuple(CHK["first_person_words"])
+SPEC_EXEMPT_PHRASES = tuple(CHK["spec_exempt_phrases"])
+
+
+def spec_text(low):
+    for ph in SPEC_EXEMPT_PHRASES:
+        low = low.replace(ph, " ")
+    return low
 
 
 def story_sentence_state(path):
@@ -272,7 +379,7 @@ def story_sentence_state(path):
         return (False, "story sentence FAILED the smart story check — it "
                        "contains a number: it names a spec, not a person "
                        "(label copy does not leave the Scout)")
-    low = sentence.lower()
+    low = spec_text(sentence.lower())
     for w in STORY_SPEC_WORDS:
         hit = (re.search(r"\b" + re.escape(w) + r"\b", low)
                if w.replace("-", "").isalpha() else w in low)
@@ -293,30 +400,21 @@ def story_sentence_state(path):
 # list the story check reads (beauty measures, fashion specs, general
 # tech/home specs), so the bars hold for any product, not just the oil.
 SCRIPT_SPEC_WORDS = STORY_SPEC_WORDS
+MODE_NAMES = tuple(CHK["mode_names"])
+USE_CLAIM_PATTERNS = tuple(CHK["use_claim_patterns"])
+SPOKEN_CTA_PATTERNS = tuple(CHK["spoken_cta_patterns"])
+BANNED_SPOKEN_PHRASES = tuple(CHK["banned_spoken_phrases"])
+BANNED_SPOKEN_PATTERNS = tuple(CHK["banned_spoken_patterns"])
+PRICE_PATTERNS = tuple(CHK["price_patterns"])
+URGENCY_PATTERNS = tuple(CHK["urgency_patterns"])
+SOLD_COUNT_PATTERNS = tuple(CHK["sold_count_patterns"])
 # Mode names (the Mode Barn) — a first line that is ONLY the mode name is a
 # label, not a hook (Claude, Nov 24).
-MODE_NAMES = (
-    "get ready with me", "grwm", "bathroom vanity demo", "before you buy",
-    "morning routine", "nighttime routine", "restock day",
-    "unboxing reveal",
-)
 # Use claims the AI model can never make (the hook speaks to the VIEWER's
 # moment, never "I used it" — Claude's line, Nov 24).
-USE_CLAIM_PATTERNS = (
-    r"\bi (?:used|use|tried|bought|ordered)\b",
-    r"\bbeen using\b",
-    r"\bworks for me\b",
-    r"\bmy results\b",
-    # Applied use claims (Claude, Nov 24): "has been living on my counter
-    # all week" claims the product lives with the model — same claim as
-    # "I use it," said sideways.
-    r"\bliving on my\b",
-    r"\bhas been living\b",
-    # The pattern, not just the phrase (Claude, Nov 24 — widened past
-    # beauty): been using / wearing / reaching for, and "my go-to."
-    r"\bbeen (?:using|wearing|reaching for|grabbing|taking)\b",
-    r"\bmy go[- ]to\b",
-)
+
+
+# Any spoken call to buy (audit fix #5): allowed once, in the closing line.
 
 
 def spoken_lines(script_path):
@@ -326,7 +424,9 @@ def spoken_lines(script_path):
         return out
     for raw in script_path.read_text(
             encoding="utf-8", errors="replace").splitlines():
-        if not raw.strip().lower().startswith("line"):
+        head = raw.strip().lstrip("*-# ").lower()
+        if not (head.startswith("line") or head.startswith("hook")
+                or head.startswith("clip") or re.match(r"c\d{2}\b", head)):
             continue
         m = re.search(r'"([^"]+)"', raw) or re.search(r"“([^”]+)”", raw)
         if m:
@@ -338,7 +438,7 @@ def script_findings(run):
     """The Step 6 SCRIPT CHECK (Glam + Claude, Nov 24): the mechanical bars
     a script must pass BEFORE Glam's approval gate, so she is not the first
     filter. Returns a list of (category, message); empty = passing.
-    Bars: every spoken line <= 12 words; one short spoken CTA allowed in
+    Bars (all read from farm-rules.json): every spoken line within the word cap; one short spoken CTA allowed in
     the final line only (like 'tap the orange cart') — 'tap the link'
     never; no spec/measure
     words or numbers in spoken lines; no price and no sold counts; no
@@ -353,39 +453,44 @@ def script_findings(run):
         return [("no-spoken-lines", "script.md carries no LINE rows with "
                  "quoted spoken lines — there is nothing the script check "
                  "can read")]
+    cta_lines = []
     for i, line in enumerate(lines, 1):
         low = line.lower()
         n_words = len(line.split())
-        if n_words > 12:
+        if n_words > MAX_WORDS:
             findings.append(("line-length", f"LINE {i} is {n_words} spoken "
-                             "words (bar: 12 max)"))
-        if "tap the link" in low:
-            findings.append(("tap-the-link", f"LINE {i} says 'tap the "
+                             f"words (bar: {MAX_WORDS} max)"))
+        if (any(re.search(p, low) for p in BANNED_SPOKEN_PATTERNS)
+                or any(ph in low for ph in BANNED_SPOKEN_PHRASES)):
+            findings.append(("tap-the-link", f"LINE {i} says 'tap/click the "
                              "link' — that phrase is banned; the one "
                              "allowed spoken CTA sits in the final line, "
                              "like 'tap the orange cart'"))
-        elif (any(p in low for p in ("tap the orange cart",
-                                     "tap the orange card", "tap the cart",
-                                     "tap the card", "click the cart",
-                                     "click the card"))
-              and i != len(lines)):
-            findings.append(("cta-position", f"LINE {i} carries a spoken "
-                             "CTA — only the final line may carry one, "
-                             "one short CTA at the end"))
+        elif any(re.search(p, low) for p in SPOKEN_CTA_PATTERNS):
+            cta_lines.append(i)
+            if i != len(lines):
+                findings.append(("cta-position", f"LINE {i} carries a spoken "
+                                 "call to buy — only the final line may "
+                                 "carry one, one short CTA at the end"))
         if any(ch.isdigit() for ch in line):
             findings.append(("spec", f"LINE {i} contains a number — spoken "
                              "lines carry no specs"))
+        slow = spec_text(low)
         for w in SCRIPT_SPEC_WORDS:
-            hit = (re.search(r"\b" + re.escape(w) + r"\b", low)
-                   if w.replace("-", "").isalpha() else w in low)
+            hit = (re.search(r"\b" + re.escape(w) + r"\b", slow)
+                   if w.replace("-", "").isalpha() else w in slow)
             if hit:
                 findings.append(("spec", f"LINE {i} contains the spec word "
                                  f"'{w}' — label copy is not spoken"))
                 break
-        if "$" in line or "dollar" in low or "price" in low:
+        if any(re.search(p, low) for p in PRICE_PATTERNS):
             findings.append(("price", f"LINE {i} carries a price — no "
                              "prices in spoken lines"))
-        if re.search(r"\bsold\b", low):
+        if any(re.search(p, low) for p in URGENCY_PATTERNS):
+            findings.append(("urgency", f"LINE {i} makes an urgency/sold-out "
+                             "claim — the GG shield bans invented urgency "
+                             "claims"))
+        elif any(re.search(p, low) for p in SOLD_COUNT_PATTERNS):
             findings.append(("sold-count", f"LINE {i} carries a sold "
                              "count — never in a script"))
         claimed = False
@@ -396,12 +501,13 @@ def script_findings(run):
                                  "used it"))
                 claimed = True
                 break
-        if not claimed and re.search(r"\ball (?:week|month)\b", low):
+        if not claimed and any(re.search(p, low) for p in
+                               CHK.get("first_person_use_claim_patterns", [])):
             # "all week / all month" is a use claim only in the model's own
             # mouth (first person) — in the viewer's moment ("your feet
             # hurt all week") it is a hook, and it passes.
             toks = set(re.findall(r"[a-z']+", low))
-            if toks.intersection({"i", "i've", "i'm", "my", "me", "mine"}):
+            if toks.intersection(FIRST_PERSON_WORDS):
                 findings.append(("use-claim", f"LINE {i} makes an 'I used "
                                  "it' claim ('all week/month' in the "
                                  "model's own voice) — the model is AI and "
@@ -417,12 +523,36 @@ def script_findings(run):
                              "more words after it)"))
             break
     tokens = set(re.findall(r"[a-z']+", lines[0].lower()))
-    if not tokens.intersection(STORY_PERSON_WORDS):
+    persons = tokens.intersection(STORY_PERSON_WORDS)
+    if not persons:
         findings.append(("hook", "LINE 1 names no person (you, her, my, "
                          "she...) — the hook is person-first or it fails"))
+    elif persons.issubset(FIRST_PERSON_WORDS):
+        findings.append(("hook", "LINE 1 speaks only in the model's own "
+                         "voice (I/my/me) — the hook speaks to the VIEWER's "
+                         "moment (you, your, her, a mom...)"))
     text = (script.read_text(encoding="utf-8", errors="replace")
             if script.exists() else "")
-    cta_ok = any(l.strip().lower().startswith("cta:") and "below" in l.lower()
+    # STAGING in the script's own directions (Nov 24, Indigo's first script:
+    # "she holds the bottle, a drop on her hand"). The staging bar is already
+    # law — product stationary, no hands on it, one declared show-it shot only
+    # — so the script check reads every line OUTSIDE the quoted spoken words.
+    for no, raw in enumerate(text.splitlines(), 1):
+        if re.match(r"(?i)\s*[*#-]*\s*(texture|show-it)\s+shot\s*:", raw):
+            continue
+        direction = re.sub(r'"[^"]*"|“[^”]*”', " ", raw).lower()
+        if not direction.strip():
+            continue
+        if any(re.search(p, direction) for p in
+               list(STAGING_PATTERNS) + GENERIC_HANDLING_PATTERNS):
+            findings.append(("staging", f"script line {no} stages the product "
+                             "in hands or motion — the product stays put "
+                             "with no hands on it; only the one declared "
+                             "show-it shot is allowed"))
+    soft = CHK.get("soft_cta_line", {"starts_with": "cta:",
+                                     "must_mention": "below"})
+    cta_ok = any(l.strip().lower().startswith(soft["starts_with"])
+                 and soft["must_mention"] in l.lower()
                  for l in text.splitlines())
     if not cta_ok:
         findings.append(("no-cta", "no soft CTA up top on file — script.md "
@@ -478,10 +608,45 @@ def lint_package(run):
             if re.search(pat, low):
                 findings.append(("RETIRED GUARD TEXT", i, line))
                 break
+        is_showit = bool(re.match(r"(?i)\s*(texture|show-it)\s+shot\s*:", raw))
+        staged = False
         for pat in STAGING_PATTERNS:
             if re.search(pat, low):
                 findings.append(("STAGING", i, line))
+                staged = True
                 break
+        if not staged and not is_showit:
+            for pat in GENERIC_HANDLING_PATTERNS:
+                if re.search(pat, low):
+                    findings.append(("STAGING", i, line))
+                    break
+        # CLIP RULE (Glam + Claude, Nov 24 — audit fix #28): every clip is
+        # (numbers from farm-rules.json) N seconds flat, max N spoken words in a clip, N clips make the
+        # video; the 1-2 second clean close-up of the listing photo is kept.
+        for q in re.findall(r'"([^"]+)"|“([^”]+)”', line):
+            qt = (q[0] or q[1]).strip()
+            if len(qt.split()) > MAX_WORDS:
+                findings.append(("CLIP RULE", i, f"{len(qt.split())} spoken "
+                                 f"words in one clip — max {MAX_WORDS} spoken "
+                                 "words in a clip"))
+                break
+        is_clip = bool(CLIP_HEADER.match(raw))
+        if is_clip and "close-up" not in low and "close up" not in low:
+            for m in re.finditer(r"\b(\d+(?:\.\d+)?)\s*(?:-|–|to)?\s*"
+                                 r"(?:s|sec|secs|second|seconds)\b", low):
+                if float(m.group(1)) != CLIP_SECONDS:
+                    findings.append(("CLIP RULE", i, f"clip length "
+                                     f"{m.group(1)} seconds — every clip is "
+                                     f"{CLIP_SECONDS:g} seconds flat"))
+                    break
+
+    clip_headers = [raw for raw in lines if CLIP_HEADER.match(raw)
+                    and "close-up" not in raw.lower()
+                    and "close up" not in raw.lower()]
+    if len(clip_headers) > CLIPS_PER_VIDEO:
+        findings.append(("CLIP RULE", 0, f"{len(clip_headers)} clips declared "
+                         f"— {CLIPS_PER_VIDEO} clips make the video (plus the "
+                         f"{CLOSEUP_SECONDS} second close-up)"))
 
     # SHOW-IT SHOT — the one legal motion/hand shot per video, any category
     # (Glam + Claude, Nov 24): exactly one declared shot, proven first.
@@ -511,6 +676,10 @@ def lint_package(run):
                              "with hands or motion needs a test build "
                              "proving that exact shot first"))
 
+    # CAPTION (farm laws: caption keywords, 3-5 hashtags, soft CTA up top in
+    # the caption's first line) — the caption is a Step 8 deliverable.
+    findings.extend(caption_findings(run, lines))
+
     if not REFERENCES_LINE.search(text):
         findings.append(("REFERENCES", 0,
                          "no 'References:' line — package must declare its references"))
@@ -520,6 +689,56 @@ def lint_package(run):
                          "references are the approved styled image AND the real "
                          "listing photo"))
     return findings
+
+
+def caption_findings(run, lines):
+    """Read the package's Caption: block and hold it to the farm laws."""
+    out = []
+    start = None
+    for i, raw in enumerate(lines):
+        if re.match(r"(?i)\s*[*#-]*\s*caption\s*:", raw):
+            start = i
+            break
+    if start is None:
+        return [("CAPTION", 0, "no 'Caption:' in the package — the caption "
+                 "(product keyword first line, soft CTA, hashtags) is part "
+                 "of the Next package")]
+    block = [lines[start].split(":", 1)[1].strip()]
+    for raw in lines[start + 1:]:
+        if not raw.strip() or re.match(r"\s*[*#-]*\s*[A-Za-z][\w -]{0,30}:\s", raw):
+            break
+        block.append(raw.strip())
+    block = [b for b in block if b]
+    if not block:
+        return [("CAPTION", start + 1, "the Caption: block is empty")]
+    first = block[0].lower()
+    cfg = {}
+    try:
+        cfg = load_config(run)
+    except SystemExit:
+        pass
+    pick = (pick_from_record(run, cfg) or "").lower()
+    words = [w for w in re.findall(r"[a-z]{4,}", pick)]
+    if words and not any(w in first for w in words):
+        out.append(("CAPTION", start + 1, "the caption's first line doesn't "
+                    "name the product in words buyers search — caption "
+                    "keywords are a farm law"))
+    cta_words = CHK.get("caption_cta_words", ["below", "linked"])
+    if not any(w in first for w in cta_words):
+        out.append(("CAPTION", start + 1, "the caption's first line has no "
+                    "soft CTA pointing below (on screen, linked below, "
+                    "caption's first line)"))
+    tags = re.findall(r"#\w+", " ".join(block).lower())
+    lo, hi = int(NUM.get("hashtags_min", 3)), int(NUM.get("hashtags_max", 5))
+    if not (lo <= len(tags) <= hi):
+        out.append(("CAPTION", start + 1, f"{len(tags)} hashtags — every "
+                    f"caption carries {lo} to {hi} tied to the product"))
+    generic = set(t.lower() for t in CHK.get("generic_hashtags", []))
+    bad = [t for t in tags if t in generic]
+    if bad:
+        out.append(("CAPTION", start + 1, "generic hashtags " + ", ".join(bad)
+                    + " — never generic tags"))
+    return out
 
 
 def blocking_findings(findings):
@@ -552,8 +771,8 @@ def eval_step(run, cfg, n):
         return ("CLEARED", "scout findings + story sentence on file "
                            "(smart story check passed)")
     if n == 3:
-        if nonempty_file(steps / STEP_DIRS[3] / "pick.md") and cfg.get("pick"):
-            return ("CLEARED", f"pick recorded: {cfg['pick']}")
+        if nonempty_file(steps / STEP_DIRS[3] / "pick.md"):
+            return ("CLEARED", f"pick recorded: {pick_from_record(run, cfg)}")
         return ("WAITING", "no pick record on file (steps/step3-pick/pick.md)")
     if n == 4:
         photos = files_with_ext(steps / STEP_DIRS[4], IMAGE_EXTS)
@@ -602,18 +821,41 @@ def eval_step(run, cfg, n):
             return ("INVALID", f"script FAILS the Step 6 script check "
                                f"({cats}) — {bad[0][1]}; fix the script — "
                                "Glam is not the first filter")
-        approval = parse_kv(steps / STEP_DIRS[6] / "glam-approval.md")
-        approved = approval.get("approved_by", "").lower() == "glam"
+        back = parse_kv(steps / STEP_DIRS[6] / "mila-script-sendback.md")
+        if back.get("script_sha256") == sha256_file(script):
+            return ("INVALID", "Mila sent the script back: "
+                               f"{back.get('notes', '(no notes)')}")
+        approval = parse_kv(steps / STEP_DIRS[6] / "mila-script-approval.md")
+        approved = approval.get("approved_by", "").lower() == "mila"
+        if approved and approval.get("script_sha256") != sha256_file(script):
+            return ("WAITING", "script changed after Mila's approval — "
+                               "needs her approval again (her approval "
+                               "covers the exact script she saw)")
         if approved:
             return ("CLEARED", "script on file, passing the script check, "
-                               "and Glam's approval recorded")
+                               "and Mila's approval recorded")
         return ("WAITING", "script on file and passing the script check — "
-                           "human gate: Glam's script approval")
+                           "waiting on Mila's script approval")
     if n == 7:
         imgs = files_with_ext(steps / STEP_DIRS[7], IMAGE_EXTS)
-        if imgs:
-            return ("CLEARED", f"styled image on file: {imgs[0].name}")
-        return ("WAITING", "no styled image on file (steps/step7-styled/)")
+        if not imgs:
+            return ("WAITING", "no model photo on file (steps/step7-styled/) — "
+                               "the Casting / Image Agent submits Glam's "
+                               "uploaded model photo")
+        back = parse_kv(steps / STEP_DIRS[7] / "mila-image-sendback.md")
+        if back.get("image_sha256") == image_set_sha(steps / STEP_DIRS[7]):
+            return ("INVALID", "Mila sent the model photo back: "
+                               f"{back.get('notes', '(no notes)')}")
+        approval = parse_kv(steps / STEP_DIRS[7] / "mila-image-approval.md")
+        if approval.get("approved_by", "").lower() != "mila":
+            return ("WAITING", f"model photo on file ({imgs[0].name}) — "
+                               "waiting on Mila's model photo approval")
+        if approval.get("image_sha256") != image_set_sha(steps / STEP_DIRS[7]):
+            return ("WAITING", "model photo changed after Mila's approval — "
+                               "needs her approval again (her approval covers "
+                               "the exact photo she saw)")
+        return ("CLEARED", f"model photo on file ({imgs[0].name}) and Mila's "
+                           "approval recorded")
     if n == 8:
         pkg = steps / STEP_DIRS[8] / "package.md"
         if not pkg.exists():
@@ -639,6 +881,21 @@ def eval_step(run, cfg, n):
         kv = parse_kv(verdict_path)
         verdict = kv.get("verdict", "").upper()
         checker = kv.get("checker", "")
+        covers_path = steps / STEP_DIRS[10] / "verdict-covers.json"
+        try:
+            covers = json.loads(covers_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            covers = None
+        current = build_set(steps / STEP_DIRS[9])
+        if covers is None:
+            return ("WAITING", "the verdict on file was collected before "
+                               "verdicts were tied to the exact builds — "
+                               "Mila's check needs to be collected again for "
+                               "these builds")
+        if covers != current:
+            return ("WAITING", "new build since Mila's verdict — waiting on "
+                               "her check (her verdict covers only the exact "
+                               "build files she was handed)")
         if verdict == "PASS" and checker.strip().lower() == "mila":
             return ("CLEARED", "Mila's PASS recorded in the run folder")
         if verdict == "PASS":
@@ -681,8 +938,10 @@ def headline(results):
 def render_status(run):
     cfg, results = derive(run)
     out = []
-    out.append(f"RUN {cfg['run_id']} — {cfg['pick']} · {cfg['cast_model']} · "
-               f"{cfg['mode']} · {cfg['account']}")
+    out.append(f"RUN {cfg['run_id']} — "
+               f"{pick_from_record(run, cfg) or '(pick at Step 3)'} · "
+               f"{cfg.get('cast_model') or '(model at Step 7)'} · "
+               f"{cfg.get('mode') or '(mode open)'} · {cfg.get('account', '')}")
     out.append("Status derived from evidence on disk at "
                f"{now_stamp()} — never set by hand.")
     out.append("")
@@ -741,9 +1000,9 @@ def cmd_create(args):
     sheet = f"""# RUN SHEET — {run_id}
 
 - Account: {cfg['account']}
-- Pick: {cfg['pick']}{(' (ID ' + cfg['pick_id'] + ')') if cfg['pick_id'] else ''}
-- Cast model: {cfg['cast_model']}
-- Mode: {cfg['mode']}
+- Pick: {cfg['pick'] or '(picked at Step 3 by the Shop Agent — steps/step3-pick/pick.md)'}{(' (ID ' + cfg['pick_id'] + ')') if cfg['pick_id'] else ''}
+- Cast model: {cfg['cast_model'] or "(Glam's uploaded model, picked at Step 7)"}
+- Mode: {cfg['mode'] or '(open)'}
 - Created: {cfg['created_at']} by {cfg['created_by']}
 - Posting freeze: ON — this run ends at "Ready for Glam — freeze on."
 
@@ -772,6 +1031,10 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
           "record at steps/step3-pick/pick.md, then attach the listing photo "
           "with attach-photo. Or just run `drive` — it advances what's ready "
           "and stops at the first gate that needs a human or missing evidence.")
+    info = sync_chain(run, actor="Start a Run")
+    print(f"Chain: job opened for {info.get('agent') or info.get('to')} "
+          f"(Step {info.get('step')}).")
+    write_status_file()
     return 0
 
 
@@ -779,6 +1042,7 @@ def cmd_status(args):
     run = resolve_run(args.run)
     text, _ = render_status(run)
     write_derived_block(run)
+    write_status_file()
     print(text)
     return 0
 
@@ -794,6 +1058,11 @@ def cmd_check(args):
         print(msg)
         sheet_log(run, "CHECK to Step 11: REFUSED — freeze-locked (posting freeze ON).")
         return 3
+    if target < 2 or target > 11:
+        print(f"CHECK to Step {target}: not a step that can be checked — "
+              "use --to 2 through 11 (Step 1 is the run itself; Step 11 is "
+              "freeze-locked).")
+        return 2
     cfg, results = derive(run)
     failures = [(n, name, state, reason) for (n, name, state, reason) in results
                 if n < target and state != "CLEARED"]
@@ -825,6 +1094,8 @@ def cmd_attach_photo(args):
     (dest_dir / "GRABBED-BY.txt").write_text(args.by + "\n", encoding="utf-8")
     sheet_log(run, f"Step 4: listing photo attached ({src.name}), grabbed by {args.by}.")
     print(f"Attached {src.name} to {run.name}/steps/step4-photo/ (grabber of record: {args.by})")
+    sync_chain(run, actor=args.by, submitted=dest)
+    write_status_file()
     return 0
 
 
@@ -847,29 +1118,90 @@ def cmd_record_match(args):
     if args.checker.strip().lower() == args.grabber.strip().lower():
         print("WARNING: checker == grabber. The derivation will REFUSE to "
               "count this verdict — a self-check is not a check.")
+    sync_chain(run, actor=args.checker,
+               submitted=run / "steps" / STEP_DIRS[5] / "match-verdict.md")
+    write_status_file()
     return 0
 
 
+def _mila_only(args, what):
+    who = (getattr(args, "by", "") or "").strip()
+    if who.lower() != "mila":
+        print(f"REFUSED — only Mila approves the {what} (Glam, Nov 25: the "
+              "chain goes ahead after Mila approves; Glam rules once, on the "
+              f"finished video). Got --by \"{who}\".")
+        return False
+    return True
+
+
 def cmd_approve_script(args):
+    """Mila's Step 6 gate: approve the exact script, or send it back."""
     run = resolve_run(args.run)
-    bad = script_findings(run)
-    if bad:
-        print("APPROVAL REFUSED — the script FAILS the Step 6 script check; "
-              "Glam's approval is not recorded on a failing script:")
-        for cat, msg in bad:
-            print(f"  [{cat}] {msg}")
-        sheet_log(run, "Step 6: script approval REFUSED — script fails the "
-                       f"script check ({len(bad)} finding(s)).")
+    if not _mila_only(args, "script"):
         return 2
-    dest = run / "steps" / STEP_DIRS[6] / "glam-approval.md"
-    body = (f"approved_by: Glam\n"
-            f"recorded_by: {args.recorded_by}\n"
-            f"recorded_at: {now_stamp()}\n")
-    dest.write_text(body, encoding="utf-8")
-    sheet_log(run, "Step 6: Glam's script approval recorded "
-                   f"(entered by {args.recorded_by}).")
-    print(f"Recorded Glam's script approval for {run.name}. "
-          "Only run this after Glam has actually approved the script.")
+    folder = run / "steps" / STEP_DIRS[6]
+    script = folder / "script.md"
+    if not nonempty_file(script):
+        print("REFUSED — no script on file yet; the Story Agent submits it first.")
+        return 2
+    if args.send_back:
+        (folder / "mila-script-sendback.md").write_text(
+            f"sent_back_by: Mila\nscript_sha256: {sha256_file(script)}\n"
+            f"notes: {args.send_back.strip()}\nrecorded_at: {now_stamp()}\n",
+            encoding="utf-8")
+        sheet_log(run, f"Step 6: Mila sent the script back — {args.send_back.strip()}")
+        print(f"Mila sent the script back to the Story Agent: {args.send_back.strip()}")
+    else:
+        bad = script_findings(run)
+        if bad:
+            print("APPROVAL REFUSED — the script FAILS the Step 6 script check; "
+                  "an approval is not recorded on a failing script:")
+            for cat, msg in bad:
+                print(f"  [{cat}] {msg}")
+            sheet_log(run, "Step 6: script approval REFUSED — script fails the "
+                           f"script check ({len(bad)} finding(s)).")
+            return 2
+        (folder / "mila-script-approval.md").write_text(
+            f"approved_by: Mila\nscript_sha256: {sha256_file(script)}\n"
+            f"recorded_at: {now_stamp()}\n", encoding="utf-8")
+        sheet_log(run, "Step 6: Mila's script approval recorded.")
+        print(f"Recorded Mila's script approval for {run.name}.")
+    info = sync_chain(run, actor="Mila")
+    print(f"Chain: next is {info.get('agent') or info.get('to')} "
+          f"(Step {info.get('step')}).")
+    write_status_file()
+    return 0
+
+
+def cmd_approve_image(args):
+    """Mila's Step 7 gate: approve the exact model photo, or send it back."""
+    run = resolve_run(args.run)
+    if not _mila_only(args, "model photo"):
+        return 2
+    folder = run / "steps" / STEP_DIRS[7]
+    imgs = files_with_ext(folder, IMAGE_EXTS)
+    if not imgs:
+        print("REFUSED — no model photo on file in steps/step7-styled/; the "
+              "Casting / Image Agent submits it first.")
+        return 2
+    if args.send_back:
+        (folder / "mila-image-sendback.md").write_text(
+            f"sent_back_by: Mila\nimage_sha256: {image_set_sha(folder)}\n"
+            f"notes: {args.send_back.strip()}\nrecorded_at: {now_stamp()}\n",
+            encoding="utf-8")
+        sheet_log(run, f"Step 7: Mila sent the model photo back — {args.send_back.strip()}")
+        print(f"Mila sent the model photo back to Casting: {args.send_back.strip()}")
+    else:
+        (folder / "mila-image-approval.md").write_text(
+            f"approved_by: Mila\nimage_sha256: {image_set_sha(folder)}\n"
+            f"images: {', '.join(i.name for i in imgs)}\n"
+            f"recorded_at: {now_stamp()}\n", encoding="utf-8")
+        sheet_log(run, "Step 7: Mila's model photo approval recorded.")
+        print(f"Recorded Mila's model photo approval for {run.name}.")
+    info = sync_chain(run, actor="Mila")
+    print(f"Chain: next is {info.get('agent') or info.get('to')} "
+          f"(Step {info.get('step')}).")
+    write_status_file()
     return 0
 
 
@@ -901,13 +1233,20 @@ def cmd_handoff(args):
     run = resolve_run(args.run)
     cfg = load_config(run)
     builds = sorted(f for f in (run / "steps" / STEP_DIRS[9]).iterdir()
-                    if f.is_file()) if (run / "steps" / STEP_DIRS[9]).is_dir() else []
+                    if f.is_file() and f.name != "links.md") if (run / "steps" / STEP_DIRS[9]).is_dir() else []
     if not builds:
         print("HANDOFF REFUSED — no build files in steps/step9-builds/. "
               "There is nothing to hand to Mila.")
         sheet_log(run, "HANDOFF refused — no build files on file.")
         return 2
     dest = handoff_dir_for(cfg["run_id"])
+    if (dest / "verdict.md").exists():
+        # A verdict Mila wrote covers the builds she was handed BEFORE this
+        # handoff — collect it first so it can never be read as covering
+        # the new builds (audit fix #1).
+        cmd_collect_verdict(argparse.Namespace(run=str(run)))
+        sheet_log(run, "HANDOFF: a waiting verdict was collected first — it "
+                       "covers only the builds handed before this handoff.")
     dest.mkdir(parents=True, exist_ok=True)
     copied = []
     for b in builds:
@@ -924,7 +1263,7 @@ def cmd_handoff(args):
     manifest = (
         f"# QC HANDOFF — {cfg['run_id']}\n"
         f"Handed off at {now_stamp()} by the farm runner.\n"
-        f"Product: {cfg['pick']} · Model: {cfg['cast_model']} · Mode: {cfg['mode']}\n"
+        f"Product: {pick_from_record(run, cfg)} · Model: {cfg.get('cast_model', '')} · Mode: {cfg.get('mode', '')}\n"
         f"Build files in the run folder: {len(builds)} — files copied here: "
         f"{len(copied)} (every build, good and bad; the builder selects nothing).\n"
         + "".join(f"- {c}\n" for c in copied)
@@ -933,6 +1272,7 @@ def cmd_handoff(args):
           "approved-script.md. Write your verdict to verdict.md in this "
           "folder (verdict: PASS or FAIL, checker: Mila, with the frames/"
           "lines behind it).\n"
+        + "\n" + render_scorecard_md() + "\n" + render_laws_md()
     )
     (dest / "HANDOFF.md").write_text(manifest, encoding="utf-8")
     sheet_log(run, f"Step 9→10: QC handoff copied EVERY build "
@@ -953,11 +1293,25 @@ def cmd_collect_verdict(args):
         return 2
     dest = run / "steps" / STEP_DIRS[10] / "mila-verdict.md"
     shutil.copy2(src, dest)
+    # The verdict covers exactly the build files sitting in the handoff
+    # folder when it is collected (audit fix #1) — a later build is not
+    # covered and waits on Mila again.
+    covers = build_set(handoff_dir_for(cfg["run_id"]))
+    (run / "steps" / STEP_DIRS[10] / "verdict-covers.json").write_text(
+        json.dumps(covers, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    moved = src.with_name(f"verdict-collected-{stamp}.md")
+    n = 1
+    while moved.exists():
+        n += 1
+        moved = src.with_name(f"verdict-collected-{stamp}-{n}.md")
+    src.rename(moved)  # collected once — never re-collected (audit fix #2)
     kv = parse_kv(dest)
     sheet_log(run, f"Step 10: Mila's verdict collected from the QC handoff — "
                    f"{kv.get('verdict', '?')} (checker: {kv.get('checker', '?')}).")
     print(f"Collected Mila's verdict for {cfg['run_id']}: "
           f"{kv.get('verdict', '?')} — now on file at steps/step10-qc/mila-verdict.md")
+    sync_chain(run, actor="Mila", submitted=dest)
     return 0
 
 
@@ -978,6 +1332,7 @@ def drive_run(run):
         log.append(msg)
         sheet_log(run, f"DRIVE: {msg}")
 
+    done_actions = set()
     for _ in range(12):  # bounded passes; each pass must do something or stop
         _, results = derive(run)
         states = {n: (state, reason) for n, name, state, reason in results}
@@ -997,13 +1352,20 @@ def drive_run(run):
         state, reason = states[first_open]
         if first_open == 6:
             script_exists = nonempty_file(run / "steps" / STEP_DIRS[6] / "script.md")
-            if script_exists:
-                note("STOP at Step 6 — human gate: Glam's script approval. "
-                     "The script is written; the driver cannot approve it.")
+            if script_exists and state == "INVALID":
+                note(f"STOP at Step 6 — the script FAILS the script check and "
+                     f"goes back to the Story Agent to fix ({reason}). Mila "
+                     "is not asked to approve a failing script.")
+            elif script_exists and "changed after Mila" in reason:
+                note("STOP at Step 6 — the script changed after Mila's "
+                     "approval; waiting on Mila to approve the new text.")
+            elif script_exists:
+                note("STOP at Step 6 — waiting on Mila's script approval "
+                     "(job open for Mila). Glam is not asked before the video.")
             else:
                 note("STOP at Step 6 — no script on file yet. Writing the "
                      "script is an agent step; the driver resumes once the "
-                     "script and Glam's approval are on file.")
+                     "script and Mila's approval are on file.")
             break
         if first_open == 8 and state == "INVALID":
             note(f"STOP at Step 8 — {reason}")
@@ -1011,15 +1373,19 @@ def drive_run(run):
         if first_open == 10:
             builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
             dest = handoff_dir_for(cfg["run_id"])
-            handed = dest.is_dir() and all(
-                (dest / b.name).exists() for b in builds) and builds
+            handed = bool(builds) and dest.is_dir() and all(
+                (dest / b.name).exists()
+                and sha256_file(dest / b.name) == sha256_file(b)
+                for b in builds)
             verdict_waiting = (dest / "verdict.md").exists()
-            if builds and not handed:
+            if builds and not handed and "handoff" not in done_actions:
+                done_actions.add("handoff")
                 cmd_handoff(argparse.Namespace(run=str(run)))
                 note("Auto-handoff: every build copied to the QC handoff "
                      "folder for Mila.")
                 continue
-            if verdict_waiting:
+            if verdict_waiting and "collect" not in done_actions:
+                done_actions.add("collect")
                 cmd_collect_verdict(argparse.Namespace(run=str(run)))
                 note("Auto-collected Mila's verdict from the QC handoff folder.")
                 continue
@@ -1034,6 +1400,11 @@ def drive_run(run):
         # it is an agent/human step, not something the driver can fabricate.
         note(f"STOP at Step {first_open} — {reason}")
         break
+    info = sync_chain(run)
+    if info.get("kind") in ("agent", "mila"):
+        a = AGENTS.get(info["step"], {})
+        log.append(f"Job open: {info['agent']} (Step {info['step']}) — "
+                   f"needs: {'; '.join(a.get('needs', []))}")
     write_derived_block(run)
     return log
 
@@ -1053,6 +1424,7 @@ def cmd_drive_all(args):
                   if d.is_dir() and (d / "config.json").exists())
     if not runs:
         print("drive-all: no runs in ~/workspace/farm-runs/ — nothing to drive.")
+        write_status_file()
         return 0
     for run in runs:
         print(f"DRIVING {run.name} …")
@@ -1067,35 +1439,56 @@ def cmd_drive_all(args):
 # Review manifest — every finished video lands on the farm's Review section
 # ----------------------------------------------------------------------------
 
+def watch_links(run):
+    """steps/step9-builds/links.md: one 'filename: https://...' line per
+    build (the video's Google Drive link), so Glam can watch it from the
+    Review section (audit fix #29). Only https links are kept."""
+    out = {}
+    path = run / "steps" / STEP_DIRS[9] / "links.md"
+    if not path.exists():
+        return out
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        m = re.match(r"\s*[-*]?\s*([^:]+?)\s*:\s*(https://\S+)\s*$", line)
+        if m:
+            out[m.group(1).strip()] = m.group(2).strip()
+    return out
+
+
 def review_entry(run):
     cfg, results = derive(run)
     states = {n: state for n, name, state, reason in results}
     builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
-    if not builds:
+    redo = parse_kv(run / "steps" / STEP_DIRS[9] / "glam-redo-notes.md")
+    if not builds and not redo:
         return None
     verdict_kv = parse_kv(run / "steps" / STEP_DIRS[10] / "mila-verdict.md")
     mila_verdict = verdict_kv.get("verdict", "").upper() or "NONE"
     decision = parse_kv(run / "review-decision.md")
     decision_val = decision.get("decision", "").lower()
     if decision_val == "approved" and states.get(10) == "CLEARED":
-        status = "Approved"
-    elif decision_val == "sent-back" and states.get(10) == "CLEARED":
-        status = "Sent back"
+        status = "Approved — ready to post (freeze on)"
+    elif not builds:
+        status = "Redo — being rebuilt with Glam's notes"
     elif states.get(10) == "CLEARED":
         status = "Waiting for Glam"
     else:
         status = "Not ready — waiting on Mila's check"
+    links = watch_links(run)
     return {
         "run_id": cfg["run_id"],
-        "product": cfg["pick"],
-        "cast_model": cfg["cast_model"],
-        "mode": cfg["mode"],
-        "account": cfg["account"],
+        "product": pick_from_record(run, cfg),
+        "cast_model": cfg.get("cast_model", ""),
+        "mode": cfg.get("mode", ""),
+        "account": cfg.get("account", ""),
         "mila_verdict": mila_verdict,
         "videos": [f"~/workspace/farm-runs/{cfg['run_id']}/steps/step9-builds/{v.name}"
                    for v in builds],
+        "watch_links": {v.name: links.get(v.name, "") for v in builds},
         "review_status": status,
-        "ready_for_review": states.get(10) == "CLEARED",
+        "ready_for_review": states.get(10) == "CLEARED" and decision_val != "approved",
+        "glam_notes": decision.get("notes", "") or redo.get("notes", ""),
+        "redo_count": len(list((run / "redo").glob("redo-*"))) if (run / "redo").is_dir() else 0,
+        "is_test": bool(re.search(r"TEST|MOCK", (pick_from_record(run, cfg) or "").upper())),
     }
 
 
@@ -1117,6 +1510,7 @@ def build_review_manifest():
                              encoding="utf-8")
     html = render_review_html(entries)
     REVIEW_HTML.write_text(html, encoding="utf-8")
+    write_status_file()
     return manifest
 
 
@@ -1129,7 +1523,7 @@ def render_review_html(entries):
     """The Review section's entries block for the farm page.
 
     This exact markup sits between REVIEW-ENTRIES:BEGIN / :END markers on
-    the farm page; `sync-review` output (this file) is what an artifact
+    the farm page; `review-manifest` output (this file) is what an artifact
     edit pastes between those markers.
     """
     if not entries:
@@ -1141,8 +1535,17 @@ def render_review_html(entries):
         test_badge = (' <span class="review-test">TEST</span>'
                       if "TEST" in e["product"].upper() or "MOCK" in e["product"].upper()
                       else "")
-        vids = "".join(
-            f'<div class="review-video">🎬 {esc(v)}</div>' for v in e["videos"])
+        vids = ""
+        for v in e["videos"]:
+            name = v.rsplit("/", 1)[-1]
+            link = e.get("watch_links", {}).get(name, "")
+            if link:
+                vids += (f'<div class="review-video">🎬 {esc(name)} — '
+                         f'<a href="{esc(link)}" target="_blank" '
+                         f'rel="noopener">▶ Watch</a></div>')
+            else:
+                vids += (f'<div class="review-video">🎬 {esc(name)} — No '
+                         'watch link yet — add it to links.md</div>')
         cards.append(
             f'<div class="review-card">'
             f'<div class="review-run">{esc(e["run_id"])}{test_badge}</div>'
@@ -1167,8 +1570,11 @@ def cmd_review_manifest(args):
     return 0
 
 
-def cmd_review_decision(args):
-    run = resolve_run(args.run)
+def apply_review_decision(run, decision, notes, recorded_by):
+    """Glam's one ruling on the finished video. approved = ready to post
+    (the freeze stays on; nothing posts). redo = the video goes back into
+    the chain to the Video Agent with her notes; Mila checks the rebuild."""
+    decision = {"sent-back": "redo"}.get(decision, decision)
     cfg, results = derive(run)
     states = {n: state for n, name, state, reason in results}
     if states.get(10) != "CLEARED":
@@ -1176,19 +1582,858 @@ def cmd_review_decision(args):
               "check (Step 10), so there is no finished video for Glam to "
               "rule on. A run cannot be approved or sent back before QC.")
         sheet_log(run, f"REVIEW DECISION refused — Step 10 not cleared; "
-                       f"attempted decision: {args.decision}.")
+                       f"attempted decision: {decision}.")
         return 2
-    body = (f"decision: {args.decision}\n"
-            f"decided_by: Glam\n"
-            f"recorded_by: {args.recorded_by}\n"
-            f"recorded_at: {now_stamp()}\n")
-    (run / "review-decision.md").write_text(body, encoding="utf-8")
-    sheet_log(run, f"REVIEW: Glam's decision recorded — {args.decision} "
-                   f"(entered by {args.recorded_by}). Freeze stays ON; "
-                   "approval here is a review verdict, never a post.")
+    if decision == "redo" and not notes.strip():
+        print("REDO REFUSED — a redo needs Glam's notes so the Video Agent "
+              "knows what to change.")
+        return 2
+    notes = " ".join(notes.split())
+    if decision == "approved":
+        (run / "review-decision.md").write_text(
+            f"decision: approved\ndecided_by: Glam\nnotes: {notes}\n"
+            f"recorded_by: {recorded_by}\nrecorded_at: {now_stamp()}\n",
+            encoding="utf-8")
+        sheet_log(run, "REVIEW: Glam APPROVED the finished video — ready to "
+                       "post. Freeze stays ON; nothing posts.")
+        append_handoff(run, {"at": now_stamp(), "from": "Glam", "to": "Posting (frozen)",
+                             "step": 11, "what": "Glam approved the finished video"
+                             + (f" — {notes}" if notes else ""),
+                             "inputs": [], "output": "review-decision.md",
+                             "result": "approved — freeze on"})
+        print(f"Recorded Glam's APPROVAL for {run.name}. Ready to post — the "
+              "freeze stays on, nothing posts.")
+    else:
+        redo_root = run / "redo"
+        n = len(list(redo_root.glob("redo-*"))) + 1 if redo_root.is_dir() else 1
+        dest = redo_root / f"redo-{n}"
+        for sub in ("builds", "qc", "qc-handoff"):
+            (dest / sub).mkdir(parents=True, exist_ok=True)
+        b_dir = run / "steps" / STEP_DIRS[9]
+        for f in list(b_dir.iterdir()):
+            if f.is_file() and f.name not in ("JOB.md", "glam-redo-notes.md"):
+                f.rename(dest / "builds" / f.name)
+        q_dir = run / "steps" / STEP_DIRS[10]
+        if q_dir.is_dir():
+            for f in list(q_dir.iterdir()):
+                if f.is_file() and f.name != "JOB.md":
+                    f.rename(dest / "qc" / f.name)
+        h_dir = handoff_dir_for(cfg["run_id"])
+        if h_dir.is_dir():
+            for f in list(h_dir.iterdir()):
+                if f.is_file():
+                    f.rename(dest / "qc-handoff" / f.name)
+        old = run / "review-decision.md"
+        if old.exists():
+            old.rename(dest / "review-decision.md")
+        body = (f"decision: redo\ndecided_by: Glam\nnotes: {notes}\n"
+                f"redo: {n}\nrecorded_by: {recorded_by}\nrecorded_at: {now_stamp()}\n")
+        (dest / "glam-notes.md").write_text(body, encoding="utf-8")
+        (b_dir / "glam-redo-notes.md").write_text(body, encoding="utf-8")
+        sheet_log(run, f"REVIEW: Glam asked for a REDO (#{n}) — {notes}. Old "
+                       f"builds and Mila's verdict kept in redo/redo-{n}/.")
+        print(f"Recorded Glam's REDO for {run.name}: back to the Video Agent "
+              f"with her notes. Old builds kept in redo/redo-{n}/.")
+        sync_chain(run, actor="Glam")
     build_review_manifest()
-    print(f"Recorded Glam's review decision for {run.name}: {args.decision}. "
-          "The freeze stays on — this records her verdict, it does not post.")
+    write_status_file()
+    return 0
+
+
+def cmd_review_decision(args):
+    run = resolve_run(args.run)
+    return apply_review_decision(run, args.decision, args.notes or "",
+                                 args.recorded_by)
+
+
+def cmd_review_feed(args):
+    """Write review-feed.json: one row per finished video, in the shape the
+    Farm Video Review page reads (its 'videos' collection, keyed by run_id).
+    Whoever runs the farm copies these rows into the page's database; Glam's
+    taps come back through review-apply."""
+    manifest = build_review_manifest()
+    rows = []
+    for e in manifest["entries"]:
+        rows.append({
+            "run_id": e["run_id"], "product": e["product"], "mode": e["mode"],
+            "account": e["account"], "mila_verdict": e["mila_verdict"],
+            "review_status": e["review_status"], "is_test": bool(e.get("is_test")),
+            "glam_notes": e.get("glam_notes", ""), "redo_count": e.get("redo_count", 0),
+            "videos": [{"file": name, "url": url if url.startswith("https://") else ""}
+                       for name, url in e.get("watch_links", {}).items()],
+            "updated_at": now_stamp(),
+        })
+    out = RUNNER_DIR / "review-feed.json"
+    out.write_text(json.dumps({"videos": rows}, indent=2, ensure_ascii=False) + "\n",
+                   encoding="utf-8")
+    print(f"Review feed written: {out} ({len(rows)} video row(s))")
+    for r in rows:
+        print(f"  {r['run_id']} — {r['review_status']}")
+    return 0
+
+
+def cmd_review_apply(args):
+    """Apply Glam's taps from the Farm Video Review page. The file is a JSON
+    list exported from the page's saved decisions:
+    [{"run_id": ..., "decision": "approved"|"redo", "notes": ..., "at": ...}]
+    Each decision is applied once (its 'at' stamp is remembered)."""
+    try:
+        items = json.loads(Path(args.file).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"review-apply: can't read {args.file}: {e}")
+        return 2
+    if isinstance(items, dict):
+        items = items.get("decisions", [])
+    rc = 0
+    for it in items:
+        rid, dec = str(it.get("run_id", "")), str(it.get("decision", "")).lower()
+        if dec not in ("approved", "redo") or not rid:
+            print(f"  skip: {it!r} (needs run_id and decision approved|redo)")
+            continue
+        run = RUNS_DIR / rid
+        if not (run / "config.json").exists():
+            print(f"  skip: no run {rid}")
+            continue
+        seen = run / "review-applied.txt"
+        key = f"{dec}|{it.get('at', '')}"
+        if seen.exists() and key in seen.read_text(encoding="utf-8").splitlines():
+            print(f"  {rid}: already applied ({dec} at {it.get('at', '')})")
+            continue
+        print(f"  {rid}: {dec}")
+        r = apply_review_decision(run, dec, str(it.get("notes", "")),
+                                  "Farm Video Review page")
+        if r == 0:
+            with seen.open("a", encoding="utf-8") as fh:
+                fh.write(key + "\n")
+        rc = rc or r
+    return rc
+
+
+# ----------------------------------------------------------------------------
+# Rendering the master rules (farm-rules.json) for Mila's handoff. The old
+# books were archived (Glam, Nov 24: "A) Do it") — rules live ONLY in
+# farm-rules.json; nothing here reads or writes any archived book.
+# Words in {curly braces} inside a law/step/scorecard line are filled from
+# "numbers", so a number changes in one spot.
+# ----------------------------------------------------------------------------
+
+PLACEHOLDER = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def fill(text):
+    """Replace {key} with numbers[key] from farm-rules.json."""
+    return PLACEHOLDER.sub(
+        lambda m: str(NUM[m.group(1)]) if m.group(1) in NUM else m.group(0),
+        str(text))
+
+
+def rule_texts(data):
+    """Every rule string that may carry {placeholders}, with where it lives."""
+    out = []
+    for l in data.get("laws", []):
+        out += [(f"laws.{l.get('id')}.title", l.get("title", "")),
+                (f"laws.{l.get('id')}.text", l.get("text", ""))]
+    for st in data.get("run_order", []):
+        out += [(f"run_order.{st.get('n')}.name", st.get("name", "")),
+                (f"run_order.{st.get('n')}.text", st.get("text", ""))]
+    sc = data.get("mila_scorecard", {})
+    for k, v in sc.items():
+        for i, x in enumerate(v if isinstance(v, list) else [v]):
+            out.append((f"mila_scorecard.{k}[{i}]" if isinstance(v, list)
+                        else f"mila_scorecard.{k}", x))
+    for a in data.get("agents", []):
+        out.append((f"agents.{a.get('step')}.job", a.get("job", "")))
+    return out
+
+
+def missing_placeholders(data):
+    nums = data.get("numbers", {})
+    bad = []
+    for where, text in rule_texts(data):
+        for key in PLACEHOLDER.findall(str(text)):
+            if key not in nums:
+                bad.append(f"{where}: {{{key}}} has no number in \"numbers\"")
+    return bad
+
+
+def render_scorecard_md():
+    sc = RULES["mila_scorecard"]
+    out = [f"## Mila's scorecard (farm-rules.json, version {RULES['version']})",
+           f"CRITICAL — {fill(sc['critical_rule'])}"]
+    out += [f"- {fill(x)}" for x in sc["critical"]]
+    out.append(f"MAJOR — {fill(sc['major_rule'])}")
+    out += [f"- {fill(x)}" for x in sc["major"]]
+    out.append(f"MINOR — scored {fill(sc['minor_scale'])}: " +
+               ". ".join(fill(x) for x in sc["minor"]) + ".")
+    out.append(f"PASS BAR: {fill(sc['pass_bar'])}")
+    out.append(f"SIGN-OFF: {fill(sc['sign_off'])}")
+    return "\n".join(out) + "\n"
+
+
+def render_laws_md():
+    out = [f"## Farm laws (farm-rules.json, version {RULES['version']})"]
+    out += [f"- {fill(l['title'])}: {fill(l['text'])}" for l in RULES["laws"]]
+    return "\n".join(out) + "\n"
+
+
+def cmd_sync_rules(args):
+    print("sync-rules: nothing to sync — the old books are archived and the "
+          "rules live ONLY in farm-rules.json. The page and the runner read it "
+          "live, and Mila's handoff carries it on the next run. Run "
+          "check-rules to prove nothing drifted.")
+    return 0
+
+
+# Names of the archived books. Built in pieces so this check never flags
+# its own definition.
+ARCHIVED_NAMES = ("merged-farm-" + "playbook", "RUNBOOK" + ".md",
+                  "VERIFICATION" + ".md", "archive" + "/")
+
+
+def archived_reads_in_runner(path):
+    hits = []
+    for i, line in enumerate(path.read_text(encoding="utf-8",
+                                            errors="replace").splitlines(), 1):
+        if line.lstrip().startswith("#"):
+            continue
+        for name in ARCHIVED_NAMES:
+            if name in line:
+                hits.append(f"{path.name} line {i} reads '{name}': "
+                            f"{line.strip()[:90]}")
+    return hits
+
+
+def archived_reads_in_page(path):
+    """A page may LINK to the archive folder (so everyone can see it); it may
+    never fetch or load an archived book as a source of rules."""
+    hits = []
+    text = path.read_text(encoding="utf-8", errors="replace")
+    alt = "|".join(re.escape(n) for n in ARCHIVED_NAMES)
+    pats = [r"fetch\(\s*['\"`][^'\"`]*(?:" + alt + ")",
+            r"\bsrc\s*=\s*['\"][^'\"]*(?:" + alt + ")",
+            r"XMLHttpRequest[^;]*(?:" + alt + ")",
+            r"import\s*\(\s*['\"][^'\"]*(?:" + alt + ")"]
+    for pat in pats:
+        for m in re.finditer(pat, text):
+            ln = text.count("\n", 0, m.start()) + 1
+            hits.append(f"{path.name} line {ln} loads an archived book: "
+                        f"{m.group(0)[:90]}")
+    return hits
+
+
+def cmd_check_rules(args):
+    drift = []
+    print(f"check-rules: farm-rules.json OK — {RULES_PATH} "
+          f"(version {RULES['version']}, every key the runner needs present)")
+    for b in missing_placeholders(RULES):
+        drift.append(b)
+    # The chain: one agent per step 2–10, each naming its laws (that exist),
+    # its output file and what it needs.
+    law_ids = {l.get("id") for l in RULES.get("laws", [])}
+    steps_have = {int(a.get("step", 0)) for a in RULES.get("agents", [])}
+    for n in range(2, 11):
+        if n not in steps_have:
+            drift.append(f"agents: no agent for Step {n} — the chain has a gap")
+    for a in RULES.get("agents", []):
+        for k in ("agent", "job", "output_file", "needs", "hands_to", "laws"):
+            if not a.get(k):
+                drift.append(f"agents.{a.get('step')}: missing '{k}'")
+        for lid in a.get("laws", []):
+            if lid not in law_ids:
+                drift.append(f"agents.{a.get('step')}: law '{lid}' is not in laws")
+    runner = Path(args.runner) if getattr(args, "runner", None) else \
+        Path(__file__).resolve()
+    explicit_page = bool(getattr(args, "page", None))
+    page = Path(args.page) if explicit_page else RULES_PATH.parent / "index.html"
+    if not explicit_page and not page.exists():
+        page = Path(__file__).resolve().parent.parent / "index.html"
+    if runner.exists():
+        drift += archived_reads_in_runner(runner)
+    else:
+        drift.append(f"runner not found ({runner})")
+    if page.exists():
+        ptext = page.read_text(encoding="utf-8", errors="replace")
+        for need in ("farm-rules.json", "farm-status.json"):
+            if need not in ptext:
+                drift.append(f"{page.name} does not read {need}")
+        drift += archived_reads_in_page(page)
+    elif explicit_page:
+        drift.append(f"index.html not found ({page})")
+    else:
+        print("check-rules: the farm page isn't on this machine — page checks "
+              "skipped (run check-rules in the repo, or pass --page).")
+    # Glam's rule (law id BANNED_LAW): one retired agent is off the farm for
+    # good. Only the law that bans her may say the name; any other mention
+    # anywhere in the farm is drift. (The name is assembled so this guard
+    # never trips on itself.)
+    banned = "N" + "ora"
+    banned_law = "no-" + banned.lower()
+    root = Path(__file__).resolve().parent.parent
+    if (root / "index.html").exists() or (root / ".git").exists():
+        for f in sorted(root.rglob("*")):
+            if (not f.is_file() or ".git" in f.parts
+                    or f.suffix.lower() in IMAGE_EXTS | VIDEO_EXTS):
+                continue
+            try:
+                txt = f.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            if f.name == "farm-rules.json":
+                try:
+                    data = json.loads(txt)
+                    data["laws"] = [l for l in data.get("laws", [])
+                                    if l.get("id") != banned_law]
+                    txt = json.dumps(data)
+                except ValueError:
+                    pass
+            if f.name == "fixcheck.sh":
+                continue
+            if re.search(r"\b" + banned + r"\b", txt, re.IGNORECASE):
+                drift.append(f"{f.relative_to(root)} mentions {banned} — "
+                             f"Glam's rule: {banned} is off the farm for good")
+    if drift:
+        print("check-rules: DRIFT —")
+        for d in drift:
+            print(f"  - {d}")
+        print("Fix: rules live only in farm-rules.json — edit it there, and "
+              "never read a rule from an archived book.")
+        return 2
+    print("check-rules: OK — farm-rules.json is complete, every {placeholder} "
+          "has a number, the page reads farm-rules.json and farm-status.json, "
+          "and nothing reads an archived book.")
+    return 0
+
+
+# ----------------------------------------------------------------------------
+# farm-status.json — every run's live status, step by step, where everyone
+# can see it (Glam, Nov 24: "Nothing should be hidden where no one can see
+# what's going on"). The farm page's Live Run Board reads this file.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# THE AGENT CHAIN (Glam, Nov 24: "one agent does something and hands it to
+# the other agent"). Every agent's job comes from farm-rules.json → agents.
+# When a step clears, the runner opens the NEXT agent's job (JOB.md in that
+# step's folder) and logs the handoff in handoffs.jsonl. An agent submits its
+# work with `submit`; the step's checks run at once — pass hands off, fail
+# sends it straight back to the same agent with the findings on its JOB.md.
+# The runner never writes an agent's work, never calls an AI or a website,
+# and never posts.
+# ----------------------------------------------------------------------------
+
+AGENTS = {int(a["step"]): a for a in RULES.get("agents", [])}
+CHAIN_SKIP_NAMES = {"JOB.md", "GRABBED-BY.txt", "links.md",
+                    "verdict-covers.json", "staging-proof.md"}
+
+
+def agent_name(step):
+    return AGENTS.get(step, {}).get("agent", f"Step {step} agent")
+
+
+def by_allowed(step, by):
+    a = AGENTS.get(step, {})
+    allowed = [x.lower() for x in a.get("by", [a.get("agent", "")])]
+    return by.strip().lower() in allowed
+
+
+def chain_input_files(run, step):
+    out = []
+    for pat in AGENTS.get(step, {}).get("input_files", []):
+        for f in sorted(run.glob(pat)):
+            if (not f.is_file() or f.name in CHAIN_SKIP_NAMES
+                    or f.name.startswith(("glam-", "mila-script-", "mila-image-"))
+                    or f.suffix == ".tmp"):
+                continue
+            out.append({"file": str(f.relative_to(run)),
+                        "sha256": sha256_file(f)})
+    return out
+
+
+def handoffs_path(run):
+    return run / "handoffs.jsonl"
+
+
+def read_handoffs(run):
+    p = handoffs_path(run)
+    if not p.exists():
+        return []
+    out = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        try:
+            out.append(json.loads(line))
+        except ValueError:
+            continue
+    return out
+
+
+def append_handoff(run, rec):
+    with handoffs_path(run).open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
+def chain_state(run):
+    try:
+        return json.loads((run / "chain-state.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def save_chain_state(run, st):
+    (run / "chain-state.json").write_text(json.dumps(st, indent=2) + "\n",
+                                          encoding="utf-8")
+
+
+# Mila's two gates before the video (Glam, Nov 25: "I want it to go ahead
+# after Mila approve it ... Don't wait for my approval to make the video.")
+MILA_GATES = {
+    6: {"what": "approve the exact script (steps/step6-script/script.md) or send it back with notes",
+        "job": "Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script <run> --by Mila. If not, send it back to the Story Agent: runner.py approve-script <run> --by Mila --send-back \"what to fix\". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "files": lambda run: [run / "steps" / STEP_DIRS[6] / "script.md"],
+        "needs": ["Mila (an AI agent) to read the script against the farm laws"]},
+    7: {"what": "approve the model photo (steps/step7-styled/) or send it back with notes",
+        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. If it is right, approve it: runner.py approve-image <run> --by Mila. If not: runner.py approve-image <run> --by Mila --send-back \"what to fix\". The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "files": lambda run: files_with_ext(run / "steps" / STEP_DIRS[7], IMAGE_EXTS),
+        "needs": ["Mila (an AI agent) to look at the photo"]},
+}
+
+
+def step_findings(run, n, reason):
+    if n == 6 and reason.startswith("Mila sent"):
+        return [reason]
+    if n == 6:
+        f = [m for _, m in script_findings(run)]
+        return f or [reason]
+    if n == 8:
+        f = []
+        for cat, no, text in lint_package(run):
+            where = f"line {no}" if no else "package"
+            f.append(f"[{cat}] {where}: {text}")
+        return f or [reason]
+    return [reason]
+
+
+def open_job_info(run):
+    """Who acts next on this run, from the evidence: an agent's job, Mila,
+    Glam's approval gate, or Glam's final review ('done')."""
+    cfg, results = derive(run)
+    steps = run / "steps"
+    for n, name, st, reason in results:
+        if n == 11:
+            break
+        if st == "CLEARED":
+            continue
+        if n == 1:
+            continue
+        if n == 6 and nonempty_file(steps / STEP_DIRS[6] / "script.md") \
+                and st not in ("INVALID", "BLOCKED"):
+            return {"kind": "mila", "step": 6, "agent": "Mila", "to": "Mila",
+                    "what": MILA_GATES[6]["what"], "reason": reason, "findings": []}
+        if n == 7 and files_with_ext(steps / STEP_DIRS[7], IMAGE_EXTS) \
+                and st not in ("INVALID", "BLOCKED"):
+            return {"kind": "mila", "step": 7, "agent": "Mila", "to": "Mila",
+                    "what": MILA_GATES[7]["what"], "reason": reason, "findings": []}
+        if n == 10:
+            kv = parse_kv(steps / STEP_DIRS[10] / "mila-verdict.md")
+            if st == "INVALID" and kv.get("verdict", "").upper() != "PASS":
+                return {"kind": "agent", "step": 9, "agent": agent_name(9),
+                        "to": agent_name(9), "reason": reason,
+                        "what": "rebuild — Mila sent the build back",
+                        "findings": [reason]}
+            return {"kind": "mila", "step": 10, "agent": agent_name(10),
+                    "to": agent_name(10), "reason": reason,
+                    "what": "QC check of every build in the handoff folder",
+                    "findings": [reason] if st == "INVALID" else []}
+        if n == 9:
+            redo = parse_kv(steps / STEP_DIRS[9] / "glam-redo-notes.md")
+            if redo.get("notes"):
+                return {"kind": "agent", "step": 9, "agent": agent_name(9),
+                        "to": agent_name(9), "reason": reason,
+                        "what": "rebuild — Glam asked for a redo",
+                        "findings": [f"Glam asked for a redo (#{redo.get('redo', '?')}): "
+                                     f"{redo['notes']}"]}
+        sent_back = (st == "INVALID"
+                     or (n == 2 and nonempty_file(steps / STEP_DIRS[2] / "scout.md")))
+        return {"kind": "agent", "step": n, "agent": agent_name(n),
+                "to": agent_name(n), "reason": reason,
+                "what": AGENTS.get(n, {}).get("output", ""),
+                "findings": step_findings(run, n, reason) if sent_back else []}
+    return {"kind": "done", "step": None, "agent": "", "to": "Glam",
+            "what": "final review — Ready for Glam, freeze on",
+            "reason": "complete through Step 10", "findings": []}
+
+
+def mila_gate_job_md(run, info):
+    n = info["step"]
+    g = MILA_GATES[n]
+    cfg = load_config(run)
+    out = [f"# JOB — Step {n}: Mila (approval gate)",
+           f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
+           f"opened {now_stamp()} · posting freeze ON\n",
+           "## Your job", g["job"].replace("<run>", cfg["run_id"]) + "\n",
+           "## Check these (exact files)"]
+    out += [f"- {f.relative_to(run)}  (sha256 {sha256_file(f)[:16]}…)"
+            for f in g["files"](run)]
+    out.append("\n## Farm laws (from farm-rules.json)")
+    out += [f"- {fill(l['title'])}: {fill(l['text'])}" for l in RULES.get("laws", [])]
+    return "\n".join(out) + "\n"
+
+
+def job_md(run, info):
+    n = info["step"]
+    if info.get("kind") == "mila" and n in MILA_GATES:
+        return mila_gate_job_md(run, info)
+    a = AGENTS.get(n, {})
+    cfg = load_config(run)
+    laws = {l["id"]: l for l in RULES.get("laws", [])}
+    out = []
+    if info.get("findings"):
+        out.append("## ⚠ SENT BACK — fix these, then submit again\n")
+        out += [f"- {f}" for f in info["findings"]]
+        out.append("")
+    out.append(f"# JOB — Step {n}: {a.get('agent', '')}")
+    out.append(f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
+               f"opened {now_stamp()} · posting freeze ON\n")
+    out.append("## Your job")
+    out.append(fill(a.get("job", "")) + "\n")
+    out.append("## Read these (exact files)")
+    ins = chain_input_files(run, n)
+    out += ([f"- {i['file']}  (sha256 {i['sha256'][:16]}…)" for i in ins]
+            or ["- " + "; ".join(a.get("inputs", []))])
+    out.append("\n## Farm laws you follow (from farm-rules.json)")
+    for lid in a.get("laws", []):
+        if lid in laws:
+            out.append(f"- {fill(laws[lid]['title'])}: {fill(laws[lid]['text'])}")
+    out.append("\n## Hand in")
+    out.append(f"- Output: {a.get('output', '')} → {a.get('output_file', '')}")
+    if n == 5:
+        out.append("- Submit with: runner.py record-match "
+                   f"{cfg['run_id']} --checker <you> --grabber <grabber> "
+                   "--verdict MATCH|NO-MATCH")
+    else:
+        out.append(f"- Submit with: runner.py submit {cfg['run_id']} --step {n} "
+                   f"--by \"{a.get('agent', '').split(' + ')[0]}\" --file <your file>")
+    out.append(f"- Hands to: {a.get('hands_to', '')}")
+    out.append("\n## What this job needs that the runner can't do by itself")
+    out += [f"- {x}" for x in a.get("needs", [])]
+    if n == 10:
+        out.append(f"\nBuilds are in ~/workspace/farm-qc-handoff/{cfg['run_id']}/ "
+                   "(HANDOFF.md there carries your full scorecard).")
+    return "\n".join(out) + "\n"
+
+
+def sync_chain(run, actor=None, submitted=None):
+    """Open the next job (or gate) if it changed, and log the handoff."""
+    info = open_job_info(run)
+    sub_sig = sha256_file(submitted) if submitted and Path(submitted).is_file() else ""
+    sig = json.dumps([info["kind"], info["step"], info["agent"],
+                      info["findings"], sub_sig], ensure_ascii=False)
+    st = chain_state(run)
+    if st.get("sig") == sig:
+        return info
+    cfg = load_config(run)
+    if info["kind"] in ("agent", "mila"):
+        if info["kind"] == "mila" and info["step"] == 10:
+            builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
+            dest = handoff_dir_for(cfg["run_id"])
+            handed = bool(builds) and dest.is_dir() and all(
+                (dest / b.name).exists()
+                and sha256_file(dest / b.name) == sha256_file(b) for b in builds)
+            if builds and not handed:
+                import contextlib, io
+                with contextlib.redirect_stdout(io.StringIO()):
+                    cmd_handoff(argparse.Namespace(run=str(run)))
+        (run / "steps" / STEP_DIRS[info["step"]] / "JOB.md").write_text(
+            job_md(run, info), encoding="utf-8")
+    if info["kind"] == "agent":
+        result = "sent back" if info["findings"] else "handed off"
+    elif info["kind"] == "mila":
+        result = "waiting on Mila"
+    else:
+        result = "waiting on Glam"
+    frm = actor or st.get("last_actor") or "Start a Run"
+    if info["findings"] and info["kind"] == "agent":
+        what = (f"{actor} submitted; " if actor else "") + \
+               f"SENT BACK to {info['agent']}: {info['findings'][0]}"
+    elif info["kind"] in ("agent", "mila"):
+        what = f"job opened for {info['agent']}: {info['what']}"
+    else:
+        what = info["what"]
+    if info["kind"] == "mila" and info["step"] in MILA_GATES:
+        inputs = [{"file": str(f.relative_to(run)), "sha256": sha256_file(f)}
+                  for f in MILA_GATES[info["step"]]["files"](run)]
+    elif info["kind"] in ("agent", "mila"):
+        inputs = chain_input_files(run, info["step"])
+    elif info["kind"] == "glam":
+        inputs = [{"file": str(f.relative_to(run)), "sha256": sha256_file(f)}
+                  for f in (files_with_ext(run / "steps" / STEP_DIRS[7], IMAGE_EXTS)
+                            if info["step"] == 7
+                            else [run / "steps" / STEP_DIRS[6] / "script.md"])]
+    else:
+        inputs = [{"file": str(f.relative_to(run)), "sha256": sha256_file(f)}
+                  for f in files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)]
+    output = ""
+    if submitted:
+        sp = Path(submitted)
+        output = (f"{sp.relative_to(run)} (sha256 {sha256_file(sp)[:16]}…)"
+                  if sp.is_file() and run in sp.parents else str(sp))
+    elif info["kind"] == "mila" and info["step"] in MILA_GATES:
+        output = "expected: Mila's approval or send-back"
+    elif info["kind"] in ("agent", "mila"):
+        output = "expected: " + AGENTS.get(info["step"], {}).get("output_file", "")
+    rec = {"at": now_stamp(), "from": frm, "to": info["to"],
+           "step": info["step"], "what": what, "inputs": inputs,
+           "output": output, "result": result}
+    append_handoff(run, rec)
+    sheet_log(run, f"CHAIN: {frm} → {info['to']} (Step {info['step']}) — {result}")
+    save_chain_state(run, {"sig": sig, "opened_at": now_stamp(),
+                           "last_actor": actor or st.get("last_actor", ""),
+                           "open": {k: info[k] for k in ("kind", "step", "agent", "to")}})
+    return info
+
+
+def open_job_entry(run, info=None):
+    info = info or open_job_info(run)
+    if info["kind"] not in ("agent", "mila"):
+        return None
+    a = AGENTS.get(info["step"], {})
+    if info["kind"] == "mila" and info["step"] in MILA_GATES:
+        a = MILA_GATES[info["step"]]
+    return {"step": info["step"], "agent": info["agent"],
+            "job_file": f"steps/{STEP_DIRS[info['step']]}/JOB.md",
+            "job": fill(a.get("job", "")), "needs": a.get("needs", []),
+            "since": chain_state(run).get("opened_at", ""),
+            "sent_back": info["findings"]}
+
+
+def cmd_submit(args):
+    run = resolve_run(args.run)
+    n = args.step
+    info = open_job_info(run)
+    if n == 5:
+        print("SUBMIT REFUSED — Step 5 is recorded with record-match "
+              "(the checker must not be the grabber).")
+        return 2
+    if info["kind"] not in ("agent", "mila") or info["step"] != n:
+        now = (f"Step {info['step']} — {info['to']}" if info["step"]
+               else "Glam's final review")
+        print(f"SUBMIT REFUSED — Step {n} isn't the open job. The chain is at "
+              f"{now}. Agents hand off in order.")
+        return 2
+    if not by_allowed(n, args.by):
+        a = AGENTS.get(n, {})
+        print(f"SUBMIT REFUSED — Step {n} belongs to {a.get('agent')} "
+              f"(accepted: {', '.join(a.get('by', []))}); '{args.by}' can't "
+              "submit it.")
+        return 2
+    src = Path(args.file).expanduser()
+    if not src.is_file():
+        print(f"SUBMIT REFUSED — file not found: {src}")
+        return 2
+    folder = run / "steps" / STEP_DIRS[n]
+    if n == 10:
+        cfg = load_config(run)
+        dest_dir = handoff_dir_for(cfg["run_id"])
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest_dir / "verdict.md")
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()):
+            cmd_collect_verdict(argparse.Namespace(run=str(run)))
+        dest = folder / "mila-verdict.md"
+    else:
+        exts = {4: IMAGE_EXTS, 7: IMAGE_EXTS, 9: VIDEO_EXTS}.get(n)
+        if exts and src.suffix.lower() not in exts:
+            print(f"SUBMIT REFUSED — Step {n} takes "
+                  f"{'an image' if exts is IMAGE_EXTS else 'a video'} file "
+                  f"({', '.join(sorted(exts))}); got {src.suffix}.")
+            return 2
+        out_file = AGENTS.get(n, {}).get("output_file", "")
+        dest = (folder / src.name) if out_file.endswith("/") \
+            else run / out_file
+        shutil.copy2(src, dest)
+        if n == 4:
+            (folder / "GRABBED-BY.txt").write_text(args.by + "\n", encoding="utf-8")
+    sheet_log(run, f"SUBMIT: Step {n} by {args.by} — {dest.name}")
+    after = sync_chain(run, actor=args.by, submitted=dest)
+    write_status_file()
+    if after["kind"] == "agent" and after["step"] == n and after["findings"]:
+        print(f"SENT BACK to {after['agent']} — the Step {n} checks failed:")
+        for f in after["findings"]:
+            print(f"  - {f}")
+        print(f"The findings are at the top of steps/{STEP_DIRS[n]}/JOB.md.")
+        return 2
+    print(f"Submitted Step {n} ({dest.name}) by {args.by} — checks passed. "
+          f"Handed to {after['to']}"
+          + (f" (Step {after['step']})" if after["step"] else "")
+          + (f": {after['what']}" if after["kind"] in ("glam", "done") else "")
+          + ".")
+    return 0
+
+
+def jobs_out_path():
+    import os
+    if os.environ.get("FARM_JOBS_OUT"):
+        return Path(os.environ["FARM_JOBS_OUT"]).expanduser()
+    return status_out_path().with_name("farm-jobs.json")
+
+
+def collect_jobs():
+    jobs = []
+    if RUNS_DIR.is_dir():
+        for run in sorted(d for d in RUNS_DIR.iterdir()
+                          if d.is_dir() and (d / "config.json").exists()):
+            e = open_job_entry(run)
+            if e:
+                e = dict(e)
+                e["run_id"] = load_config(run)["run_id"]
+                jobs.append(e)
+    return jobs
+
+
+def write_jobs_file(jobs=None):
+    import os
+    jobs = collect_jobs() if jobs is None else jobs
+    out = jobs_out_path()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_name(out.name + ".tmp")
+    tmp.write_text(json.dumps({"generated_at": now_stamp(),
+                               "rules_version": RULES.get("version"),
+                               "jobs": jobs}, indent=2, ensure_ascii=False) + "\n",
+                   encoding="utf-8")
+    os.replace(tmp, out)
+    return out, jobs
+
+
+def cmd_jobs(args):
+    if RUNS_DIR.is_dir():
+        for run in sorted(d for d in RUNS_DIR.iterdir()
+                          if d.is_dir() and (d / "config.json").exists()):
+            sync_chain(run)
+    out, jobs = write_jobs_file()
+    print(f"farm-jobs.json written: {out} ({len(jobs)} open job(s))")
+    for j in jobs:
+        print(f"  {j['agent']} — {j['run_id']} Step {j['step']} — since "
+              f"{j['since']} — needs: {'; '.join(j['needs'])}"
+              + (f" — SENT BACK: {j['sent_back'][0]}" if j['sent_back'] else ""))
+    if not jobs:
+        print("  (no open agent jobs)")
+    return 0
+
+
+def status_out_path():
+    import os
+    if os.environ.get("FARM_STATUS_OUT"):
+        return Path(os.environ["FARM_STATUS_OUT"]).expanduser()
+    repo = Path(__file__).resolve().parent.parent
+    if (repo / "index.html").exists():
+        return repo / "farm-status.json"
+    return WORKSPACE / "farm-status.json"
+
+
+def step_owner(run, n, state):
+    if n == 6:
+        script = run / "steps" / STEP_DIRS[6] / "script.md"
+        if state == "INVALID" or not nonempty_file(script):
+            return "Story Agent (writes or fixes the script)"
+        return "Mila (script approval)"
+    return {
+        1: "Indigo (creates the run)",
+        2: "TikTok Scout",
+        3: "TikTok Shop Agent",
+        4: "TikTok Shop Agent (grabs the listing photo)",
+        5: "A checker who did not grab the photo",
+        7: "Casting agent (Glam's uploaded model), then Mila approves",
+        8: "Story Agent + Video Agent (package)",
+        9: "Indigo (build)",
+        10: "Mila (QC)",
+        11: "Glam (lifts the freeze)",
+    }.get(n, "")
+
+
+def run_status_entry(run):
+    cfg, results = derive(run)
+    head = headline(results)
+    open_n, open_name, needs, state = None, "", "", "READY"
+    for n, name, st, reason in results:
+        if n == 11:
+            break
+        if st != "CLEARED":
+            open_n, open_name, needs = n, name, reason
+            state = "STOPPED" if st == "INVALID" else "BLOCKED"
+            break
+    pick = pick_from_record(run, cfg) or ""
+    review = review_entry(run)
+    links = watch_links(run)
+    builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
+    info = open_job_info(run)
+    if open_n is None:
+        owner = "Glam (final review; she lifts the freeze)"
+        needs = ("Glam's final review — " + (review["review_status"]
+                 if review else "waiting for Glam") + ". Freeze on.")
+    else:
+        owner = step_owner(run, open_n, results[open_n - 1][2])
+        if info["kind"] in ("agent", "mila"):
+            a = AGENTS.get(info["step"], {})
+            owner = info["agent"]
+            if info["findings"]:
+                state = "STOPPED"
+                needs = f"sent back to {info['agent']}: {info['findings'][0]}"
+            else:
+                state = "BLOCKED"
+                needs = f"{info['agent']} — needs: " + "; ".join(a.get("needs", []))
+        elif info["kind"] == "glam":
+            owner = "Glam"
+            needs = f"Glam — {info['what']}"
+    return {
+        "run_id": cfg["run_id"],
+        "pick": pick,
+        "model": cfg.get("cast_model", ""),
+        "mode": cfg.get("mode", ""),
+        "account": cfg.get("account", ""),
+        "headline": head,
+        "state": state,
+        "open_step": open_n,
+        "open_step_name": open_name,
+        "needs": needs,
+        "owner": owner,
+        "steps": [{"n": n, "name": name, "state": st, "reason": reason}
+                  for n, name, st, reason in results],
+        "review_status": review["review_status"] if review else "No build yet",
+        "watch_links": [{"file": b.name, "url": links.get(b.name, "")}
+                        for b in builds],
+        "is_test": bool(re.search(r"TEST|MOCK", pick.upper())),
+        "handoffs": read_handoffs(run),
+        "open_job": open_job_entry(run, info),
+    }
+
+
+def write_status_file():
+    import os
+    runs = []
+    if RUNS_DIR.is_dir():
+        for run in sorted(d for d in RUNS_DIR.iterdir()
+                          if d.is_dir() and (d / "config.json").exists()):
+            runs.append(run_status_entry(run))
+    data = {"generated_at": now_stamp(), "rules_version": RULES["version"],
+            "freeze": "ON", "runs": runs}
+    out = status_out_path()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_name(out.name + ".tmp")
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+                   encoding="utf-8")
+    os.replace(tmp, out)
+    write_jobs_file([dict(r["open_job"], run_id=r["run_id"])
+                     for r in runs if r.get("open_job")])
+    return out, data
+
+
+def cmd_status_export(args):
+    out, data = write_status_file()
+    print(f"farm-status.json written: {out} ({len(data['runs'])} run(s), "
+          f"generated {data['generated_at']})")
+    for r in data["runs"]:
+        print(f"  {r['run_id']} — {r['state']} — step {r['open_step']} "
+              f"{r['open_step_name']} — needs: {r['needs'][:80]} — "
+              f"owner: {r['owner']}")
     return 0
 
 
@@ -1204,10 +2449,12 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("create", help="create a run folder with an empty, earned-only run sheet")
-    p.add_argument("--pick", required=True)
+    p.add_argument("--pick", default="",
+                   help="optional — the Shop Agent picks at Step 3 (pick.md)")
     p.add_argument("--pick-id", default="")
-    p.add_argument("--model", required=True)
-    p.add_argument("--mode", required=True)
+    p.add_argument("--model", default="",
+                   help="optional — Glam's uploaded model is picked at Step 7")
+    p.add_argument("--mode", default="")
     p.add_argument("--account", default="@glamorousgrammyglowup")
     p.add_argument("--by", default="Indigo")
     p.set_defaults(fn=cmd_create)
@@ -1235,10 +2482,27 @@ def main():
     p.add_argument("--notes", default="")
     p.set_defaults(fn=cmd_record_match)
 
-    p = sub.add_parser("approve-script", help="record Glam's Step 6 script approval (only after she approves)")
+    p = sub.add_parser("approve-script", help="Mila's Step 6 gate: approve the exact script (or --send-back \"notes\")")
     p.add_argument("run")
-    p.add_argument("--recorded-by", default="Indigo")
+    p.add_argument("--by", required=True, help="must be Mila")
+    p.add_argument("--send-back", default="", help="send the script back to the Story Agent with these notes")
     p.set_defaults(fn=cmd_approve_script)
+
+    p = sub.add_parser("approve-image", help="Mila's Step 7 gate: approve the exact model photo (or --send-back \"notes\")")
+    p.add_argument("run")
+    p.add_argument("--by", required=True, help="must be Mila")
+    p.add_argument("--send-back", default="", help="send the photo back to Casting with these notes")
+    p.set_defaults(fn=cmd_approve_image)
+
+    p = sub.add_parser("submit", help="an agent hands in its step's work; the step's checks run at once and the chain hands off or sends it back")
+    p.add_argument("run")
+    p.add_argument("--step", type=int, required=True)
+    p.add_argument("--by", required=True, help="the agent handing it in (must be that step's agent)")
+    p.add_argument("--file", required=True)
+    p.set_defaults(fn=cmd_submit)
+
+    p = sub.add_parser("jobs", help="list every open agent job across runs and write farm-jobs.json")
+    p.set_defaults(fn=cmd_jobs)
 
     p = sub.add_parser("lint", help="lint the run's Step 8 package (references-only + staging bar)")
     p.add_argument("run")
@@ -1264,9 +2528,28 @@ def main():
 
     p = sub.add_parser("review-decision", help="record Glam's review verdict on a finished video (never posts)")
     p.add_argument("run")
-    p.add_argument("--decision", required=True, choices=["approved", "sent-back"])
+    p.add_argument("--decision", required=True, choices=["approved", "redo", "sent-back"])
+    p.add_argument("--notes", default="", help="Glam's notes (required for redo)")
     p.add_argument("--recorded-by", default="Indigo")
     p.set_defaults(fn=cmd_review_decision)
+
+    p = sub.add_parser("review-feed", help="write review-feed.json: the rows for the Farm Video Review page")
+    p.set_defaults(fn=cmd_review_feed)
+
+    p = sub.add_parser("review-apply", help="apply Glam's Approve/Redo taps exported from the Farm Video Review page (JSON)")
+    p.add_argument("--file", required=True)
+    p.set_defaults(fn=cmd_review_apply)
+
+    p = sub.add_parser("sync-rules", help="(retired) the old books are archived; rules live only in farm-rules.json")
+    p.set_defaults(fn=cmd_sync_rules)
+
+    p = sub.add_parser("check-rules", help="prove farm-rules.json is complete, placeholders resolve, the page reads it, and nothing reads an archived book")
+    p.add_argument("--runner", default=None)
+    p.add_argument("--page", default=None)
+    p.set_defaults(fn=cmd_check_rules)
+
+    p = sub.add_parser("status-export", help="write farm-status.json (every run's live status) for the farm page")
+    p.set_defaults(fn=cmd_status_export)
 
     args = ap.parse_args()
     return args.fn(args)

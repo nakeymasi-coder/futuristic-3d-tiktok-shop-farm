@@ -924,7 +924,7 @@
       var FORM = R.form || {};
       var MODES = FORM.modes || [];
       var STATUSES = ["Waiting — Step 1","Blocked — Step 3 pick","Blocked — Step 4 photo","Blocked — Step 5 match","Waiting — Glam (script)","Waiting — Glam (image)","In production","Sent back — QC","Waiting — Mila's check","Waiting — Glam's verdict","Held — freeze ON"];
-      var LAW_ICONS = {"exact-product":"🎯","no-health-claims":"⛔","words":"⏱️","hook":"🗣️","cta":"🛒","no-use-claims":"🙅🏾‍♀️","no-prices":"🚫","casting":"🧍","staging":"🧴","hashtags":"#️⃣","keywords":"🔎","repeats":"🔁","labels":"🏷️","qc":"🔍","freeze":"🧊","blocked":"🛑","no-dead-air":"✂️","feel-human":"👁️","live-games":"🎃","ptp-sequence":"👗","verify-listing":"📋"};
+      var LAW_ICONS = {"exact-product":"🎯","no-health-claims":"⛔","no-before-after":"🚷","words":"⏱️","hook":"🗣️","cta":"🛒","no-use-claims":"🙅🏾‍♀️","no-prices":"🚫","casting":"🧍","staging":"🧴","hashtags":"#️⃣","keywords":"🔎","repeats":"🔁","labels":"🏷️","qc":"🔍","freeze":"🧊","blocked":"🛑","no-dead-air":"✂️","feel-human":"👁️","live-games":"🎃","ptp-sequence":"👗","verify-listing":"📋"};
       function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
       function lawById(id){ for (var i = 0; i < LAWS.length; i++){ if (LAWS[i].id === id) return LAWS[i]; } return null; }
       function lawsText(ids){ return (ids ? ids.map(lawById).filter(Boolean) : LAWS).map(function(l){ return l.title + ": " + l.text; }); }
@@ -1008,7 +1008,7 @@
           sel.innerHTML = "";
           items.forEach(function(t){ var o = document.createElement("option"); o.textContent = t; if (t === selected) o.selected = true; sel.appendChild(o); });
         }
-        fillSelect("inShow", FORM.product_shown || [], "On the bathroom counter, by the sink");
+        fillSelect("inShow", FORM.product_shown || [], "On screen only — the real listing photo close-up");
         fillSelect("fcType", FORM.product_types || []);
         document.querySelectorAll("[data-n]").forEach(function(el){
           var v = N[el.getAttribute("data-n")];
@@ -1039,7 +1039,7 @@
           grid.innerHTML = LAWS.map(lawCard).join("");
         }
         function fillLaws(id, ids){ var el = document.getElementById(id); if (el) el.innerHTML = ids.map(lawById).filter(Boolean).map(lawCard).join(""); }
-        fillLaws("ggLaws", ["no-health-claims","exact-product","no-use-claims","labels","no-prices"]);
+        fillLaws("ggLaws", ["no-health-claims","exact-product","no-before-after","no-use-claims","labels","no-prices"]);
         function fillList(id, ids){ var el = document.getElementById(id); if (el) el.innerHTML = ids.map(lawById).filter(Boolean).map(function(l){ return "<li><b>" + esc(l.title) + ":</b> " + esc(l.text) + "</li>"; }).join(""); }
         fillList("fcCasting", ["casting"]);
         fillList("fcFidelity", ["exact-product","no-use-claims"]);
@@ -1288,7 +1288,7 @@
         type: "TikTok Shop video",
         around: "Turmeric + Honey Body Oil (Elowen Lab)",
         product: "Turmeric + Honey Body Oil (Elowen Lab)",
-        show: "On the bathroom counter, by the sink",
+        show: "On screen only — the real listing photo close-up",
         mode: "Get Ready With Me",
         when: "Next open slot",
         notes: "Model: Tuesday Blue Bob \u00b7 staging per the Farm Laws",
@@ -1576,7 +1576,7 @@
           type: "TikTok Shop video",
           around: "Empty run — the pick lands at Step 3",
           product: "Picked at Step 3 by the Shop Agent",
-          show: "On the bathroom counter, by the sink",
+          show: "On screen only — the real listing photo close-up",
           mode: "Get Ready With Me",
           when: "Next open slot",
           notes: "Model photo picked at Step 7 · One-click Start Run — run opened at Step 1, waiting. QC: not checked yet on every step.",

@@ -64,9 +64,11 @@ Evidence map (what clears each step):
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import sys
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 
@@ -92,7 +94,8 @@ REQUIRED_RULE_KEYS = {
                 "clips_per_video", "closeup_seconds", "video_seconds_about"],
     "checks": ["spec_words", "spec_exempt_phrases", "person_words",
                "first_person_words", "mode_names", "use_claim_patterns",
-               "health_claim_patterns",
+               "health_claim_patterns", "health_claim_hashtag_patterns",
+               "before_after_patterns", "drawn_product_nouns",
                "spoken_cta_patterns", "banned_spoken_phrases",
                "banned_spoken_patterns", "price_patterns",
                "urgency_patterns", "sold_count_patterns",
@@ -100,7 +103,7 @@ REQUIRED_RULE_KEYS = {
                "product_description_patterns", "staging_patterns",
                "handling_nouns", "handling_verbs", "guard_patterns"],
     "laws": [], "run_order": [], "mila_scorecard": [], "form": [],
-    "version": [], "agents": [],
+    "version": [], "agents": [], "mila_signing": ["public_key"],
 }
 
 
@@ -415,6 +418,41 @@ SOLD_COUNT_PATTERNS = tuple(CHK["sold_count_patterns"])
 HEALTH_CLAIM_PATTERNS = tuple(CHK["health_claim_patterns"])
 
 
+HEALTH_HASHTAG_PATTERNS = tuple(CHK["health_claim_hashtag_patterns"])
+BEFORE_AFTER_PATTERNS = tuple(CHK["before_after_patterns"])
+DRAWN_PRODUCT_NOUNS = tuple(CHK["drawn_product_nouns"])
+
+
+def hashtag_claim_hit(text):
+    """Glam, Nov 25: hashtags never promise results either (#hairgrowth)."""
+    for tag in re.findall(r"#(\w+)", text.lower()):
+        for pat in HEALTH_HASHTAG_PATTERNS:
+            if re.search(pat, tag):
+                return "#" + tag
+    return None
+
+
+def before_after_hit(text):
+    low = text.lower()
+    for pat in BEFORE_AFTER_PATTERNS:
+        m = re.search(pat, low)
+        if m:
+            return m.group(0).strip()
+    return None
+
+
+def drawn_product_hit(text):
+    """A clip that puts the product in frame (Glam, Nov 25: the AI never
+    draws a product; it shows only as the real listing photo close-up)."""
+    low = text.lower()
+    if "listing photo" in low:
+        return None
+    for w in DRAWN_PRODUCT_NOUNS:
+        if re.search(r"\b" + re.escape(w) + r"\b", low):
+            return w
+    return None
+
+
 def health_claim_hit(text):
     """The first banned health/beauty/results claim in text, or None.
     Hashtags are skipped (the caption check holds them to the product)."""
@@ -509,6 +547,11 @@ def script_findings(run):
         elif any(re.search(p, low) for p in SOLD_COUNT_PATTERNS):
             findings.append(("sold-count", f"LINE {i} carries a sold "
                              "count — never in a script"))
+        ba = before_after_hit(line)
+        if ba:
+            findings.append(("before-after", f"LINE {i} sets up a "
+                             f"before-and-after ('{ba}') — never, for any "
+                             "product"))
         hit = health_claim_hit(line)
         if hit:
             findings.append(("health-claim", f"LINE {i} makes a banned "
@@ -559,17 +602,22 @@ def script_findings(run):
     # law — product stationary, no hands on it, one declared show-it shot only
     # — so the script check reads every line OUTSIDE the quoted spoken words.
     for no, raw in enumerate(text.splitlines(), 1):
-        if re.match(r"(?i)\s*[*#-]*\s*(texture|show-it)\s+shot\s*:", raw):
-            continue
         direction = re.sub(r'"[^"]*"|“[^”]*”', " ", raw).lower()
         if not direction.strip():
             continue
         if any(re.search(p, direction) for p in
                list(STAGING_PATTERNS) + GENERIC_HANDLING_PATTERNS):
-            findings.append(("staging", f"script line {no} stages the product "
-                             "in hands or motion — the product stays put "
-                             "with no hands on it; only the one declared "
-                             "show-it shot is allowed"))
+            findings.append(("drawn-product", f"script line {no} puts the "
+                             "product itself in a shot (held, poured or "
+                             "handled) — the AI never draws a product; she "
+                             "can use it with the product off frame, and "
+                             "the product shows only as the real listing "
+                             "photo close-up"))
+        ba = before_after_hit(direction)
+        if ba:
+            findings.append(("before-after", f"script line {no} sets up a "
+                             f"before-and-after ('{ba}') — never, for any "
+                             "product"))
     soft = CHK.get("soft_cta_line", {"starts_with": "cta:",
                                      "must_mention": "below"})
     cta_ok = any(l.strip().lower().startswith(soft["starts_with"])
@@ -578,7 +626,8 @@ def script_findings(run):
     for no, raw in enumerate(text.splitlines(), 1):
         head = raw.strip().lstrip("*-# ").lower()
         if head.startswith("cta:") or head.startswith("caption"):
-            hit = health_claim_hit(raw.split(":", 1)[-1])
+            hit = (health_claim_hit(raw.split(":", 1)[-1])
+                   or hashtag_claim_hit(raw))
             if hit:
                 findings.append(("health-claim", f"script line {no} (CTA/"
                                  f"caption) makes a banned health/beauty "
@@ -639,18 +688,26 @@ def lint_package(run):
             if re.search(pat, low):
                 findings.append(("RETIRED GUARD TEXT", i, line))
                 break
-        is_showit = bool(re.match(r"(?i)\s*(texture|show-it)\s+shot\s*:", raw))
+        is_shot = bool(CLIP_HEADER.match(raw)) or bool(re.match(
+            r"(?i)\s*[*#-]*\s*(texture|show-it|use)\s+shot\s*:", raw))
         staged = False
-        for pat in STAGING_PATTERNS:
+        for pat in list(STAGING_PATTERNS) + GENERIC_HANDLING_PATTERNS:
             if re.search(pat, low):
-                findings.append(("STAGING", i, line))
+                findings.append(("DRAWN PRODUCT", i, line))
                 staged = True
                 break
-        if not staged and not is_showit:
-            for pat in GENERIC_HANDLING_PATTERNS:
-                if re.search(pat, low):
-                    findings.append(("STAGING", i, line))
-                    break
+        if not staged and is_shot and "close-up" not in low \
+                and "close up" not in low:
+            w = drawn_product_hit(line)
+            if w:
+                findings.append(("DRAWN PRODUCT", i, f"the clip puts the "
+                                 f"product in frame ('{w}') — the AI never "
+                                 "draws a product; it shows only as the "
+                                 "real listing photo close-up"))
+        ba = before_after_hit(line)
+        if ba:
+            findings.append(("BEFORE-AFTER", i, f"'{ba}' — no "
+                             "before-and-after, for any product"))
         # CLIP RULE (Glam + Claude, Nov 24 — audit fix #28): every clip is
         # (numbers from farm-rules.json) N seconds flat, max N spoken words in a clip, N clips make the
         # video; the 1-2 second clean close-up of the listing photo is kept.
@@ -679,33 +736,8 @@ def lint_package(run):
                          f"— {CLIPS_PER_VIDEO} clips make the video (plus the "
                          f"{CLOSEUP_SECONDS} second close-up)"))
 
-    # SHOW-IT SHOT — the one legal motion/hand shot per video, any category
-    # (Glam + Claude, Nov 24): exactly one declared shot, proven first.
-    showit = [(i, raw.strip()) for i, raw in enumerate(lines, start=1)
-              if re.match(r"(?i)\s*(texture|show-it)\s+shot\s*:", raw)]
-    if len(showit) > 1:
-        findings.append(("SHOW-IT SHOT", 0, "more than one show-it shot "
-                         "declared — exactly ONE show-it shot per video"))
-    elif len(showit) == 1:
-        tno, tline = showit[0]
-        tlow = tline.lower()
-        if tlow.startswith("texture"):
-            if "on skin" not in tlow or "counter" not in tlow:
-                findings.append(("SHOW-IT SHOT", tno, "the texture shot "
-                                 "declaration must state the product ON "
-                                 "SKIN only and the bottle stays on the "
-                                 "COUNTER during the shot"))
-        elif not any(w in tlow for w in ("moving", "walking", "in use",
-                                         "on feet")):
-            findings.append(("SHOW-IT SHOT", tno, "the show-it shot must "
-                             "state what the product is DOING — fabric "
-                             "moving (clothes), shoes on feet walking, "
-                             "the gadget in use"))
-        if not staging_proof:
-            findings.append(("SHOW-IT SHOT", tno, "show-it shot declared "
-                             "but no staging-proof.md on file — any shot "
-                             "with hands or motion needs a test build "
-                             "proving that exact shot first"))
+    # USE SHOTS (Glam, Nov 25): allowed for every product, no proof build —
+    # the product itself stays off frame (checked above as DRAWN PRODUCT).
 
     # CAPTION (farm laws: caption keywords, 3-5 hashtags, soft CTA up top in
     # the caption's first line) — the caption is a Step 8 deliverable.
@@ -765,7 +797,7 @@ def caption_findings(run, lines):
         out.append(("CAPTION", start + 1, f"{len(tags)} hashtags — every "
                     f"caption carries {lo} to {hi} tied to the product"))
     for k, b in enumerate(block):
-        hit = health_claim_hit(b)
+        hit = health_claim_hit(b) or hashtag_claim_hit(b)
         if hit:
             out.append(("CAPTION", start + 1 + k, f"the caption makes a "
                         f"banned health/beauty claim ('{hit}') — never in "
@@ -788,6 +820,188 @@ def blocking_findings(findings):
 # ----------------------------------------------------------------------------
 # Evidence derivation — the ONLY source of status
 # ----------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+# Glam, Nov 25 — enforcement so the rules can't be skipped
+# ----------------------------------------------------------------------------
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import ed25519 as _ed  # noqa: E402
+
+MILA_KEY_DEFAULT = Path("/mnt/project-files/.mila/mila-signing-key")
+SIGNED_FIELDS = ("kind", "run", "step", "verdict", "covers", "notes",
+                 "signed_at")
+
+
+def mila_key_path():
+    return Path(os.environ.get("MILA_SIGNING_KEY") or MILA_KEY_DEFAULT)
+
+
+def covers_for(paths):
+    return ",".join(sorted(sha256_file(Path(p)) for p in paths))
+
+
+def _signed_message(kv):
+    return "\n".join(f"{k}: {kv.get(k, '')}" for k in SIGNED_FIELDS).encode()
+
+
+def mila_sign_text(run_id, step, verdict, paths, notes=""):
+    """Mila's signed verdict (only where her private key lives)."""
+    seed = bytes.fromhex(mila_key_path().read_text().strip())
+    kv = {"kind": "mila-verdict", "run": run_id, "step": str(step),
+          "verdict": verdict.upper(), "covers": covers_for(paths),
+          "notes": " ".join(str(notes).split()), "signed_at": now_stamp()}
+    sig = _ed.sign(seed, _signed_message(kv)).hex()
+    return "".join(f"{k}: {kv[k]}\n" for k in SIGNED_FIELDS) + \
+        "checker: Mila\n" + f"signature: {sig}\n"
+
+
+def mila_verify(path, run_id, step, paths):
+    """(ok, why, kv): a verdict counts only if Mila's key signed it, for this
+    run and step, covering exactly these files."""
+    kv = parse_kv(Path(path))
+    if not kv:
+        return False, "no verdict file", kv
+    pub = (RULES.get("mila_signing", {}) or {}).get("public_key", "")
+    if not pub:
+        return False, "farm-rules.json has no Mila public key", kv
+    try:
+        ok = _ed.verify(bytes.fromhex(pub), _signed_message(kv),
+                        bytes.fromhex(kv.get("signature", "")))
+    except ValueError:
+        ok = False
+    if not ok:
+        return False, ("it is not Mila's signed verdict (no valid "
+                       "signature) — a typed 'checker: Mila' never "
+                       "counts"), kv
+    if kv.get("run") != run_id or kv.get("step") != str(step):
+        return False, (f"Mila's signature is for {kv.get('run')} Step "
+                       f"{kv.get('step')}, not this run and step"), kv
+    if kv.get("covers") != covers_for(paths):
+        return False, ("Mila's signed verdict covers different files — "
+                       "she must check the exact files on file now"), kv
+    return True, "signed by Mila", kv
+
+
+def mp4_seconds(path):
+    """Read a .mp4/.mov length from its mvhd box (no ffprobe needed)."""
+    import struct
+    try:
+        data = Path(path).read_bytes()
+    except OSError:
+        return None
+
+    def boxes(buf, start, end):
+        i = start
+        while i + 8 <= end:
+            size, typ = struct.unpack(">I4s", buf[i:i + 8])
+            hdr = 8
+            if size == 1:
+                size = struct.unpack(">Q", buf[i + 8:i + 16])[0]
+                hdr = 16
+            elif size == 0:
+                size = end - i
+            if size < hdr:
+                return
+            yield typ, i + hdr, i + size
+            i += size
+    for typ, a, b in boxes(data, 0, len(data)):
+        if typ == b"moov":
+            for t2, a2, b2 in boxes(data, a, b):
+                if t2 == b"mvhd":
+                    ver = data[a2]
+                    if ver == 1:
+                        ts, dur = struct.unpack(">IQ", data[a2 + 20:a2 + 32])
+                    else:
+                        ts, dur = struct.unpack(">II", data[a2 + 12:a2 + 20])
+                    return dur / ts if ts else None
+    return None
+
+
+def build_length_problem(path):
+    """Glam, Nov 25: clip length is measured before Mila ever sees it."""
+    secs = mp4_seconds(path)
+    name = Path(path).name
+    if secs is None:
+        return (f"{name}: can't read its length — submit the build as an "
+                ".mp4 straight from Video Express")
+    clip = CLIP_SECONDS
+    full_lo = CLIPS_PER_VIDEO * clip
+    full_hi = full_lo + 3.0
+    if abs(secs - clip) <= 0.6 or full_lo - 0.5 <= secs <= full_hi:
+        return None
+    return (f"{name} runs {secs:.1f} seconds — every clip is {clip:g} "
+            f"seconds flat and the finished video is {CLIPS_PER_VIDEO} clips "
+            f"plus the {CLOSEUP_SECONDS} second close-up "
+            f"(about {full_lo + 1.5:g} seconds)")
+
+
+LIVE_RULES_URLS = (
+    "https://raw.githubusercontent.com/nakeymasi-coder/"
+    "futuristic-3d-tiktok-shop-farm/main/farm-rules.json",
+    "https://nakeymasi-coder.github.io/futuristic-3d-tiktok-shop-farm/"
+    "farm-rules.json",
+)
+
+
+def live_rules_problem():
+    """Glam, Nov 25: a run never starts or moves on an old copy of the rules.
+    Returns None when this copy matches the live farm, else the reason."""
+    env = os.environ.get("FARM_LIVE_RULES_URL")
+    urls = [env] if env else list(LIVE_RULES_URLS)
+    reached = False
+    for url in urls:
+        try:
+            with urllib.request.urlopen(url, timeout=15) as r:
+                live = json.loads(r.read().decode("utf-8"))
+        except Exception:  # noqa: BLE001 — any failure means "not reached"
+            continue
+        reached = True
+        if live == RULES:
+            return None
+        return (f"this copy of farm-rules.json is version "
+                f"{RULES.get('version')} but the live farm is version "
+                f"{live.get('version')} (or the two copies differ). Reload "
+                "farm-rules.json and runner.py from the live farm first")
+    if not reached:
+        return ("BLOCKED: can't reach the live farm rules to prove this copy "
+                "is current — stop and report it; no run moves on an "
+                "unchecked copy")
+    return None
+
+
+def refuse_if_old_rules(what):
+    why = live_rules_problem()
+    if why:
+        print(f"{what} REFUSED — {why}.")
+        return True
+    return False
+
+
+def publish_status(out):
+    """Publish farm-status.json after every step when this runner sits in a
+    clone of the farm repo, so the Live Run Board shows every run."""
+    import subprocess
+    if os.environ.get("FARM_STATUS_OUT") or os.environ.get("FARM_NO_PUBLISH"):
+        return
+    repo = Path(__file__).resolve().parent.parent
+    if not (repo / ".git").exists() or out.parent != repo:
+        print(f"Status written to {out} (not published: this runner is not "
+              "in a clone of the farm repo).")
+        return
+    try:
+        subprocess.run(["git", "-C", str(repo), "add", "farm-status.json"],
+                       check=True, capture_output=True, timeout=30)
+        c = subprocess.run(["git", "-C", str(repo), "commit", "-m",
+                            "Farm status update (runner)"],
+                           capture_output=True, timeout=30)
+        if c.returncode == 0:
+            subprocess.run(["git", "-C", str(repo), "push"], check=True,
+                           capture_output=True, timeout=60)
+            print("Status published to the Live Run Board.")
+    except Exception as e:  # noqa: BLE001
+        print(f"Status NOT published ({e}) — report it.")
+
 
 def eval_step(run, cfg, n):
     """Return (state, reason). state: CLEARED | WAITING | INVALID | FROZEN."""
@@ -862,15 +1076,18 @@ def eval_step(run, cfg, n):
         if back.get("script_sha256") == sha256_file(script):
             return ("INVALID", "Mila sent the script back: "
                                f"{back.get('notes', '(no notes)')}")
-        approval = parse_kv(steps / STEP_DIRS[6] / "mila-script-approval.md")
-        approved = approval.get("approved_by", "").lower() == "mila"
-        if approved and approval.get("script_sha256") != sha256_file(script):
-            return ("WAITING", "script changed after Mila's approval — "
-                               "needs her approval again (her approval "
-                               "covers the exact script she saw)")
-        if approved:
-            return ("CLEARED", "script on file, passing the script check, "
-                               "and Mila's approval recorded")
+        apath = steps / STEP_DIRS[6] / "mila-script-approval.md"
+        if apath.exists():
+            ok, why, kv = mila_verify(apath, run.name, 6, [script])
+            if ok and kv.get("verdict") == "APPROVE":
+                return ("CLEARED", "script on file, passing the script check, "
+                                   "and Mila's signed approval on file")
+            if "different files" in why:
+                return ("WAITING", "script changed after Mila's approval — "
+                                   "needs her approval again (her approval "
+                                   "covers the exact script she saw)")
+            return ("WAITING", f"an approval is on file but {why} — waiting "
+                               "on Mila's signed script approval")
         return ("WAITING", "script on file and passing the script check — "
                            "waiting on Mila's script approval")
     if n == 7:
@@ -883,14 +1100,18 @@ def eval_step(run, cfg, n):
         if back.get("image_sha256") == image_set_sha(steps / STEP_DIRS[7]):
             return ("INVALID", "Mila sent the model photo back: "
                                f"{back.get('notes', '(no notes)')}")
-        approval = parse_kv(steps / STEP_DIRS[7] / "mila-image-approval.md")
-        if approval.get("approved_by", "").lower() != "mila":
+        apath = steps / STEP_DIRS[7] / "mila-image-approval.md"
+        if not apath.exists():
             return ("WAITING", f"model photo on file ({imgs[0].name}) — "
                                "waiting on Mila's model photo approval")
-        if approval.get("image_sha256") != image_set_sha(steps / STEP_DIRS[7]):
+        ok, why, kv = mila_verify(apath, run.name, 7, imgs)
+        if not ok and "different files" in why:
             return ("WAITING", "model photo changed after Mila's approval — "
                                "needs her approval again (her approval covers "
                                "the exact photo she saw)")
+        if not ok or kv.get("verdict") != "APPROVE":
+            return ("WAITING", f"an approval is on file but {why} — waiting "
+                               "on Mila's signed model photo approval")
         return ("CLEARED", f"model photo on file ({imgs[0].name}) and Mila's "
                            "approval recorded")
     if n == 8:
@@ -903,12 +1124,16 @@ def eval_step(run, cfg, n):
             return ("INVALID", f"package FAILS lint ({cats}) — "
                                f"{len(bad)} blocking finding(s); run `lint` for detail")
         return ("CLEARED", "package on file and passing lint "
-                           "(references-only, staging bar holds)")
+                           "(references-only, no drawn product)")
     if n == 9:
         vids = files_with_ext(steps / STEP_DIRS[9], VIDEO_EXTS)
         if vids:
+            probs = [p for p in (build_length_problem(v) for v in vids) if p]
+            if probs:
+                return ("INVALID", "clip length check FAILS before Mila — "
+                                   + "; ".join(probs))
             names = ", ".join(v.name for v in vids)
-            return ("CLEARED", f"build file(s) on file: {names}")
+            return ("CLEARED", f"build file(s) on file and measured: {names}")
         return ("WAITING", "no build files on file (steps/step9-builds/)")
     if n == 10:
         verdict_path = steps / STEP_DIRS[10] / "mila-verdict.md"
@@ -933,8 +1158,12 @@ def eval_step(run, cfg, n):
             return ("WAITING", "new build since Mila's verdict — waiting on "
                                "her check (her verdict covers only the exact "
                                "build files she was handed)")
+        vids = files_with_ext(steps / STEP_DIRS[9], VIDEO_EXTS)
+        ok, why, _ = mila_verify(verdict_path, run.name, 10, vids)
+        if verdict == "PASS" and not ok:
+            return ("INVALID", f"a PASS is on file but {why}")
         if verdict == "PASS" and checker.strip().lower() == "mila":
-            return ("CLEARED", "Mila's PASS recorded in the run folder")
+            return ("CLEARED", "Mila's signed PASS on file in the run folder")
         if verdict == "PASS":
             return ("INVALID", f"a PASS is on file but signed by '{checker}' — "
                                "only Mila, the QC owner, can pass a build")
@@ -1011,6 +1240,8 @@ def write_derived_block(run):
 # ----------------------------------------------------------------------------
 
 def cmd_create(args):
+    if refuse_if_old_rules("START A RUN"):
+        return 2
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     today = datetime.now().strftime("%Y-%m-%d")
     n = 1
@@ -1171,10 +1402,55 @@ def _mila_only(args, what):
     return True
 
 
+def _place_verdict(args, run, step, paths, dest_ok, dest_back):
+    """Return 0 when a signed verdict was placed, 2 when refused, None when
+    there is no verdict file and the old --by Mila path should run."""
+    vf = getattr(args, "verdict_file", None)
+    if not vf:
+        return None
+    ok, why, kv = mila_verify(Path(vf).expanduser(), run.name, step, paths)
+    if not ok:
+        print(f"REFUSED — the verdict file doesn't count: {why}.")
+        return 2
+    dest = dest_ok if kv.get("verdict") == "APPROVE" else dest_back
+    shutil.copy2(Path(vf).expanduser(), dest)
+    if kv.get("verdict") != "APPROVE":
+        dest.write_text(dest.read_text() + "\n".join([
+            f"sent_back_by: Mila",
+            f"script_sha256: {sha256_file(paths[0])}" if step == 6 else
+            f"image_sha256: {image_set_sha(paths[0].parent)}",
+            f"notes: {kv.get('notes', '')}"]) + "\n", encoding="utf-8")
+    sheet_log(run, f"Step {step}: Mila's signed verdict placed — "
+                   f"{kv.get('verdict')}.")
+    print(f"Mila's signed verdict for Step {step}: {kv.get('verdict')}.")
+    return 0
+
+
+def _can_sign():
+    return mila_key_path().is_file()
+
+
 def cmd_approve_script(args):
     """Mila's Step 6 gate: approve the exact script, or send it back."""
     run = resolve_run(args.run)
+    folder0 = run / "steps" / STEP_DIRS[6]
+    if getattr(args, "verdict_file", None):
+        r = _place_verdict(args, run, 6, [folder0 / "script.md"],
+                           folder0 / "mila-script-approval.md",
+                           folder0 / "mila-script-sendback.md")
+        if r:
+            return r
+        info = sync_chain(run, actor="Mila")
+        print(f"Chain: next is {info.get('agent') or info.get('to')} "
+              f"(Step {info.get('step')}).")
+        write_status_file()
+        return 0
     if not _mila_only(args, "script"):
+        return 2
+    if not _can_sign():
+        print("REFUSED — Mila's approvals count only from her signed verdict "
+              "file (runner.py mila-sign, dropped in Glam Claude Handoff); "
+              "pass it with --verdict-file. Typing --by Mila is not enough.")
         return 2
     folder = run / "steps" / STEP_DIRS[6]
     script = folder / "script.md"
@@ -1199,8 +1475,8 @@ def cmd_approve_script(args):
                            f"script check ({len(bad)} finding(s)).")
             return 2
         (folder / "mila-script-approval.md").write_text(
-            f"approved_by: Mila\nscript_sha256: {sha256_file(script)}\n"
-            f"recorded_at: {now_stamp()}\n", encoding="utf-8")
+            mila_sign_text(run.name, 6, "APPROVE", [script]),
+            encoding="utf-8")
         sheet_log(run, "Step 6: Mila's script approval recorded.")
         print(f"Recorded Mila's script approval for {run.name}.")
     info = sync_chain(run, actor="Mila")
@@ -1213,7 +1489,24 @@ def cmd_approve_script(args):
 def cmd_approve_image(args):
     """Mila's Step 7 gate: approve the exact model photo, or send it back."""
     run = resolve_run(args.run)
+    folder0 = run / "steps" / STEP_DIRS[7]
+    if getattr(args, "verdict_file", None):
+        r = _place_verdict(args, run, 7, files_with_ext(folder0, IMAGE_EXTS),
+                           folder0 / "mila-image-approval.md",
+                           folder0 / "mila-image-sendback.md")
+        if r:
+            return r
+        info = sync_chain(run, actor="Mila")
+        print(f"Chain: next is {info.get('agent') or info.get('to')} "
+              f"(Step {info.get('step')}).")
+        write_status_file()
+        return 0
     if not _mila_only(args, "model photo"):
+        return 2
+    if not _can_sign():
+        print("REFUSED — Mila's approvals count only from her signed verdict "
+              "file (runner.py mila-sign, dropped in Glam Claude Handoff); "
+              "pass it with --verdict-file. Typing --by Mila is not enough.")
         return 2
     folder = run / "steps" / STEP_DIRS[7]
     imgs = files_with_ext(folder, IMAGE_EXTS)
@@ -1230,9 +1523,7 @@ def cmd_approve_image(args):
         print(f"Mila sent the model photo back to Casting: {args.send_back.strip()}")
     else:
         (folder / "mila-image-approval.md").write_text(
-            f"approved_by: Mila\nimage_sha256: {image_set_sha(folder)}\n"
-            f"images: {', '.join(i.name for i in imgs)}\n"
-            f"recorded_at: {now_stamp()}\n", encoding="utf-8")
+            mila_sign_text(run.name, 7, "APPROVE", imgs), encoding="utf-8")
         sheet_log(run, "Step 7: Mila's model photo approval recorded.")
         print(f"Recorded Mila's model photo approval for {run.name}.")
     info = sync_chain(run, actor="Mila")
@@ -1242,12 +1533,32 @@ def cmd_approve_image(args):
     return 0
 
 
+def cmd_mila_sign(args):
+    """Mila signs a verdict (only where her private key lives)."""
+    if not _can_sign():
+        print("REFUSED — Mila's signing key isn't on this machine. Only Mila "
+              "signs her verdicts.")
+        return 2
+    files = [Path(f).expanduser() for f in args.file]
+    missing = [str(f) for f in files if not f.is_file()]
+    if missing:
+        print(f"REFUSED — file(s) not found: {', '.join(missing)}")
+        return 2
+    text = mila_sign_text(args.run, args.step, args.verdict, files,
+                          args.notes or "")
+    out = Path(args.out or f"mila-verdict-{args.run}-step{args.step}.md")
+    out.write_text(text, encoding="utf-8")
+    print(f"Signed Mila's {args.verdict.upper()} for {args.run} Step "
+          f"{args.step} → {out}")
+    return 0
+
+
 def cmd_lint(args):
     run = resolve_run(args.run)
     findings = lint_package(run)
     if not findings:
         print("LINT: package passes — no label wording, no product description "
-              "in words, no retired guard text, staging bar holds, references "
+              "in words, no retired guard text, no drawn product, references "
               "declared (styled image + listing photo).")
         return 0
     print(f"LINT: {len(findings)} finding(s):")
@@ -1447,6 +1758,8 @@ def drive_run(run):
 
 
 def cmd_drive(args):
+    if refuse_if_old_rules("DRIVE"):
+        return 2
     run = resolve_run(args.run)
     print(f"DRIVING {run.name} …")
     for line in drive_run(run):
@@ -1456,6 +1769,8 @@ def cmd_drive(args):
 
 
 def cmd_drive_all(args):
+    if refuse_if_old_rules("DRIVE-ALL"):
+        return 2
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     runs = sorted(d for d in RUNS_DIR.iterdir()
                   if d.is_dir() and (d / "config.json").exists())
@@ -2031,7 +2346,7 @@ MILA_GATES = {
         "files": lambda run: [run / "steps" / STEP_DIRS[6] / "script.md"],
         "needs": ["Mila (an AI agent) to read the script against the farm laws"]},
     7: {"what": "approve the model photo (steps/step7-styled/) or send it back with notes",
-        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. If it is right, approve it: runner.py approve-image <run> --by Mila. If not: runner.py approve-image <run> --by Mila --send-back \"what to fix\". The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. If it is right, approve it: runner.py approve-image <run> --verdict-file <your signed APPROVE verdict> (made with runner.py mila-sign). If not: runner.py approve-image <run> --verdict-file <your signed SENDBACK verdict>. The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
         "files": lambda run: files_with_ext(run / "steps" / STEP_DIRS[7], IMAGE_EXTS),
         "needs": ["Mila (an AI agent) to look at the photo"]},
 }
@@ -2256,6 +2571,8 @@ def open_job_entry(run, info=None):
 
 
 def cmd_submit(args):
+    if refuse_if_old_rules("SUBMIT"):
+        return 2
     run = resolve_run(args.run)
     n = args.step
     info = open_job_info(run)
@@ -2471,6 +2788,7 @@ def write_status_file():
     tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n",
                    encoding="utf-8")
     os.replace(tmp, out)
+    publish_status(out)
     write_jobs_file([dict(r["open_job"], run_id=r["run_id"])
                      for r in runs if r.get("open_job")])
     return out, data
@@ -2534,14 +2852,25 @@ def main():
 
     p = sub.add_parser("approve-script", help="Mila's Step 6 gate: approve the exact script (or --send-back \"notes\")")
     p.add_argument("run")
-    p.add_argument("--by", required=True, help="must be Mila")
+    p.add_argument("--by", default="", help="must be Mila")
     p.add_argument("--send-back", default="", help="send the script back to the Story Agent with these notes")
+    p.add_argument("--verdict-file", default="", help="Mila's signed verdict file (runner.py mila-sign)")
     p.set_defaults(fn=cmd_approve_script)
+
+    p = sub.add_parser("mila-sign", help="Mila signs a verdict (only where her key lives)")
+    p.add_argument("--run", required=True)
+    p.add_argument("--step", type=int, required=True, choices=[6, 7, 10])
+    p.add_argument("--verdict", required=True, choices=["APPROVE", "SENDBACK", "PASS", "FAIL", "approve", "sendback", "pass", "fail"])
+    p.add_argument("--file", action="append", required=True, help="the exact file(s) checked")
+    p.add_argument("--notes", default="")
+    p.add_argument("--out", default="")
+    p.set_defaults(fn=cmd_mila_sign)
 
     p = sub.add_parser("approve-image", help="Mila's Step 7 gate: approve the exact model photo (or --send-back \"notes\")")
     p.add_argument("run")
-    p.add_argument("--by", required=True, help="must be Mila")
+    p.add_argument("--by", default="", help="must be Mila")
     p.add_argument("--send-back", default="", help="send the photo back to Casting with these notes")
+    p.add_argument("--verdict-file", default="", help="Mila's signed verdict file (runner.py mila-sign)")
     p.set_defaults(fn=cmd_approve_image)
 
     p = sub.add_parser("submit", help="an agent hands in its step's work; the step's checks run at once and the chain hands off or sends it back")

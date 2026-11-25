@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25e",
+  "version": "2026-11-25f",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -77,13 +77,18 @@
   "laws": [
     {
       "id": "exact-product",
-      "title": "Exact products only",
-      "text": "Every scene uses the listing's real product photo as the reference. Prompts never describe the product in words or carry label wording. If the render doesn't match the real product, it fails."
+      "title": "Real product only: the AI never draws it",
+      "text": "Glam's rule (Nov 25), for every product: the product appears ONLY as its real listing photo, label and all, exactly as the listing shows it, in the clean close-up. The video tool never draws or regenerates a product: no AI clip puts the product in frame, not on a counter, not in a hand, not worn. Prompts never describe the product in words or carry label wording. Any AI clip that shows a drawn product fails."
     },
     {
       "id": "no-health-claims",
       "title": "No health or beauty claims",
-      "text": "Glam's rule (Nov 25): this lives in the farm rules so no agent has to remember it. Never say, show or caption a health, beauty or results claim: clears acne, anti-aging, heals, treats, cures, FDA approved, hair growth or regrowth, stops hair loss, any medical or weight loss claim, or any promised result. Even if the listing says it. The script check fails a script or caption that carries one before any video is made, and Mila fails any video that shows one."
+      "text": "Glam's rule (Nov 25), for every product: no health, beauty or results claim in words, anywhere the farm writes: spoken lines, on-screen text, the CTA, the caption or the hashtags. That covers acne, anti-aging, heals, treats, cures, FDA approved, hair growth or regrowth, stops hair loss, any medical or weight-loss claim, and any promised result, even if the listing or the label says it. A claim printed on the real product label, seen in the real listing photo, is not a fail by itself; the farm just never repeats it. The script and caption checks fail a claim before any video is made, and Mila fails any video that says or writes one."
+    },
+    {
+      "id": "no-before-after",
+      "title": "No before-and-after",
+      "text": "Glam's rule (Nov 25), for every product: no before-and-after, shown or implied. No split screens, no 'day 1 vs day 7', no 'after' reveal or hair flip following a use shot, nothing comparing weight or body shape. The script and package checks fail the words; Mila fails the shots."
     },
     {
       "id": "words",
@@ -103,7 +108,7 @@
     {
       "id": "no-use-claims",
       "title": "No \"I used it\" claims",
-      "text": "The model is AI and never used the product. No use claims, no results, no health or beauty claims, nothing the listing doesn't say."
+      "text": "The model is AI and never used the product. She can be shown using it, but she never says she used it, for how long, or what it did for her. No results, nothing the listing doesn't say."
     },
     {
       "id": "no-prices",
@@ -117,8 +122,8 @@
     },
     {
       "id": "staging",
-      "title": "Product stays put",
-      "text": "The product stays stationary with no hands on it. A pour, hand-off, or held or lifted product fails always. Exactly ONE show-it shot is allowed, only after a test build proved it: skincare = Texture shot (on skin, bottle stays on the counter); clothes = fabric moving; shoes = on feet walking; gadget = in use."
+      "title": "She can use it, the product stays off frame",
+      "text": "Glam's rule (Nov 25), for every product: she can be shown using the product on camera, as many use shots as the video needs, with no proof build: her hands, skin or hair, with the product itself kept out of frame (the oil on her fingers, never the bottle). A bottle, jar, tube, box or any product drawn in an AI clip fails always. No reveal, hair flip or 'after' shot following a use shot: that's a before-and-after."
     },
     {
       "id": "hashtags",
@@ -194,9 +199,9 @@
   "mila_scorecard": {
     "critical_rule": "automatic fail. Anything that could give Glam a violation is an automatic fail. No exceptions. The critical tier IS the GG skill's compliance rules: if the GG skill bans it, it is critical here. Any one of these and the video is dead; no score saves it:",
     "critical": [
-      "Wrong product — what is on screen is not the product in the real listing photo: wrong shape, wrong cap, wrong label, or it morphs mid-clip. The product on screen must match the listing photos exactly in size, shape, color, logo, packaging and details in every frame. If it morphs or drifts at any point, that is an automatic fail.",
-      "Banned health or beauty claims — clears acne, anti-aging, heals, treats, cures, FDA approved, or any medical or weight loss claim, spoken, on screen, or in the caption, even if the listing says it.",
-      "Before-and-after — shown or implied, for skincare, body products, or hair products, or anything comparing weight or body shape in any category.",
+      "Wrong or drawn product: any product drawn by the video tool, in any AI clip, on a counter, in a hand or worn, is an automatic fail. The product appears only as the real listing photo, and that photo must be the exact listing photo, unchanged.",
+      "Banned health or beauty claims in words: clears acne, anti-aging, heals, treats, cures, FDA approved, hair growth or regrowth, or any medical or weight loss claim, spoken, in on-screen text, in the CTA, the caption or the hashtags, even if the listing says it. A claim printed on the real product label, seen in the real listing photo, is not a fail by itself.",
+      "Before-and-after, shown or implied, for any product: split screens, day 1 vs day 7, an 'after' reveal or hair flip following a use shot, or anything comparing weight or body shape.",
       "A price or a sold count, spoken or on screen.",
       "Missing AI label or missing disclosure.",
       "A fake \"I used it\" claim — the model claiming she used it, wears it, or lives with it when she didn't."
@@ -222,23 +227,14 @@
     ],
     "minor_scale": "1 to 5 each",
     "pass_bar": "zero criticals, zero majors, and the minor scores average 4 or higher.",
-    "sign_off": "Mila signs every video with her score and her notes — what she checked, what she found, and the exact scene and second of anything she failed, with a screenshot attached of anything she fails. Nothing reaches Glam without Mila's sign-off."
+    "sign_off": "Mila signs every video with her score and her notes — what she checked, what she found, and the exact scene and second of anything she failed, with a screenshot attached of anything she fails. Nothing reaches Glam without Mila's sign-off. Her verdict counts only as her signed verdict file, made with her signing key (runner.py mila-sign) and dropped in the Glam Claude Handoff folder; a typed 'checker: Mila' is not her verdict."
   },
   "form": {
     "product_shown": [
       "Let the Story Agent pick",
       "None — no product on camera",
-      "Worn on her body (clothes, shoes, bags, accessories)",
-      "Sitting on the vanity in front of her",
-      "On the bathroom counter, by the sink",
-      "On the shelf behind her",
-      "On the nightstand",
-      "In the shower / tub setup",
-      "Flat lay on the table",
-      "Beside her — she points and talks, never touches it",
-      "Mirror shot — product on the counter in front of her",
-      "On screen only — the listing photo, nothing in her hands",
-      "One show-it shot (needs a proven test build first)"
+      "On screen only — the real listing photo close-up",
+      "She uses it — product off frame, real listing photo close-up at the end"
     ],
     "product_types": [
       "Women's clothing",
@@ -453,7 +449,7 @@
       "\\bhas been living\\b",
       "\\bbeen (?:using|wearing|reaching for|grabbing|taking)\\b",
       "\\bmy go[- ]to\\b",
-      "\\b(?:on|in|at|from|off)\\s+my\\s+(?:vanity|counter|countertop|shelf|nightstand|sink|dresser|desk|table|bathroom|cabinet|drawer|bag|purse|closet|routine|cart|kitchen|bedroom|feet|skin|face|body)\\b"
+      "\\b(?:on|in|at|from|off)\\s+my\\s+(?:vanity|counter|countertop|shelf|nightstand|sink|dresser|desk|table|bathroom|cabinet|drawer|bag|purse|closet|routine|cart|kitchen|bedroom)\\b"
     ],
     "spoken_cta_patterns": [
       "\\blink\\s+(?:is\\s+)?(?:below|down\\s+below|in\\s+(?:my\\s+|the\\s+)?bio)\\b",
@@ -552,8 +548,7 @@
     ],
     "handling_extra_patterns": [
       "\\bspray(?:s|ing|ed)?\\b",
-      "\\bsqueez(?:e|es|ing|ed)\\b",
-      "\\b(?:a\\s+)?(?:drop|drops|dab|dabs|pump|pumps|squirt|dot|dots|bit|some)\\s+(?:of\\s+(?:\\w+\\s+){0,3})?(?:on|onto|in|into)\\s+(?:her|his|the|their)\\s+(?:hand|hands|palm|palms|fingers?|fingertips?|wrist)\\b"
+      "\\bsqueez(?:e|es|ing|ed)\\b"
     ],
     "first_person_use_claim_patterns": [
       "\\ball (?:week|month)\\b"
@@ -607,7 +602,68 @@
       "\\bproven (?:to|results)\\b",
       "\\bresults? (?:in|after) (?:one|two|three|a|\\d+)\\b"
     ],
-    "_note_health_claims": "Glam, Nov 25: banned health and beauty claims are law, not memory. The script check fails any spoken line, CTA line or caption line that matches one of health_claim_patterns, before a video is made. 'treat yourself' and 'a little treat' pass; 'treats acne' fails."
+    "_note_health_claims": "Glam, Nov 25: banned health and beauty claims are law, not memory. The script check fails any spoken line, CTA line or caption line that matches one of health_claim_patterns, before a video is made. 'treat yourself' and 'a little treat' pass; 'treats acne' fails.",
+    "health_claim_hashtag_patterns": [
+      "(?:re)?grow",
+      "hairloss",
+      "thinning",
+      "bald",
+      "antiag",
+      "wrinkle",
+      "acne",
+      "breakout",
+      "eczema",
+      "psoriasis",
+      "dandruff",
+      "cure",
+      "heal",
+      "fda",
+      "medical",
+      "weightloss",
+      "loseweight",
+      "fatburn",
+      "slim",
+      "cellulite",
+      "stretchmark",
+      "darkspot",
+      "results"
+    ],
+    "before_after_patterns": [
+      "\\bbefore\\s*(?:&|and|n|\\+|/|-|vs\\.?|versus)\\s*after\\b",
+      "\\bday\\s+(?:one|1)\\b.{0,30}\\bday\\s+(?:\\w+|\\d+)\\b",
+      "\\bweek\\s+(?:one|1)\\s+(?:vs\\.?|versus|to)\\b",
+      "\\bsplit[- ]screen\\b",
+      "\\btransformation\\b",
+      "\\bhair\\s+flip\\b",
+      "\\b(?:the\\s+)?after\\s+(?:shot|reveal|look)\\b",
+      "\\bside[- ]by[- ]side\\b"
+    ],
+    "drawn_product_nouns": [
+      "bottle",
+      "bottles",
+      "jar",
+      "jars",
+      "tube",
+      "tubes",
+      "pump",
+      "dropper",
+      "applicator",
+      "tub",
+      "tin",
+      "compact",
+      "palette",
+      "box",
+      "boxes",
+      "container",
+      "packaging",
+      "package",
+      "the product",
+      "product on",
+      "product in",
+      "gadget",
+      "device"
+    ],
+    "_note_rules_f": "Glam, Nov 25 (2026-11-25f): every product shows only as its real listing photo; she can use it on camera with the product off frame; no claims in words, hashtags included; no before-and-after; Mila's gates count only with her signed verdict; runs refuse an old rules copy and publish status; clip length is measured before Mila."
   },
   "agents": [
     {
@@ -719,7 +775,7 @@
       "by": [
         "Story Agent"
       ],
-      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves the exact script (or sends it back with notes).",
+      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
       "inputs": [
         "the Scout's story sentence",
         "the pick record",
@@ -735,6 +791,7 @@
       "laws": [
         "own-step-handoff",
         "no-health-claims",
+        "no-before-after",
         "words",
         "hook",
         "cta",
@@ -757,7 +814,7 @@
         "Casting / Image Agent",
         "Casting Agent"
       ],
-      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves it (or sends it back with notes).",
+      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves with her signed verdict file it (or sends it back with notes).",
       "inputs": [
         "the approved script",
         "the pick record",
@@ -787,7 +844,7 @@
         "Story Agent",
         "Video Agent"
       ],
-      "job": "Write the \"Next\" package: Video Express clip prompts (C## format, Realistic Consistent Character workflow), the hook and the caption. A 'References:' line names the approved model photo and the real listing photo. Never describe the product in words. Lint runs the moment you submit; a failing package comes straight back.",
+      "job": "Write the \"Next\" package: Video Express clip prompts (C## format, Realistic Consistent Character workflow), the hook and the caption. A 'References:' line names the approved model photo and the real listing photo. Never describe the product in words, and never put the product in a clip: it appears only as the real listing photo close-up. Use shots show her hands, skin or hair with the product off frame. Lint runs the moment you submit; a failing package comes straight back.",
       "inputs": [
         "the approved script",
         "the approved model photo",
@@ -803,6 +860,7 @@
       "laws": [
         "own-step-handoff",
         "no-health-claims",
+        "no-before-after",
         "exact-product",
         "words",
         "hook",
@@ -826,7 +884,7 @@
         "Video Agent",
         "Indigo"
       ],
-      "job": "Build the video in Video Express with the Realistic Consistent Character workflow from the package, the approved model photo and the real listing photo. Submit EVERY build, good or bad; the builder never checks her own work.",
+      "job": "Build the video in Video Express with the Realistic Consistent Character workflow from the package and the approved model photo. The AI clips never show the product; the real listing photo goes in only as the 1-2 second clean close-up. Every clip is 8 seconds flat; the runner measures each build before Mila sees it. Submit EVERY build, good or bad; the builder never checks her own work.",
       "inputs": [
         "the package",
         "the approved model photo",
@@ -842,6 +900,7 @@
       "laws": [
         "own-step-handoff",
         "no-health-claims",
+        "no-before-after",
         "exact-product",
         "words",
         "staging",
@@ -860,7 +919,7 @@
       "by": [
         "Mila"
       ],
-      "job": "Check every build in the QC handoff folder frame by frame, bottle first, then the lines word for word against the approved script, using your scorecard. Write verdict.md (verdict: PASS or FAIL, checker: Mila) in the handoff folder, or submit it. Your PASS covers only the exact builds you were handed.",
+      "job": "Check every build in the QC handoff folder frame by frame, bottle first, then the lines word for word against the approved script, using your scorecard. Sign your verdict with runner.py mila-sign (PASS or FAIL, covering the exact build files) and drop it in the Glam Claude Handoff folder; only a signed verdict counts. Your PASS covers only the exact builds you were handed.",
       "inputs": [
         "every build",
         "the approved script",
@@ -876,6 +935,7 @@
       "laws": [
         "own-step-handoff",
         "no-health-claims",
+        "no-before-after",
         "qc",
         "exact-product",
         "labels"
@@ -886,5 +946,9 @@
       "hands_to": "Glam (final review on the Farm Video Review page: Approve or Redo with notes; freeze stays on)"
     }
   ],
-  "_note_flow": "Glam, Nov 25: \"I want it to go ahead after Mila approve it. I want it to go ahead and make the damn video, and then I'll approve it. Don't wait for me ... to make the video.\" Mila approves the script and the model photo; the video is built at once; Mila frame-checks it; Glam rules once on the finished video (Approve or Redo with notes). The posting freeze stays on."
+  "_note_flow": "Glam, Nov 25: \"I want it to go ahead after Mila approve it. I want it to go ahead and make the damn video, and then I'll approve it. Don't wait for me ... to make the video.\" Mila approves the script and the model photo; the video is built at once; Mila frame-checks it; Glam rules once on the finished video (Approve or Redo with notes). The posting freeze stays on.",
+  "mila_signing": {
+    "public_key": "94a3ade11b6979b27e533893ad4820d84fa42e7e74f960966a5fa2832631c62c",
+    "how": "Mila signs with runner.py mila-sign using her private key, which lives only in Claude's shared project folder. The runner checks the signature with this public key; a typed 'checker: Mila' or '--by Mila' alone never counts."
+  }
 }

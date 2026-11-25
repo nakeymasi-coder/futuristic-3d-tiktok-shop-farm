@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 14:50",
+  "generated_at": "2026-11-25 15:01",
   "rules_version": "2026-11-25f",
   "freeze": "ON",
   "runs": [
@@ -9,12 +9,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 7 (Styled Image) — no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
+      "headline": "BLOCKED at Step 6 (Script) — an approval is on file but Mila's key isn't registered yet (farm-rules.json mila_signing.public_key is empty) — Mila's own session makes it with runner.py mila-keygen — waiting on Mila's signed script approval",
       "state": "BLOCKED",
-      "open_step": 7,
-      "open_step_name": "Styled Image",
-      "needs": "Casting / Image Agent — needs: access to Glam's uploaded model photos",
-      "owner": "Casting / Image Agent",
+      "open_step": 6,
+      "open_step_name": "Script",
+      "needs": "Mila — needs: an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
+      "owner": "Mila",
       "steps": [
         {
           "n": 1,
@@ -54,8 +54,8 @@
         {
           "n": 6,
           "name": "Script",
-          "state": "CLEARED",
-          "reason": "script on file, passing the script check, and Mila's signed approval on file",
+          "state": "WAITING",
+          "reason": "an approval is on file but Mila's key isn't registered yet (farm-rules.json mila_signing.public_key is empty) — Mila's own session makes it with runner.py mila-keygen — waiting on Mila's signed script approval",
           "agent": "Mila (script approval)"
         },
         {
@@ -391,12 +391,12 @@
         }
       ],
       "open_job": {
-        "step": 7,
-        "agent": "Casting / Image Agent",
-        "job_file": "steps/step7-styled/JOB.md",
-        "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves with her signed verdict file it (or sends it back with notes).",
+        "step": 6,
+        "agent": "Mila",
+        "job_file": "steps/step6-script/JOB.md",
+        "job": "Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script <run> --by Mila. If not, send it back to the Story Agent: runner.py approve-script <run> --by Mila --send-back \"what to fix\". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
         "needs": [
-          "access to Glam's uploaded model photos"
+          "Mila (an AI agent) to read the script against the farm laws"
         ],
         "since": "2026-11-25 14:50",
         "sent_back": []

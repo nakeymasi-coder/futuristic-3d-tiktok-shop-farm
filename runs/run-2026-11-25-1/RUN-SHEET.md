@@ -19,21 +19,21 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 <!-- DERIVED-STATUS:BEGIN -->
 ```
 RUN run-2026-11-25-1 — BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth · (model at Step 7) · (mode open) · @glamorousgrammyglowup
-Status derived from evidence on disk at 2026-11-25 14:50 — never set by hand.
+Status derived from evidence on disk at 2026-11-25 15:01 — never set by hand.
 
   Step 1  Start Run                    CLEARED  run created; config recorded from operator input
   Step 2  Scout                        CLEARED  scout findings + story sentence on file (smart story check passed)
   Step 3  Pick                         CLEARED  pick recorded: BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth
   Step 4  Product Photo                CLEARED  listing photo attached: bask-lather-scalp-stimulator-listing-1729385609961706380.png
   Step 5  Photo Match Check            CLEARED  photo MATCH recorded by Photo Match Checker (grabber: TikTok Shop Agent) against the listing's own image
-  Step 6  Script                       CLEARED  script on file, passing the script check, and Mila's signed approval on file
+  Step 6  Script                       WAITING  an approval is on file but Mila's key isn't registered yet (farm-rules.json mila_signing.public_key is empty) — Mila's own session makes it with runner.py mila-keygen — waiting on Mila's signed script approval
   Step 7  Styled Image                 WAITING  no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo
   Step 8  Package                      WAITING  no package on file (steps/step8-package/package.md)
   Step 9  Build                        WAITING  no build files on file (steps/step9-builds/)
   Step 10 Checks — Mila (QC owner)     WAITING  no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build
   Step 11 Caption & Post               FROZEN   posting freeze is ON — the runner has no posting action; Step 11 never clears here
 
-HEADLINE: BLOCKED at Step 7 (Styled Image) — no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo
+HEADLINE: BLOCKED at Step 6 (Script) — an approval is on file but Mila's key isn't registered yet (farm-rules.json mila_signing.public_key is empty) — Mila's own session makes it with runner.py mila-keygen — waiting on Mila's signed script approval
 ```
 <!-- DERIVED-STATUS:END -->
 

@@ -2,11 +2,11 @@ kind: mila-verdict
 run: run-2026-11-25-1
 step: 6
 verdict: SENDBACK
-covers: a2555d2e1d9dfc460ce65f04ecdeef433ef0a085466da18aac2c2d85ed317c73
-notes: LINE 3 'don't feel weighed down' promises a result the listing doesn't state; use 'It's lightweight, a quick little massage between your braids and twists.' Clips 1 and 4: add 'no bottles or products anywhere in frame' to the bathroom shots. Keep the opener's on-screen text off the label. Swap #selfcarenight for #scalpoil.
-signed_at: 2026-11-25 14:48
+covers: 8d3055d57341565d38461c7740316dec794697042f7a6b107433fbcd3a1c90bd
+notes: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'
+signed_at: 2026-11-25 14:49
 checker: Mila
-signature: 15f2a589b9a9a61d2ad46e94b96e6ca3bf6175ff386cff3fc59f43c867f9053f71bb9f9cea289e1d53e2db15be9788b5f6b1096bcd244c581bdd957cf346be0f
+signature: ab5cbdd3cdd1c8d6ed45f19686e01bb58945f68ab4ac942efd76cbb34d4a6cbcb6fa16883b6ca0a214f5c3c68e0b45323fdf6427853a66dacf6a14da4463ed02
 sent_back_by: Mila
-script_sha256: a2555d2e1d9dfc460ce65f04ecdeef433ef0a085466da18aac2c2d85ed317c73
-notes: LINE 3 'don't feel weighed down' promises a result the listing doesn't state; use 'It's lightweight, a quick little massage between your braids and twists.' Clips 1 and 4: add 'no bottles or products anywhere in frame' to the bathroom shots. Keep the opener's on-screen text off the label. Swap #selfcarenight for #scalpoil.
+script_sha256: 8d3055d57341565d38461c7740316dec794697042f7a6b107433fbcd3a1c90bd
+notes: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'

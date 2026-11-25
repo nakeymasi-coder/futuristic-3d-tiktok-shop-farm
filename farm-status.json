@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 14:48",
+  "generated_at": "2026-11-25 14:49",
   "rules_version": "2026-11-25f",
   "freeze": "ON",
   "runs": [
@@ -9,12 +9,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 6 (Script) — script on file and passing the script check — waiting on Mila's script approval",
-      "state": "BLOCKED",
+      "headline": "STOPPED at Step 6 (Script) — Mila sent the script back: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'",
+      "state": "STOPPED",
       "open_step": 6,
       "open_step_name": "Script",
-      "needs": "Mila — needs: an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
-      "owner": "Mila",
+      "needs": "sent back to Story Agent: Mila sent the script back: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'",
+      "owner": "Story Agent",
       "steps": [
         {
           "n": 1,
@@ -54,9 +54,9 @@
         {
           "n": 6,
           "name": "Script",
-          "state": "WAITING",
-          "reason": "script on file and passing the script check — waiting on Mila's script approval",
-          "agent": "Mila (script approval)"
+          "state": "INVALID",
+          "reason": "Mila sent the script back: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'",
+          "agent": "Story Agent (writes or fixes the script)"
         },
         {
           "n": 7,
@@ -319,18 +319,47 @@
           ],
           "output": "steps/step6-script/script.md (sha256 8d3055d57341565d…)",
           "result": "waiting on Mila"
+        },
+        {
+          "at": "2026-11-25 14:49",
+          "from": "Mila",
+          "to": "Story Agent",
+          "step": 6,
+          "what": "Mila submitted; SENT BACK to Story Agent: Mila sent the script back: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
+            },
+            {
+              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
+              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
+            },
+            {
+              "file": "steps/step4-photo/photo-source.md",
+              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
+            }
+          ],
+          "output": "expected: steps/step6-script/script.md",
+          "result": "sent back"
         }
       ],
       "open_job": {
         "step": 6,
-        "agent": "Mila",
+        "agent": "Story Agent",
         "job_file": "steps/step6-script/JOB.md",
-        "job": "Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script <run> --by Mila. If not, send it back to the Story Agent: runner.py approve-script <run> --by Mila --send-back \"what to fix\". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
         "needs": [
-          "Mila (an AI agent) to read the script against the farm laws"
+          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
-        "since": "2026-11-25 14:48",
-        "sent_back": []
+        "since": "2026-11-25 14:49",
+        "sent_back": [
+          "Mila sent the script back: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'"
+        ]
       }
     }
   ]

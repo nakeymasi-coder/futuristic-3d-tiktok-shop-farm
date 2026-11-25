@@ -1,11 +1,11 @@
 {
-  "sig": "[\"mila\", 6, \"Mila\", [], \"8d3055d57341565d38461c7740316dec794697042f7a6b107433fbcd3a1c90bd\"]",
-  "opened_at": "2026-11-25 14:48",
-  "last_actor": "Story Agent",
+  "sig": "[\"agent\", 6, \"Story Agent\", [\"Mila sent the script back: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'\"], \"\"]",
+  "opened_at": "2026-11-25 14:49",
+  "last_actor": "Mila",
   "open": {
-    "kind": "mila",
+    "kind": "agent",
     "step": 6,
-    "agent": "Mila",
-    "to": "Mila"
+    "agent": "Story Agent",
+    "to": "Story Agent"
   }
 }

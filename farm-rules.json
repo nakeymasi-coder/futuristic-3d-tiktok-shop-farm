@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25g",
+  "version": "2026-11-25h",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -194,6 +194,61 @@
       "id": "own-step-handoff",
       "title": "Locked to your own step, then hand off",
       "text": "Glam's rule, in her words: \"they should hand off automatically to the next agent\" and \"Nobody should be off trying to do somebody else's job and then get stuck.\" Each agent does only its own step. The moment its step's output is complete, it hands it in with submit, and the next agent's job opens automatically. No side trips into another step's work: anything a later step needs is that step's job. If you can't finish your own step, stop right away and report BLOCKED: [what] - [why]. Don't search other routes, watch tutorials or stall."
+    },
+    {
+      "id": "time-cap",
+      "title": "5-minute cap on every agent job",
+      "text": "Every agent job gets a 5-minute cap. At the cap, it hands in what it has, or runs report-blocked with the reason."
+    },
+    {
+      "id": "scout-trends-only",
+      "title": "Scout is a trends-only quick check",
+      "text": "The Scout (Step 2) is a trends-only quick check, capped at 5 minutes. It does not page the showcase."
+    },
+    {
+      "id": "saved-product-list",
+      "title": "Saved showcase product list",
+      "text": "A saved showcase product list lives in the repo (farm-data/showcase-products.json: name, sold count, in stock), refreshed once a day, not every run. No job pages all 264 products per run."
+    },
+    {
+      "id": "weekly-lineup",
+      "title": "Weekly lineup",
+      "text": "Once a week, pick that week's products to promote from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily. Save it in the repo (farm-data/weekly-lineup.json)."
+    },
+    {
+      "id": "photos-ahead",
+      "title": "Photos pulled ahead",
+      "text": "Each lineup product's real listing photos are pulled once and saved with the lineup (farm-data/products/<listing id>/). If a photo won't download, that product is BLOCKED with the reason. Never use a drawn or substituted photo."
+    },
+    {
+      "id": "shop-from-lineup",
+      "title": "Shop job picks from the lineup",
+      "text": "The Shop job (Steps 3-4) picks the day's product from the weekly lineup and uses its saved photos."
+    },
+    {
+      "id": "selling-points",
+      "title": "Approved selling points",
+      "text": "Approved, claim-safe selling points for each product are saved next to its photos (farm-data/products/<listing id>/selling-points.md), with no health or growth claims. Story uses them."
+    },
+    {
+      "id": "stock-check",
+      "title": "Stock and price check first",
+      "text": "A stock and price check runs at the start of each run. A sold-out product gets skipped and the next one is picked."
+    },
+    {
+      "id": "angle-log",
+      "title": "Angle log",
+      "text": "Record the angle and hook each video used per product (farm-data/angle-log.json), so videos don't repeat."
+    },
+    {
+      "id": "scorecard",
+      "title": "Video scorecard",
+      "text": "Track which videos worked and which didn't (views, watch time, sales where visible) and each one's formula (hook, angle, format), so winners get repeated (farm-data/scorecard.json). Start it from existing @glamorousgrammyglowup stats, read only. The posting freeze stays ON."
+    },
+    {
+      "id": "muse-agents",
+      "title": "Agents are the Muse jobs",
+      "text": "The agents are the Muse jobs (muse_farm-agent-*). Mila stays out of Muse and is started by the coordinator when a gate opens. No Mila automation."
     }
   ],
   "mila_scorecard": {
@@ -672,7 +727,7 @@
       "by": [
         "TikTok Scout"
       ],
-      "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
       "inputs": [
         "the run (opened empty at Start a Run)"
       ],
@@ -682,10 +737,13 @@
       "laws": [
         "own-step-handoff",
         "repeats",
-        "blocked"
+        "blocked",
+        "time-cap",
+        "muse-agents",
+        "scout-trends-only"
       ],
       "needs": [
-        "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+        "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
       ],
       "hands_to": "TikTok Shop Agent"
@@ -696,7 +754,7 @@
       "by": [
         "TikTok Shop Agent"
       ],
-      "job": "Read the Scout's findings and pick the product from what's actually selling in the showcase. A selling product may repeat any day; skip sold-out products. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
+      "job": "Pick the day's product from this week's lineup (farm-data/weekly-lineup.json). Start with the stock and price check: a sold-out product gets skipped and the next one is picked. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
       "inputs": [
         "the Scout's findings and story sentence"
       ],
@@ -709,10 +767,15 @@
         "own-step-handoff",
         "repeats",
         "verify-listing",
-        "blocked"
+        "blocked",
+        "time-cap",
+        "muse-agents",
+        "shop-from-lineup",
+        "weekly-lineup",
+        "stock-check"
       ],
       "needs": [
-        "the farm's TikTok Shop seller view (kept signed in) to see the showcase, what's selling and what's sold out"
+        "the farm's TikTok Shop seller view (kept signed in) for the stock and price check on the picked product"
       ],
       "hands_to": "TikTok Shop Agent"
     },
@@ -722,7 +785,7 @@
       "by": [
         "TikTok Shop Agent"
       ],
-      "job": "Pull the ACTUAL listing photo for the picked product from the listing itself and submit it. It becomes the only product description for every later step. No photo in hand = full stop.",
+      "job": "Submit the picked product's real listing photo from its photos saved with the lineup (farm-data/products/<listing id>/). It becomes the only product description for every later step. If its photos weren't saved, the product is BLOCKED with the reason. Never a drawn or substituted photo.",
       "inputs": [
         "the pick record"
       ],
@@ -734,10 +797,14 @@
       "laws": [
         "own-step-handoff",
         "exact-product",
-        "blocked"
+        "blocked",
+        "time-cap",
+        "muse-agents",
+        "shop-from-lineup",
+        "photos-ahead"
       ],
       "needs": [
-        "the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo"
+        "the product's real listing photos, saved with the weekly lineup"
       ],
       "hands_to": "Photo Match checker"
     },
@@ -762,7 +829,9 @@
       "laws": [
         "own-step-handoff",
         "exact-product",
-        "qc"
+        "qc",
+        "time-cap",
+        "muse-agents"
       ],
       "needs": [
         "someone other than the grabber who can open the live listing to compare"
@@ -775,7 +844,7 @@
       "by": [
         "Story Agent"
       ],
-      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
+      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence and the product's approved selling points (farm-data/products/<listing id>/selling-points.md). Check the angle log (farm-data/angle-log.json) so this product's angle and hook don't repeat, and record this video's angle and hook there. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
       "inputs": [
         "the Scout's story sentence",
         "the pick record",
@@ -800,7 +869,11 @@
         "staging",
         "exact-product",
         "feel-human",
-        "no-dead-air"
+        "no-dead-air",
+        "time-cap",
+        "muse-agents",
+        "selling-points",
+        "angle-log"
       ],
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -830,7 +903,9 @@
       "laws": [
         "own-step-handoff",
         "casting",
-        "exact-product"
+        "exact-product",
+        "time-cap",
+        "muse-agents"
       ],
       "needs": [
         "access to Glam's uploaded model photos"
@@ -870,7 +945,9 @@
         "keywords",
         "labels",
         "no-prices",
-        "no-use-claims"
+        "no-use-claims",
+        "time-cap",
+        "muse-agents"
       ],
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -906,7 +983,9 @@
         "staging",
         "feel-human",
         "no-dead-air",
-        "labels"
+        "labels",
+        "time-cap",
+        "muse-agents"
       ],
       "needs": [
         "Video Express in the farm's browser (kept signed in) to build the video"
@@ -938,7 +1017,8 @@
         "no-before-after",
         "qc",
         "exact-product",
-        "labels"
+        "labels",
+        "time-cap"
       ],
       "needs": [
         "Mila (an AI agent that can watch the video frame by frame and hear the audio)"

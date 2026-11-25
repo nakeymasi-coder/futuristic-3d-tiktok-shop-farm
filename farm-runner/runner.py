@@ -2919,6 +2919,14 @@ def open_job_info(run):
             "reason": "complete through Step 10", "findings": []}
 
 
+def time_cap_line():
+    """Glam, Nov 25: every agent job gets a 5-minute cap."""
+    from datetime import timedelta
+    due = (datetime.now() + timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M")
+    return (f"⏱ Time cap: 5 minutes (until {due}). At the cap, hand in what "
+            "you have, or run report-blocked with the reason.\n")
+
+
 def locked_rule_line():
     """Glam's locked rule (Nov 25), printed at the top of EVERY job."""
     law = next((l for l in RULES.get("laws", []) if l.get("id") == "own-step-handoff"), None)
@@ -2935,6 +2943,7 @@ def mila_gate_job_md(run, info):
            f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
            f"opened {now_stamp()} · posting freeze ON\n",
            locked_rule_line(),
+           time_cap_line(),
            "## Your job", g["job"].replace("<run>", cfg["run_id"]) + "\n",
            f"Can't do it? Stop, and put it on the board at once: runner.py "
            f"report-blocked {cfg['run_id']} --step {n} --by Mila --reason "
@@ -2963,6 +2972,7 @@ def job_md(run, info):
     out.append(f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
                f"opened {now_stamp()} · posting freeze ON\n")
     out.append(locked_rule_line())
+    out.append(time_cap_line())
     out.append("## Your job")
     out.append(fill(a.get("job", "")) + "\n")
     out.append("## Read these (exact files)")

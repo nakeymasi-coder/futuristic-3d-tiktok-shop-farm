@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-25 16:50",
-  "rules_version": "2026-11-25g",
+  "generated_at": "2026-11-25 16:57",
+  "rules_version": "2026-11-25h",
   "freeze": "ON",
   "runs": [
     {
@@ -122,9 +122,9 @@
         "step": 2,
         "agent": "TikTok Scout",
         "job_file": "steps/step2-scout/JOB.md",
-        "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
         "needs": [
-          "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+          "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
         "since": "2026-11-25 01:20",
@@ -441,7 +441,7 @@
         "step": 6,
         "agent": "Story Agent",
         "job_file": "steps/step6-script/JOB.md",
-        "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
+        "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence and the product's approved selling points (farm-data/products/<listing id>/selling-points.md). Check the angle log (farm-data/angle-log.json) so this product's angle and hook don't repeat, and record this video's angle and hook there. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
         "needs": [
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
@@ -562,9 +562,9 @@
         "step": 2,
         "agent": "TikTok Scout",
         "job_file": "steps/step2-scout/JOB.md",
-        "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
         "needs": [
-          "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+          "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
         "since": "2026-11-25 16:26",

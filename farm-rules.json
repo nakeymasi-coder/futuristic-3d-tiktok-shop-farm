@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25",
+  "version": "2026-11-25b",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -15,7 +15,7 @@
     "caption_search_words_max": 5,
     "shop_posts_per_day": 3,
     "agents": 9,
-    "modes": 16
+    "modes": 12
   },
   "run_order": [
     {
@@ -174,6 +174,11 @@
       "id": "verify-listing",
       "title": "Right listing, checked live",
       "text": "Attach the actual correct product listing — the real one for this product. Before posting, verify in the live listing: title, size chart and availability."
+    },
+    {
+      "id": "no-nora",
+      "title": "Nora is off the farm for good",
+      "text": "Glam's rule, in her words: \"I want Nora moved completely and never to be put on there ever again.\" No agent, card, job, prompt or file on the farm uses Nora."
     }
   ],
   "mila_scorecard": {
@@ -246,17 +251,22 @@
       "Nighttime Routine",
       "Bathroom Vanity Demo",
       "Before You Buy",
-      "My Honest Take",
       "Restock Day",
       "Comment Reply Video",
-      "Side-by-Side Test",
       "Morning Routine",
-      "What I Actually Use",
       "Quick Tip",
       "Shelf Tour",
-      "First Impression",
       "The Closer Look"
-    ]
+    ],
+    "retired_modes": {
+      "modes": [
+        "My Honest Take",
+        "Side-by-Side Test",
+        "What I Actually Use",
+        "First Impression"
+      ],
+      "why": "Retired by Glam, Nov 24 2026: these names invite \"I used it\" claims the AI model can never make. Kept here for the record, off the farm. Their names still fail as a script's opening line."
+    }
   },
   "checks": {
     "_note": "Word lists and patterns the runner's checks use. Patterns are Python regular expressions. Edit here only; the runner keeps no copy.",

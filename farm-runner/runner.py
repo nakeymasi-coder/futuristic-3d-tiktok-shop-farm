@@ -1712,6 +1712,35 @@ def cmd_check_rules(args):
     else:
         print("check-rules: the farm page isn't on this machine — page checks "
               "skipped (run check-rules in the repo, or pass --page).")
+    # Glam's rule (law id BANNED_LAW): one retired agent is off the farm for
+    # good. Only the law that bans her may say the name; any other mention
+    # anywhere in the farm is drift. (The name is assembled so this guard
+    # never trips on itself.)
+    banned = "N" + "ora"
+    banned_law = "no-" + banned.lower()
+    root = Path(__file__).resolve().parent.parent
+    if (root / "index.html").exists() or (root / ".git").exists():
+        for f in sorted(root.rglob("*")):
+            if (not f.is_file() or ".git" in f.parts
+                    or f.suffix.lower() in IMAGE_EXTS | VIDEO_EXTS):
+                continue
+            try:
+                txt = f.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            if f.name == "farm-rules.json":
+                try:
+                    data = json.loads(txt)
+                    data["laws"] = [l for l in data.get("laws", [])
+                                    if l.get("id") != banned_law]
+                    txt = json.dumps(data)
+                except ValueError:
+                    pass
+            if f.name == "fixcheck.sh":
+                continue
+            if re.search(r"\b" + banned + r"\b", txt, re.IGNORECASE):
+                drift.append(f"{f.relative_to(root)} mentions {banned} — "
+                             f"Glam's rule: {banned} is off the farm for good")
     if drift:
         print("check-rules: DRIFT —")
         for d in drift:

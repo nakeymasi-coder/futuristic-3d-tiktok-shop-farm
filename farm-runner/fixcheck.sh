@@ -319,4 +319,14 @@ python3 -c "
 import json;[print(f\"  {i:2}. {h['from']} → {h['to']} (Step {h['step'] or 'review'}) — {h['result']}\") for i,h in enumerate((json.loads(l) for l in open('$C/handoffs.jsonl')),1)]" > /tmp/fx_hops.txt
 rm -rf $CH
 echo; echo "CHAIN HOPS (test data):"; cat /tmp/fx_hops.txt
+# ---------- Glam's Nov 24 calls: retire the 4 first-person modes; the retired agent stays off the farm
+ROOT2="$(cd "$(dirname "$0")/.." && pwd)"
+OUT=$(python3 -c "import json;d=json.load(open('$ROOT2/farm-rules.json'));m=d['form']['modes'];r=d['form']['retired_modes']['modes'];print(len(m),d['numbers']['modes'],[x for x in r if x in m])")
+expect "retired modes are off the farm (12 modes, none of the 4 left)" "^12 12 \[\]" "$OUT"
+sc "retired mode name still fails as an opener" 'CTA: linked below\nLINE 1: "My honest take for you girls."\n' "INVALID"
+NM="N""ora"; TMPN=$(mktemp -d); cp -r "$ROOT2/farm-runner" "$ROOT2/index.html" "$ROOT2/farm-rules.json" "$TMPN/"; rm -rf "$TMPN/farm-runner/__pycache__"
+OUT=$(python3 "$TMPN/farm-runner/runner.py" check-rules 2>&1; echo "exit $?"); expect "clean farm passes the banned-agent check" "check-rules: OK" "$OUT"
+echo "Ask $NM to help" >> "$TMPN/index.html"
+OUT=$(python3 "$TMPN/farm-runner/runner.py" check-rules 2>&1; echo "exit $?"); expect "a planted mention of the retired agent is caught" "index.html mentions $NM" "$OUT"
+rm -rf "$TMPN"
 echo; echo "SUMMARY: $P passed, $F failed"

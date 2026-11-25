@@ -507,4 +507,37 @@ for a in d["agents"]+[d["dispatcher"]]:
 assert d["dispatcher"]["enabled"] is False
 PYX
 
+# ---------- MILA SIGN WORKFLOW (Glam, Nov 25, Option 1): the key lives only in the repo
+# secret MILA_SIGNING_SEED; the workflow signs with Mila's session id and places the verdict.
+WF="$ROOTF/.github/workflows/mila-sign.yml"
+python3 - "$WF" <<'PYW' && ok "MILAWF the workflow reads only the secret MILA_SIGNING_SEED, runs only when started by hand, never prints the seed" "mila-sign.yml" || bad "MILAWF static checks" ""
+import sys,yaml,re
+t=open(sys.argv[1]).read(); d=yaml.safe_load(t)
+on=d.get(True) or d.get("on")
+assert list(on)==["workflow_dispatch"], on
+assert "secrets.MILA_SIGNING_SEED" in t
+assert not re.search(r"echo[^\n]*SEED_PHRASE", t)
+assert "session_*" in t and "BLOCKED" in t
+PYW
+mkdir -p /tmp/fx_wf/rt; ln -sfn "$ROOTF/farm-runner" /tmp/fx_wf/farm-runner
+python3 - "$WF" <<'PYW'
+import sys,yaml
+d=yaml.safe_load(open(sys.argv[1]))
+for st in d["jobs"]["mila"]["steps"]:
+    if st.get("name","").startswith("Sign and place"): open("/tmp/fx_wf/sign.sh","w").write(st["run"])
+    if st.get("name","").startswith("Make Mila's key"): open("/tmp/fx_wf/key.sh","w").write(st["run"])
+PYW
+OUT=$(cd /tmp/fx_wf && SEED_PHRASE="" RUNNER_TEMP=/tmp/fx_wf/rt bash -e key.sh 2>&1; echo "exit $?"); expect "MILAWF no secret set = BLOCKED, nothing signed" "BLOCKED: the repo secret MILA_SIGNING_SEED is not set.*exit 1" "$(echo "$OUT"|tr '\n' ' ')"
+RW=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p'); W=$HOME/workspace/farm-runs/$RW/steps
+printf 'Findings: x\nStory: Your feet hurt all week and you deserve a soft landing.\n' > $W/step2-scout/scout.md
+printf 'product: TEST Scalp Oil\nlisting: test\n' > $W/step3-pick/pick.md
+$R attach-photo $RW /tmp/fx_p.png --by Indigo >/dev/null; $R record-match $RW --checker Mila --grabber Indigo --verdict MATCH >/dev/null
+printf 'CTA: linked below for you\nLINE 1: "Your wash day deserves five quiet minutes."\nShe works the oil into her scalp with her fingertips, product off frame.\nLINE 2: "Tap the orange cart."\n' > $W/step6-script/script.md
+wfsign(){ cp /tmp/fx_mila_key /tmp/fx_wf/rt/mila-key; (cd /tmp/fx_wf && RUNNER_TEMP=/tmp/fx_wf/rt MILA_SIGNING_KEY=/tmp/fx_wf/rt/mila-key FARM_HOME=$HOME RUN_ID=$RW STEP=6 VERDICT=APPROVE NOTES="clean script" SESSION="$1" bash -e sign.sh 2>&1; echo "exit $?"); }
+OUT=$(wfsign ""); expect "MILAWF no session id = BLOCKED, nothing signed" "BLOCKED: Mila's own session id.*exit 1" "$(echo "$OUT"|tr '\n' ' ')"
+[ ! -e /tmp/fx_wf/rt/mila-key ] && ok "MILAWF the key file is wiped even when it stops" "gone" || bad "MILAWF key wiped on stop" ""
+OUT=$(wfsign session_WFTESTMila0001); expect "MILAWF the workflow signs with Mila's session and Step 6 clears → Casting" "next is Casting.*MILA VERDICT PLACED.*exit 0" "$(echo "$OUT"|tr '\n' ' ')"
+[ ! -e /tmp/fx_wf/rt/mila-key ] && ok "MILAWF the key file is wiped after signing" "gone" || bad "MILAWF key wiped after signing" ""
+OUT=$($R proof $RW); expect "MILAWF proof shows the workflow's verdict under Mila's own session" "Step 6 +Mila +session_WFTESTMila0001" "$OUT"
+
 echo; echo "SUMMARY: $P passed, $F failed"

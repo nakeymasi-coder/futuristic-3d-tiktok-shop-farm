@@ -23,3 +23,4 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 ## GATE LOG (appended by the runner only — never hand-edited)
 - [2026-11-25 16:26] Run created by Muse request 2026-11-25-test-run.json. Statuses start empty; they are earned by evidence only.
 - [2026-11-25 16:26] CHAIN: Start a Run → TikTok Scout (Step 2) — handed off
+- [2026-11-25 16:50] BLOCKED: Step 2 — TikTok Scout: 5-minute cap reached — repo pulled, rules read live (2026-11-25g), open Scout job confirmed, browser scout launched in TikTok Shop Owner profile and was reading (profile page loaded signed in as @glamorousgrammyglowup, Streamer Desktop and Discover open) but no findings returned within the cap; scout.md not written, no hand-in made

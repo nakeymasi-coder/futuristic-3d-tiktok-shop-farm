@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 16:46",
+  "generated_at": "2026-11-25 16:50",
   "rules_version": "2026-11-25g",
   "freeze": "ON",
   "runs": [
@@ -458,11 +458,11 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 2 (Scout) — no scout findings on file (steps/step2-scout/scout.md)",
-      "state": "BLOCKED",
+      "headline": "BLOCKED at Step 2 — TikTok Scout reported BLOCKED: 5-minute cap reached — repo pulled, rules read live (2026-11-25g), open Scout job confirmed, browser scout launched in TikTok Shop Owner profile and was reading (profile page loaded signed in as @glamorousgrammyglowup, Streamer Desktop and Discover open) but no findings returned within the cap; scout.md not written, no hand-in made (2026-11-25 16:50)",
+      "state": "STOPPED",
       "open_step": 2,
       "open_step_name": "Scout",
-      "needs": "TikTok Scout — needs: the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends; an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
+      "needs": "TikTok Scout reported BLOCKED: 5-minute cap reached — repo pulled, rules read live (2026-11-25g), open Scout job confirmed, browser scout launched in TikTok Shop Owner profile and was reading (profile page loaded signed in as @glamorousgrammyglowup, Streamer Desktop and Discover open) but no findings returned within the cap; scout.md not written, no hand-in made",
       "owner": "TikTok Scout",
       "steps": [
         {

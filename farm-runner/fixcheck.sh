@@ -484,12 +484,12 @@ Rn(){ env -u FARM_TEST_MODE HOME=$SG/home python3 "$ROOTF/farm-runner/runner.py"
 Rn create --mode "Get Ready With Me" >/dev/null 2>&1
 SR=$(ls $SG/home/workspace/farm-runs | head -1)
 printf 'Scout notes: the trends.\nStory: For grown ladies who give everyone else their evenings, this is a little scalp-care moment that is just theirs.\n' > $SG/scout.md
-OUT=$(Rn submit $SR --step 2 --by "TikTok Scout" --file $SG/scout.md 2>&1; echo "exit $?"); expect "SESSION a hand-in without the agent's own session is refused" "SUBMIT REFUSED.*names the agent's own session.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rn submit $SR --step 2 --by "TikTok Scout" --file $SG/scout.md 2>&1; echo "exit $?"); expect "SESSION a hand-in without the agent's own session is refused" "SUBMIT REFUSED.*names the agent's own id.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
 OUT=$(Rn submit $SR --step 2 --by "TikTok Scout" --file $SG/scout.md --session session_01SCOUTAAAAAAA 2>&1); expect "SESSION the Scout's own session hands in" "checks passed|Handed to" "$OUT"
 printf 'product: Test Oil\nlisting ID: 123\n' > $SG/pick.md
 OUT=$(Rn submit $SR --step 3 --by "TikTok Shop Agent" --file $SG/pick.md --session session_01SCOUTAAAAAAA 2>&1; echo "exit $?"); expect "SESSION one session can't play a second agent" "already acted as TikTok Scout.*One session, one role.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
 OUT=$(Rn submit $SR --step 3 --by "TikTok Shop Agent" --file $SG/pick.md --session session_01SHOPBBBBBBBB 2>&1); expect "SESSION the Shop Agent's own session hands in" "checks passed|Handed to" "$OUT"
-OUT=$(Rn proof $SR 2>&1); expect "PROOF lists a different session per step" "OK — 2 different session" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rn proof $SR 2>&1); expect "PROOF lists a different session per step" "OK — 2 different id" "$(echo "$OUT"|tr '\n' ' ')"
 mkdir -p $SG/shared; cp /tmp/fx_mila_key $SG/shared/k
 OUT=$(env -u FARM_TEST_MODE MILA_SIGNING_KEY=/mnt/project-files/.mila-test-never HOME=$SG/home python3 -c "import sys;sys.path.insert(0,'$ROOTF/farm-runner');import runner as r;print(r.key_in_shared_folder('/mnt/project-files/.mila/mila-signing-key'), r.key_in_shared_folder('$SG/home/.mila/k'))"); expect "MILA a key in the shared project files is never used" "^True False$" "$OUT"
 OUT=$(env -u MILA_SIGNING_KEY -u FARM_TEST_MODE HOME=$SG/home python3 "$ROOTF/farm-runner/runner.py" mila-keygen 2>&1); expect "MILA her own session makes her key, prints only the public key" "stays only in this session.*Public key for farm-rules.json" "$(echo "$OUT"|tr '\n' ' ')"
@@ -565,7 +565,7 @@ import sys,yaml
 for st in yaml.safe_load(open(sys.argv[1]))["jobs"]["start-run"]["steps"]:
     if st.get("name","").startswith("Open a run for each new request"): open("/tmp/fx_push.sh","w").write(st["run"])
 PYW
-PR=/tmp/fx_pushrepo; mkdir -p $PR/farm-runner $PR/farm-requests/old; cd $PR; git init -q; git config user.email t@t; git config user.name t
+PR=$(mktemp -d /tmp/fx_pushrepo.XXXXXX); mkdir -p $PR/farm-runner $PR/farm-requests/old; cd $PR; git init -q; git config user.email t@t; git config user.name t
 printf 'import sys\nprint("Opened for "+sys.argv[2])\nprint("Status published to the Live Run Board")\n' > farm-runner/runner.py
 echo '{}' > farm-requests/a.json; git add -A; git commit -qm one; C1=$(git rev-parse HEAD)
 OUT=$(BEFORE=0000000000000000000000000000000000000000 AFTER=$C1 FARM_HOME=$PR/h bash -e /tmp/fx_push.sh 2>&1); expect "PUSHRUN first push: the new request opens a run" "Opened for farm-requests/a.json" "$OUT"
@@ -585,5 +585,17 @@ printf 'Findings: x\nStory: Your scalp gets tight after a long week of braids.\n
 $R submit $RQ --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md >/dev/null
 [ ! -e $HOME/workspace/farm-runs/$RQ/steps/step2-scout/BLOCKED.md ] && grep -q "BLOCKED report on Step 2 cleared (TikTok Scout handed in)" $HOME/workspace/farm-runs/$RQ/RUN-SHEET.md && ok "BLOCKEDREPORT the report clears when the Scout hands in (kept in the gate log)" "cleared" || bad "BLOCKEDREPORT clears on hand-in" ""
 grep -q "report-blocked" $HOME/workspace/farm-runs/$RQ/steps/step3-pick/JOB.md && ok "BLOCKEDREPORT every JOB.md says how to report BLOCKED" "JOB.md" || bad "BLOCKEDREPORT JOB.md line" ""
+
+# ---------- MUSE IDS (Glam, Nov 25: "This is Muse job"): Muse jobs hand in with their own job id
+RM=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p'); MS=$HOME/workspace/farm-runs/$RM/steps
+OUT=$(env -u FARM_TEST_MODE $R submit $RM --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md 2>&1; echo "exit $?"); expect "MUSEID a hand-in with no id is still refused" "REFUSED — every hand-in names the agent's own id.*muse_.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R submit $RM --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md --session "muse_x" 2>&1; echo "exit $?"); expect "MUSEID a malformed Muse id is refused" "REFUSED.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R submit $RM --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md --session muse_job-scout-7f3a 2>&1); expect "MUSEID the Muse Scout job hands in with its own job id" "Handed to TikTok Shop Agent \(Step 3\)" "$OUT"
+printf 'product: TEST Scalp Oil\nlisting: test\n' > /tmp/fx/pickm.md
+OUT=$($R submit $RM --step 3 --by "TikTok Shop Agent" --file /tmp/fx/pickm.md --session muse_job-scout-7f3a 2>&1; echo "exit $?"); expect "MUSEID one Muse job can't play two roles on a run" "already acted as TikTok Scout.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R submit $RM --step 3 --by "TikTok Shop Agent" --file /tmp/fx/pickm.md --session muse_job-shop-11c2 2>&1); expect "MUSEID a second Muse job hands in as the Shop Agent" "Handed to" "$OUT"
+OUT=$($R proof $RM); expect "MUSEID proof lists each step's Muse job id" "Step 2 +TikTok Scout +muse_job-scout-7f3a +\(Muse job\).*Step 3 +TikTok Shop Agent +muse_job-shop-11c2 +\(Muse job\).*OK — 2 different id" "$(echo "$OUT"|tr '\n' ' ')"
+grep -q "muse_ followed by YOUR OWN Muse scheduled job's id" $MS/step4-photo/JOB.md && grep -q -- "--session <your id>" $MS/step4-photo/JOB.md && ok "MUSEID every agent JOB.md tells Muse exactly what id to pass" "JOB.md" || bad "MUSEID JOB.md id line" ""
+OUT=$(python3 -c "import sys,argparse;sys.path.insert(0,'$ROOTF/farm-runner');import runner as r;from pathlib import Path;print(r.session_guard(Path('$HOME/workspace/farm-runs/$RM'),'Mila',6,argparse.Namespace(session='muse_job-mila-0001'),'MILA APPROVAL'))" 2>&1); expect "MUSEID a Muse id can never stand in for Mila" "REFUSED — Mila's verdicts carry her own Claude session.*None" "$(echo "$OUT"|tr '\n' ' ')"
 
 echo; echo "SUMMARY: $P passed, $F failed"

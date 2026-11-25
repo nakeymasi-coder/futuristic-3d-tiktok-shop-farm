@@ -1,18 +1,31 @@
 {
-  "generated_at": "2026-11-25 15:01",
-  "rules_version": "2026-11-25f",
+  "generated_at": "2026-11-25 15:40",
+  "rules_version": "2026-11-25g",
   "jobs": [
     {
       "step": 6,
       "agent": "Mila",
       "job_file": "steps/step6-script/JOB.md",
-      "job": "Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script <run> --by Mila. If not, send it back to the Story Agent: runner.py approve-script <run> --by Mila --send-back \"what to fix\". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+      "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
       "needs": [
         "Mila (an AI agent) to read the script against the farm laws"
       ],
       "since": "2026-11-25 14:50",
       "sent_back": [],
       "run_id": "run-2026-11-25-1"
+    },
+    {
+      "step": 2,
+      "agent": "TikTok Scout",
+      "job_file": "steps/step2-scout/JOB.md",
+      "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "needs": [
+        "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+      ],
+      "since": "2026-11-25 15:40",
+      "sent_back": [],
+      "run_id": "run-2026-11-25-2"
     }
   ]
 }

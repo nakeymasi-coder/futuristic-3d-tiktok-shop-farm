@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25h",
+  "version": "2026-11-25i",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -75,6 +75,11 @@
     }
   ],
   "laws": [
+    {
+      "id": "streamer-desktop-only",
+      "title": "Products only from TikTok Shop Streamer Desktop",
+      "text": "Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself."
+    },
     {
       "id": "exact-product",
       "title": "Real product only: the AI never draws it",
@@ -735,6 +740,7 @@
       "output": "scout.md with real findings and a Story: line",
       "output_file": "steps/step2-scout/scout.md",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "repeats",
         "blocked",
@@ -764,6 +770,7 @@
       "output": "pick.md with a product: line and the listing ID/link",
       "output_file": "steps/step3-pick/pick.md",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "repeats",
         "verify-listing",
@@ -775,7 +782,7 @@
         "stock-check"
       ],
       "needs": [
-        "the farm's TikTok Shop seller view (kept signed in) for the stock and price check on the picked product"
+        "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
       ],
       "hands_to": "TikTok Shop Agent"
     },
@@ -795,6 +802,7 @@
       "output": "the real listing photo (an image file)",
       "output_file": "steps/step4-photo/",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "exact-product",
         "blocked",
@@ -827,6 +835,7 @@
       "output": "match-verdict.md (written by record-match)",
       "output_file": "steps/step5-match/match-verdict.md",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "exact-product",
         "qc",
@@ -858,6 +867,7 @@
       "output": "script.md",
       "output_file": "steps/step6-script/script.md",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "no-health-claims",
         "no-before-after",
@@ -901,6 +911,7 @@
       "output": "the uploaded model photo (an image file)",
       "output_file": "steps/step7-styled/",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "casting",
         "exact-product",
@@ -933,6 +944,7 @@
       "output": "package.md (clip prompts + hook + Caption:)",
       "output_file": "steps/step8-package/package.md",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "no-health-claims",
         "no-before-after",
@@ -975,6 +987,7 @@
       "output": "the build video file(s)",
       "output_file": "steps/step9-builds/",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "no-health-claims",
         "no-before-after",
@@ -1012,6 +1025,7 @@
       "output": "verdict.md",
       "output_file": "steps/step10-qc/mila-verdict.md",
       "laws": [
+        "streamer-desktop-only",
         "own-step-handoff",
         "no-health-claims",
         "no-before-after",

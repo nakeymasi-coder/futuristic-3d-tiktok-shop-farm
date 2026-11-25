@@ -2927,6 +2927,15 @@ def time_cap_line():
             "you have, or run report-blocked with the reason.\n")
 
 
+def streamer_only_line():
+    """Glam's hard rule (Nov 25), printed at the very top of EVERY job."""
+    law = next((l for l in RULES.get("laws", [])
+                if l.get("id") == "streamer-desktop-only"), None)
+    if not law:
+        return ""
+    return f"## 🔒 HARD RULE: {fill(law['title'])}\n{fill(law['text'])}\n"
+
+
 def locked_rule_line():
     """Glam's locked rule (Nov 25), printed at the top of EVERY job."""
     law = next((l for l in RULES.get("laws", []) if l.get("id") == "own-step-handoff"), None)
@@ -2942,6 +2951,7 @@ def mila_gate_job_md(run, info):
     out = [f"# JOB — Step {n}: Mila (approval gate)",
            f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
            f"opened {now_stamp()} · posting freeze ON\n",
+           streamer_only_line(),
            locked_rule_line(),
            time_cap_line(),
            "## Your job", g["job"].replace("<run>", cfg["run_id"]) + "\n",
@@ -2971,6 +2981,7 @@ def job_md(run, info):
     out.append(f"# JOB — Step {n}: {a.get('agent', '')}")
     out.append(f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
                f"opened {now_stamp()} · posting freeze ON\n")
+    out.append(streamer_only_line())
     out.append(locked_rule_line())
     out.append(time_cap_line())
     out.append("## Your job")

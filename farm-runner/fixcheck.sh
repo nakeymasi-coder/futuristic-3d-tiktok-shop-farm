@@ -617,4 +617,15 @@ PYB
 RB=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 grep -q "Time cap: 5 minutes" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && grep -q "trends-only quick check" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && ok "BRAIN a new run's Scout JOB.md carries the 5-minute cap and trends-only rule" "JOB.md" || bad "BRAIN Scout JOB.md" ""
 
+python3 - "$ROOTF" <<'PYS' && ok "BRAIN products-only-from-Streamer-Desktop is the first law, on every agent, at the top of every prompt" "first law" || bad "BRAIN streamer rule" ""
+import json,sys,glob
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json"))
+assert d["laws"][0]["id"]=="streamer-desktop-only"
+assert all(a["laws"][0]=="streamer-desktop-only" for a in d["agents"])
+for f in glob.glob(f"{r}/farm-agents/prompts/*.md"):
+    assert "products only from TikTok Shop Streamer Desktop" in open(f).read().split("\n",4)[2], f
+PYS
+RS=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
+sed -n 1,6p $HOME/workspace/farm-runs/$RS/steps/step2-scout/JOB.md | grep -q "HARD RULE: Products only from TikTok Shop Streamer Desktop" && ok "BRAIN the Streamer Desktop rule sits at the top of a new run's JOB.md" "JOB.md" || bad "BRAIN streamer rule in JOB.md" ""
+
 echo; echo "SUMMARY: $P passed, $F failed"

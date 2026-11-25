@@ -579,16 +579,13 @@
       <!-- START A RUN -->
       <section id="intake">
         <div class="sec-head"><span class="idx">01</span><h2>Start a Run</h2></div>
-        <p class="sec-sub">Two ways in. <strong style="color:var(--ink)">Start Run</strong> — the red button — opens a run and holds it at each gate. Each step lands only when it has really been done, with the real thing attached — no Scout findings and no Scout story sentence, no product pick, and no script is marked done until it exists on the run. <strong style="color:var(--ink)">Nothing is ever marked done on a promise.</strong> Or use the form under it when you already know what you want made. Nothing posts until you say so. Picking <strong style="color:var(--ink)">Account health check</strong> in the form? That&rsquo;s a check only — the product, placement, mode and time fields switch off, nothing gets made, and the prompt asks for a report on the account instead of a video.</p>
+        <p class="sec-sub"><strong style="color:var(--ink)">Start Run</strong> — the red button — opens a real run on GitHub, and it shows up on the <a href="#live">Live Run Board</a> the moment it opens. Each step lands only when it has really been done, with the real thing attached. <strong style="color:var(--ink)">Nothing is ever marked done on a promise.</strong> Or use the form under it to write a run prompt when you already know what you want made. Each step lands only when it has really been done, with the real thing attached — no Scout findings and no Scout story sentence, no product pick, and no script is marked done until it exists on the run. <strong style="color:var(--ink)">Nothing is ever marked done on a promise.</strong> Or use the form under it when you already know what you want made. Nothing posts until you say so. Picking <strong style="color:var(--ink)">Account health check</strong> in the form? That&rsquo;s a check only — the product, placement, mode and time fields switch off, nothing gets made, and the prompt asks for a report on the account instead of a video.</p>
 
         <div class="autorun" id="autorun">
-          <h3>▶ Start Run — opens a gated run</h3>
-          <p class="ar-sub">One click opens a run and holds it at Step 1, waiting. <b>The run opens empty</b> on <b>@glamorousgrammyglowup</b> — no product and no model yet. Each step of the Run Order below shows WAITING or BLOCKED until the real thing is attached, every step passes Mila&rsquo;s quality control before the next one starts, and every step follows the Farm Laws. Nothing posts while the freeze is on.</p>
-          <button class="btn btn-pink" id="autoRunBtn" type="button">▶ Start Run</button>
-          <span class="okmsg" id="autoRunOk" style="margin-left:12px"></span>
-          <div class="walksteps" id="walkSteps" hidden></div>
-          <div class="walklog" id="walkLog" hidden aria-live="polite"></div>
-          <div class="pkg" id="autoPkg" hidden></div>
+          <h3>▶ Start Run — opens a real run</h3>
+          <p class="ar-sub">Tap the button, then tap <b>Run workflow</b> on the GitHub page that opens (you need to be signed in to GitHub). GitHub opens a <b>real run</b> on <b>@glamorousgrammyglowup</b> — no product and no model yet — and it appears on the <a href="#live">Live Run Board</a> within a minute or two. Each agent lights up there only when its real step is open, and every handoff between agents shows as it happens. Nothing posts while the freeze is on.</p>
+          <a class="btn btn-pink" id="autoRunBtn" href="https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm/actions/workflows/start-run.yml" target="_blank" rel="noopener">▶ Start Run</a>
+          <a class="btn btn-ghost mini" href="#live" style="margin-left:10px">Watch the Live Run Board ↓</a>
         </div>
         <form class="formcard" id="intakeForm" novalidate>
           <div class="form-grid">
@@ -1129,6 +1126,18 @@
               reasons.appendChild(l);
             });
             card.appendChild(strip);
+            /* Agent lights: lit only from the runner's real status — green = its step is done,
+               blue = its job is open right now, dim = not reached yet. */
+            var lights = mk("div", "walksteps"); lights.setAttribute("aria-label", "Agents on this run");
+            (r.steps || []).forEach(function(s){
+              if (s.n < 2 || s.n > 11) return;
+              var on = (s.n === r.open_step), done = String(s.state || "").toUpperCase() === "CLEARED";
+              var t = mk("div", "wstep" + (done ? " done" : on ? " on" : ""));
+              t.appendChild(mk("div", "wn", "STEP " + s.n + " · " + (done ? "DONE" : on ? "UP NOW" : "NOT YET")));
+              t.appendChild(mk("div", "wt", String(s.agent || s.name || "").replace(/ \(.*\)$/, "")));
+              lights.appendChild(t);
+            });
+            card.appendChild(lights);
             if (st === "BLOCKED" || st === "STOPPED"){
               card.appendChild(mk("div", "lstop", "Stopped at Step " + (r.open_step || "?") + " — " + (r.open_step_name || "") + ". Needs: " + (r.needs || "—") + ". Next: " + (r.owner || "—") + "."));
             }
@@ -1186,16 +1195,36 @@
             jobsBox.appendChild(d);
           });
         }
-        try {
-          fetch("farm-jobs.json", { cache:"no-cache" })
-            .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-            .then(showJobs, noJobs);
-        } catch (e) { noJobs(); }
-        try {
-          fetch("farm-status.json", { cache:"no-cache" })
-            .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-            .then(show, none);
-        } catch (e) { none(); }
+        /* The farm runner publishes after every step to the repo's
+           "farm-status" branch (Glam, Nov 25). Read the branch's newest
+           commit, then the two files at that exact commit, so the board is
+           never served a stale copy. If it can't load, say so — never blank. */
+        var REPO = "nakeymasi-coder/futuristic-3d-tiktok-shop-farm";
+        var RAW = "https://raw.githubusercontent.com/" + REPO + "/";
+        function getJSON(u){ return fetch(u, { cache:"no-cache" }).then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }); }
+        function failed(why){
+          if (meta) meta.textContent = "";
+          box.innerHTML = "";
+          var d = mk("div", "live-empty lstop", "STATUS COULDN'T LOAD — the Live Run Board couldn't read the farm runner's status (" + why + "). Runs may be moving that this page can't show. Reload in a minute; if it stays, tell Claude.");
+          box.appendChild(d);
+        }
+        function loadAt(ref){
+          return Promise.all([getJSON(RAW + ref + "/farm-status.json"), getJSON(RAW + ref + "/farm-jobs.json").catch(function(){ return null; })]);
+        }
+        var lastSha = "";
+        function refresh(){
+          fetch("https://api.github.com/repos/" + REPO + "/commits/farm-status", { cache:"no-cache", headers:{ "Accept":"application/vnd.github+json" } })
+            .then(function(r){ if (r.status === 404) throw new Error("none"); if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+            .then(function(c){ if (c.sha === lastSha) return null; lastSha = c.sha; return loadAt(c.sha); },
+                  function(e){ if (e.message === "none") throw e; return loadAt("farm-status"); })
+            .then(function(pair){ if (!pair) return; show(pair[0]); if (pair[1]) showJobs(pair[1]); else noJobs(); })
+            .catch(function(e){
+              if (e && e.message === "none"){ none(); noJobs(); return; }
+              getJSON("farm-status.json").then(show, function(){ failed(e && e.message ? e.message : "no answer"); });
+            });
+        }
+        refresh();
+        setInterval(refresh, 90000);
       })();
 
       /* ---------------- helpers ---------------- */
@@ -1512,95 +1541,6 @@
         });
         barn.appendChild(chip);
       });
-
-      /* ---------------- one-click auto run: proof-gated run sheet + QC gate between every step ---------------- */
-      /* The steps come from farm-rules.json (run_order); the laws line comes from farm-rules.json (laws). */
-      var WALK = RUN_ORDER.map(function(s){
-        var st = stepState(s.n);
-        return { t: esc(s.name), plain: "Step " + s.n + " — " + s.name + ": " + st + " — " + s.text + " QC: not checked yet.",
-          log: (st === "HELD" ? "<span class='wl-hold'>" : "") + "<b>Step " + esc(s.n) + " — " + esc(s.name) + ": " + st + "</b>" + (st === "HELD" ? "</span>" : "") + " — " + esc(s.text) + " <br>QC: not checked yet." };
-      });
-      var AUTO_PKG = [
-        "RUN SHEET — proof-gated, opened by Start Run. Nothing below is done until the real thing is attached to this run and passes QC.",
-        "THIS RUN — Story — PERSON FIRST: [the Scout's story sentence goes here — Run Order step 2]. Account: @glamorousgrammyglowup (TikTok Shop affiliate account). Built around: the pick — filled in at Step 3. Model: picked at Step 7.",
-        "QC states on every step: QC: not checked yet · QC: passed · QC: SENT BACK — [exactly what's wrong]. A step with no QC pass cannot hand off, and nothing downstream starts.",
-        ""
-      ].concat(WALK.map(function(w){ return w.plain; })).join("\n");
-
-      var autoBtn = document.getElementById("autoRunBtn");
-      var walkStepsEl = document.getElementById("walkSteps");
-      var walkLogEl = document.getElementById("walkLog");
-      var autoPkgEl = document.getElementById("autoPkg");
-      var autoOk = document.getElementById("autoRunOk");
-      var autoRunning = false;
-
-      WALK.forEach(function(s, i){
-        var d = document.createElement("div");
-        d.className = "wstep";
-        d.innerHTML = '<div class="wn">RUN ORDER ' + (i + 1) + '</div><div class="wt">' + s.t + "</div>";
-        walkStepsEl.appendChild(d);
-      });
-      var wstepEls = walkStepsEl.querySelectorAll(".wstep");
-
-      autoBtn.addEventListener("click", function(){
-        if (autoRunning) return;
-        autoRunning = true;
-        autoBtn.textContent = "Opening run…";
-        autoOk.textContent = "";
-        autoPkgEl.hidden = true;
-        autoPkgEl.innerHTML = "";
-        walkStepsEl.hidden = false;
-        walkLogEl.hidden = false;
-        walkLogEl.innerHTML = "";
-        for (var k = 0; k < wstepEls.length; k++) wstepEls[k].className = "wstep";
-        document.getElementById("autorun").scrollIntoView({ behavior:"smooth", block:"center" });
-        var i = 0;
-        var delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 60 : 780;
-        function tick(){
-          if (i > 0) wstepEls[i - 1].className = (i - 1 === 0) ? "wstep done" : "wstep on";
-          if (i >= WALK.length){ finishAutoRun(); return; }
-          wstepEls[i].className = "wstep on";
-          var p = document.createElement("p");
-          p.innerHTML = WALK[i].log;
-          walkLogEl.appendChild(p);
-          walkLogEl.scrollTop = walkLogEl.scrollHeight;
-          i++;
-          setTimeout(tick, delay);
-        }
-        setTimeout(tick, 350);
-      });
-
-      function finishAutoRun(){
-        var r = {
-          account: "@glamorousgrammyglowup",
-          type: "TikTok Shop video",
-          around: "Empty run — the pick lands at Step 3",
-          product: "Picked at Step 3 by the Shop Agent",
-          show: "On screen only — the real listing photo close-up",
-          mode: "Get Ready With Me",
-          when: "Next open slot",
-          notes: "Model photo picked at Step 7 · One-click Start Run — run opened at Step 1, waiting. QC: not checked yet on every step.",
-          status: "Waiting — Step 1",
-          pkg: AUTO_PKG
-        };
-        queue.unshift(r);
-        saveQueue();
-        renderQueue();
-        autoPkgEl.innerHTML =
-          "<h4>Run opened — proof-gated run sheet</h4>" +
-          "<p>It's in <b>My Run Queue</b> below, status <b>Waiting — Step 1</b>, with the full copy-ready prompt. The run opens empty on <b>@glamorousgrammyglowup</b>. No step below is done until the real thing is attached and passes Mila&rsquo;s QC.</p>" +
-          '<div class="pk">AGENT ROLES — ONE CLEAR ROLE EACH</div><ul>' +
-          AGENTS.filter(function(a){ return a.clearRole; }).map(function(a){ return "<li><b>" + a.name + ":</b> " + roleLine(a) + "</li>"; }).join("") + "</ul>" +
-          '<div class="pk">WHERE EACH STEP STANDS</div><ul>' +
-          WALK.map(function(w){ return "<li>" + w.log + "</li>"; }).join("") + "</ul>" +
-          '<div class="rowbtns"><button class="btn btn-cyan mini" id="autoCopy" type="button">Copy the full run prompt</button>' +
-          '<a class="btn btn-ghost mini" href="#queue">See it in my queue ↓</a></div>';
-        autoPkgEl.hidden = false;
-        document.getElementById("autoCopy").addEventListener("click", function(){ copyText(buildRunText(r), this); });
-        autoBtn.textContent = "▶ Start Run";
-        autoOk.textContent = "Run opened — it's in your queue at Step 1, waiting ✓";
-        autoRunning = false;
-      }
 
       /* ---------------- Product-to-Post lane ---------------- */
       function buildFitStarter(name, ptype, notes){

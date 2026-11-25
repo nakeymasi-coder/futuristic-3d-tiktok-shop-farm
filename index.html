@@ -723,7 +723,7 @@
         <div class="sec-head"><span class="idx">04</span><h2>My Run Queue — drafts on this device</h2></div>
         <p class="sec-sub"><strong style="color:var(--ink)">These are your drafts, saved only in this browser on this device.</strong> The real status of every run is on the <a href="#live" style="color:var(--cyan)">Live Run Board</a>. Every run you start lands here and stays here. Its status comes from the farm runner&rsquo;s evidence, never from a dropdown — the steps are Waiting — Step 1 · Blocked — Step 3 pick · Blocked — Step 4 photo · Blocked — Step 5 match · Waiting — Glam (script) · Waiting — Glam (image) · In production · Sent back — QC · Waiting — Mila&rsquo;s check · Waiting — Glam&rsquo;s verdict · Held — freeze ON — copy its prompt any time, or clear it out when it&rsquo;s done. <strong style="color:var(--ink)">In production</strong> only describes a run whose Step 3 pick is in, whose Step 4 listing photo is actually attached, and whose Step 5 Photo Match Check has passed. The run record lives in the run folder — this page is the checklist and the display. Runs are executed by the farm runner from the run folder — status is derived from the evidence in the folder, never set by hand.</p>
         <div id="queueList" aria-live="polite"></div>
-        <div class="qempty" id="queueEmpty"><b>No runs yet.</b><br />Start one up top and it will wait for you right here.</div>
+        <div class="qempty" id="queueEmpty"><b>No drafts.</b><br />Drafts are prompts saved on this device, never runs. Real runs are on the <a href="#live">Live Run Board</a>.</div>
       </section>
 
       <!-- THE WHOLE FARM -->
@@ -1304,17 +1304,8 @@
       });
       inMode.value = "Get Ready With Me";
 
-      var queue = [{
-        account: "@glamorousgrammyglowup",
-        type: "TikTok Shop video",
-        around: "Turmeric + Honey Body Oil (Elowen Lab)",
-        product: "Turmeric + Honey Body Oil (Elowen Lab)",
-        show: "On screen only — the real listing photo close-up",
-        mode: "Get Ready With Me",
-        when: "Next open slot",
-        notes: "Model: Tuesday Blue Bob \u00b7 staging per the Farm Laws",
-        status: "Waiting \u2014 Step 1"
-      }];
+      /* Starts empty: a draft is never a run (Glam, Nov 25). */
+      var queue = [];
       /* My Run Queue is saved in this browser so runs survive a reload; the page still works if storage is blocked. */
       var QUEUE_KEY = "tiktokFarmQueue.v1";
       function saveQueue(){
@@ -1337,8 +1328,8 @@
         if (!queue.length){
           var er = document.createElement("div"); er.className = "run";
           var et = document.createElement("div"); et.className = "time"; et.textContent = "\u2014";
-          var ew = document.createElement("div"); ew.className = "what"; ew.textContent = "No runs yet";
-          var es = document.createElement("small"); es.textContent = "Start one up top and it will show here with its real status.";
+          var ew = document.createElement("div"); ew.className = "what"; ew.textContent = "No drafts";
+          var es = document.createElement("small"); es.textContent = "Drafts are prompts saved on this device. Real runs are on the Live Run Board.";
           ew.appendChild(es);
           var ep = document.createElement("span"); ep.className = "pill pill-q"; ep.textContent = "Empty";
           er.appendChild(et); er.appendChild(ew); er.appendChild(ep);
@@ -1347,7 +1338,7 @@
         }
         queue.forEach(function(r, i){
           var row = document.createElement("div"); row.className = "run";
-          var time = document.createElement("div"); time.className = "time"; time.textContent = i === 0 ? "NOW" : "QUEUED";
+          var time = document.createElement("div"); time.className = "time"; time.textContent = "DRAFT";
           var what = document.createElement("div"); what.className = "what";
           var title = r.around || r.type;
           if (r.type === "Product-to-Post") title = title + " \u2014 Product-to-Post";
@@ -1363,8 +1354,8 @@
           small.textContent = parts.join(" \u00b7 ");
           what.appendChild(small);
           var pill = document.createElement("span");
-          pill.className = "pill " + (r.status === "In production" ? "pill-live" : "pill-q");
-          pill.textContent = r.status;
+          pill.className = "pill pill-q";
+          pill.textContent = "Draft — not a run";
           row.appendChild(time); row.appendChild(what); row.appendChild(pill);
           board.appendChild(row);
         });
@@ -1382,8 +1373,9 @@
           var t = document.createElement("span"); t.className = "qtype"; t.textContent = r.type;
           var a = document.createElement("span"); a.className = "qacct"; a.textContent = r.account;
           var pill = document.createElement("span");
-          pill.className = "qpill " + statusClass[STATUSES.indexOf(r.status)];
-          pill.textContent = r.status;
+          /* A draft on this device is never a run, so it never shows a run's step status. */
+          pill.className = "qpill";
+          pill.textContent = "Draft — not a run";
           top.appendChild(t); top.appendChild(a); top.appendChild(pill);
           card.appendChild(top);
 
@@ -1465,7 +1457,7 @@
           mode: isCheck ? "None" : inMode.value,
           when: document.getElementById("inWhen").value,
           notes: document.getElementById("inNotes").value.trim(),
-          status: "Waiting — Step 1"
+          status: "Draft — not a run"
         };
         queue.unshift(r);
         saveQueue();

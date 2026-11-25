@@ -468,6 +468,7 @@ grep -q 'class="btn btn-pink mini lane-real" href="https://github.com/nakeymasi-
 [ "$(grep -c 'Write a draft prompt (no run)' "$ROOTF/index.html")" = 5 ] && ok "LANES the five lanes without run steps say draft only" "5 buttons" || bad "LANES draft labels" ""
 grep -q 'window.open("https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm/actions/workflows/start-run.yml"' "$ROOTF/index.html" && ! grep -q 'Product-to-Post run added to your queue' "$ROOTF/index.html" && ok "LANES Product-to-Post opens the real run, no queue draft" "index.html" || bad "LANES Product-to-Post" ""
 grep -q 'product:' "$ROOTF/.github/workflows/start-run.yml" && grep -q -- '--pick "$PRODUCT"' "$ROOTF/.github/workflows/start-run.yml" && ok "LANES the workflow takes the product for Product-to-Post" "start-run.yml" || bad "LANES workflow product input" ""
+! grep -q 'status: "Waiting' "$ROOTF/index.html" && grep -q 'pill.textContent = "Draft — not a run"' "$ROOTF/index.html" && grep -q "var queue = \[\];" "$ROOTF/index.html" && ok "QUEUE drafts never show a run's step status, and no sample draft is seeded" "index.html" || bad "QUEUE drafts still look like runs" ""
 grep -q "UP NOW" "$ROOTF/index.html" && ok "BOARD agents light up from the real status" "index.html" || bad "BOARD agent lights" ""
 
 echo; echo "SUMMARY: $P passed, $F failed"

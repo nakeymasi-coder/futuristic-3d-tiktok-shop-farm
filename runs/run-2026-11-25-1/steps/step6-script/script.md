@@ -5,7 +5,7 @@ Angle (Glam, Nov 25, this run): scalp care and how it feels. No damaged-edges or
 
 CTA: the scalp oil is linked below (on screen from the first second, and the caption's first line)
 
-Opener (0 to 3 s, Glam's call for this run): the real listing photo, full screen, unchanged. On-screen text: "When's the last time your scalp got some attention?"
+Opener (0 to 3 s, Glam's call for this run): the real listing photo, full screen, unchanged. This opener replaces the end close-up (Glam, Nov 25): no listing photo at the end; total about 35 s. On-screen text: "When's the last time your scalp got some attention?"
 
 Clip 1 (hook, model to camera, cozy bathroom, chest-up):
 LINE 1: "Sis, when's the last time your scalp got some attention?"

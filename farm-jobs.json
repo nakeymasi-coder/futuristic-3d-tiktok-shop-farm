@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 14:46",
+  "generated_at": "2026-11-25 14:47",
   "rules_version": "2026-11-25f",
   "jobs": [
     {
@@ -10,7 +10,7 @@
       "needs": [
         "Mila (an AI agent) to read the script against the farm laws"
       ],
-      "since": "2026-11-25 14:46",
+      "since": "2026-11-25 14:47",
       "sent_back": [],
       "run_id": "run-2026-11-25-1"
     }

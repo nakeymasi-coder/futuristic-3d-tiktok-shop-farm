@@ -1,5 +1,5 @@
 # JOB — Step 6: Mila (approval gate)
-Run: run-2026-11-25-1 · rules version 2026-11-25f · opened 2026-11-25 14:46 · posting freeze ON
+Run: run-2026-11-25-1 · rules version 2026-11-25f · opened 2026-11-25 14:47 · posting freeze ON
 
 ## 🔒 LOCKED: Locked to your own step, then hand off
 Glam's rule, in her words: "they should hand off automatically to the next agent" and "Nobody should be off trying to do somebody else's job and then get stuck." Each agent does only its own step. The moment its step's output is complete, it hands it in with submit, and the next agent's job opens automatically. No side trips into another step's work: anything a later step needs is that step's job. If you can't finish your own step, stop right away and report BLOCKED: [what] - [why]. Don't search other routes, watch tutorials or stall.
@@ -8,7 +8,7 @@ Glam's rule, in her words: "they should hand off automatically to the next agent
 Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script run-2026-11-25-1 --by Mila. If not, send it back to the Story Agent: runner.py approve-script run-2026-11-25-1 --by Mila --send-back "what to fix". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.
 
 ## Check these (exact files)
-- steps/step6-script/script.md  (sha256 e5b493d4c604d8b2…)
+- steps/step6-script/script.md  (sha256 a2555d2e1d9dfc46…)
 
 ## Farm laws (from farm-rules.json)
 - Real product only: the AI never draws it: Glam's rule (Nov 25), for every product: the product appears ONLY as its real listing photo, label and all, exactly as the listing shows it, in the clean close-up. The video tool never draws or regenerates a product: no AI clip puts the product in frame, not on a counter, not in a hand, not worn. Prompts never describe the product in words or carry label wording. Any AI clip that shows a drawn product fails.

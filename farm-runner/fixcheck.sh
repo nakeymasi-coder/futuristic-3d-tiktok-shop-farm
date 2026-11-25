@@ -615,7 +615,7 @@ for f in ["showcase-products.json","weekly-lineup.json","angle-log.json","scorec
 assert "## Farm brain changelog" in open(f"{r}/README.md").read()
 PYB
 RB=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
-grep -q "Time cap: 5 minutes" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && grep -q "trends-only quick check" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && ok "BRAIN a new run's Scout JOB.md carries the 5-minute cap and trends-only rule" "JOB.md" || bad "BRAIN Scout JOB.md" ""
+grep -q "Time cap: 10 minutes" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && grep -q "trends-only quick check" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && ok "BRAIN a new run's Scout JOB.md carries its time cap and trends-only rule" "JOB.md" || bad "BRAIN Scout JOB.md" ""
 
 python3 - "$ROOTF" <<'PYS' && ok "BRAIN products-only-from-Streamer-Desktop is the first law, on every agent, at the top of every prompt" "first law" || bad "BRAIN streamer rule" ""
 import json,sys,glob
@@ -627,5 +627,32 @@ for f in glob.glob(f"{r}/farm-agents/prompts/*.md"):
 PYS
 RS=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 sed -n 1,6p $HOME/workspace/farm-runs/$RS/steps/step2-scout/JOB.md | grep -q "HARD RULE: Products only from TikTok Shop Streamer Desktop" && ok "BRAIN the Streamer Desktop rule sits at the top of a new run's JOB.md" "JOB.md" || bad "BRAIN streamer rule in JOB.md" ""
+
+python3 - "$ROOTF" <<'PYT' && ok "BRAIN Scout 10 min, photo finisher, ranking facts and repo-first are in the farm brain" "laws + prompts + routines" || bad "BRAIN second round" ""
+import json,sys
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json")); L={l["id"]:l for l in d["laws"]}
+assert {"best-seller-ranking","photo-finisher","repo-first"}<=set(L)
+assert "10-minute" in L["time-cap"]["text"] and "capped at 10 minutes" in L["scout-trends-only"]["text"]
+assert "no sold counts" in L["saved-product-list"]["text"]
+assert all("repo-first" in a["laws"] for a in d["agents"])
+rt=json.load(open(f"{r}/farm-agents/routines.json"))
+pf=[j for j in rt["support_jobs"] if j["role"]=="Photo finisher"][0]
+t=open(f"{r}/farm-agents/{pf['prompt']}").read()
+assert "BLOCKED" in t and "turmeric staples first" in t and "5 minutes" in t
+PYT
+RT=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
+grep -q "Time cap: 10 minutes" $HOME/workspace/farm-runs/$RT/steps/step2-scout/JOB.md && ok "BRAIN the Scout's JOB.md gives it 10 minutes" "JOB.md" || bad "BRAIN Scout 10 min" ""
+
+python3 - "$ROOTF" <<'PYU' && ok "BRAIN Muse job ids, support jobs, farm-data home, freeze and sign-ins are in the farm brain" "routines + laws" || bad "BRAIN round 3" ""
+import json,sys,os
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json")); L={l["id"]:l for l in d["laws"]}
+assert {"glam-signs-in","farm-data-home"}<=set(L) and "No farm job ever posts to TikTok" in L["freeze"]["text"]
+rt=json.load(open(f"{r}/farm-agents/routines.json"))
+assert {a["muse_job"] for a in rt["agents"] if a["muse_job"].startswith("muse_")}=={"muse_farm-agent-"+x for x in ("scout","shop","photo-match","story","casting","video")}
+roles={j["role"]:j for j in rt["support_jobs"]}
+assert roles["Showcase list refresh"]["schedule"]=="once a day" and roles["Weekly lineup"]["schedule"]=="every Monday"
+for f in ("angle-log.json","scorecard.json","showcase-products.json","weekly-lineup.json"):
+    assert not os.path.exists(f"{r}/{f}") and os.path.exists(f"{r}/farm-data/{f}"), f
+PYU
 
 echo; echo "SUMMARY: $P passed, $F failed"

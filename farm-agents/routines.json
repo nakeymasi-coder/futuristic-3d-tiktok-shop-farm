@@ -13,7 +13,8 @@
       "needs": [
         "Glam's Chrome signed in to TikTok"
       ],
-      "trigger_id": "trig_016TdVViR41xAjzXUq1PMHXy"
+      "trigger_id": "trig_016TdVViR41xAjzXUq1PMHXy",
+      "muse_job": "muse_farm-agent-scout"
     },
     {
       "role": "TikTok Shop Agent",
@@ -27,7 +28,8 @@
       "needs": [
         "Glam's Chrome signed in to TikTok Shop Streamer Desktop"
       ],
-      "trigger_id": "trig_01LKpZ959AScxXAX2Pp1x3GE"
+      "trigger_id": "trig_01LKpZ959AScxXAX2Pp1x3GE",
+      "muse_job": "muse_farm-agent-shop"
     },
     {
       "role": "Photo Match checker",
@@ -40,7 +42,8 @@
       "needs": [
         "Glam's Chrome to view the live listing photo"
       ],
-      "trigger_id": "trig_01Q7pp29Qd7nCZvfLFA5RExV"
+      "trigger_id": "trig_01Q7pp29Qd7nCZvfLFA5RExV",
+      "muse_job": "muse_farm-agent-photo-match"
     },
     {
       "role": "Story Agent",
@@ -52,7 +55,8 @@
       "mode": "fresh session per fire, no schedule",
       "next": "Mila",
       "needs": [],
-      "trigger_id": "trig_018QgQ82U3ftnk5jUTTBhCJZ"
+      "trigger_id": "trig_018QgQ82U3ftnk5jUTTBhCJZ",
+      "muse_job": "muse_farm-agent-story"
     },
     {
       "role": "Casting / Image Agent",
@@ -65,7 +69,8 @@
       "needs": [
         "Glam's uploaded model photos (Drive: Glam Claude Handoff)"
       ],
-      "trigger_id": "trig_01ED7gQgBi4QzYPgWwNtwpMH"
+      "trigger_id": "trig_01ED7gQgBi4QzYPgWwNtwpMH",
+      "muse_job": "muse_farm-agent-casting"
     },
     {
       "role": "Video Agent",
@@ -78,7 +83,8 @@
       "needs": [
         "Glam's Chrome signed in to Video Express"
       ],
-      "trigger_id": "trig_01CEMyKoSfyKEJGPt5u4bypb"
+      "trigger_id": "trig_01CEMyKoSfyKEJGPt5u4bypb",
+      "muse_job": "muse_farm-agent-video"
     },
     {
       "role": "Mila",
@@ -96,7 +102,8 @@
         "Mila's public key registered in farm-rules.json mila_signing.public_key (from the workflow's show-key mode, with Glam's yes)"
       ],
       "trigger_id": "trig_01Hx9r53NcUvein4EcnyeCUv",
-      "session_id": ""
+      "session_id": "",
+      "muse_job": "none: Mila stays out of Muse; the coordinator starts her when a gate opens (no Mila automation)"
     }
   ],
   "dispatcher": {
@@ -107,5 +114,33 @@
     "enabled": false,
     "trigger_id": "",
     "why": "Catches a job left waiting when a handoff fire was missed. Costs one short session per hour while on. OFF until Glam says yes."
-  }
+  },
+  "support_jobs": [
+    {
+      "role": "Photo finisher",
+      "steps": [],
+      "prompt": "prompts/photo-finisher.md",
+      "mode": "Muse job, not a run step; 5 minutes per run",
+      "what": "saves the weekly lineup's blocked real listing photos a few at a time, turmeric staples first",
+      "trigger_id": ""
+    },
+    {
+      "role": "Showcase list refresh",
+      "steps": [],
+      "prompt": "",
+      "mode": "Muse job (Indigo created it in Muse), not a run step",
+      "schedule": "once a day",
+      "what": "refreshes farm-data/showcase-products.json from TikTok Shop Streamer Desktop (name, in stock; the showcase page shows no sold counts)",
+      "trigger_id": ""
+    },
+    {
+      "role": "Weekly lineup",
+      "steps": [],
+      "prompt": "",
+      "mode": "Muse job (Indigo created it in Muse), not a run step",
+      "schedule": "every Monday",
+      "what": "picks the week's products into farm-data/weekly-lineup.json from the saved list; turmeric products always included; ranking: scorecard sales first, then past farm runs, then Scout trends",
+      "trigger_id": ""
+    }
+  ]
 }

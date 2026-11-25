@@ -1,3 +1,92 @@
 {
-  "videos": []
+ "account": "@glamorousgrammyglowup",
+ "seeded_at": "2026-11-25",
+ "stats_as_of": "2026-11-25 11:53 EST",
+ "note": "Posting freeze is ON. Seeded read-only from her already-posted TikTok Shop videos (public profile pages). Watch time and sales/orders are NOT shown on public video pages, so those fields are blank — never estimated. Signed-in analytics (TikTok Studio / Streamer Desktop) were not reached in the seed pull: the profile session showed signed out and a slider CAPTCHA stopped further browsing. New farm videos are added once they are live. Formula fields are blank for these pre-farm videos except the hook, which is the caption's first line as posted.",
+ "videos": [
+  {
+   "video_id": "7705715198992157982",
+   "posted": "6d ago (as shown)",
+   "product": "Turmeric + kojic face wash set",
+   "views": 149,
+   "likes": 2,
+   "comments": 0,
+   "shares": null,
+   "avg_watch_time": null,
+   "sales": null,
+   "hook": "It's time for my self-care face routine",
+   "angle": "",
+   "format": ""
+  },
+  {
+   "video_id": "7705709157105601822",
+   "posted": "1w ago (as shown)",
+   "product": "Blanket hoodie",
+   "views": 269,
+   "likes": 1,
+   "comments": 0,
+   "shares": null,
+   "avg_watch_time": null,
+   "sales": null,
+   "hook": "This blanket hoodie is giving cozy all winter long. Stay warm without leaving the couch",
+   "angle": "",
+   "format": ""
+  },
+  {
+   "video_id": "7705703229241232671",
+   "posted": "11-16",
+   "product": "Lemon turmeric shower gel",
+   "views": 96,
+   "likes": 1,
+   "comments": 0,
+   "shares": null,
+   "avg_watch_time": null,
+   "sales": null,
+   "hook": "Lemon turmeric shower gel is a must have for my shower routine.",
+   "angle": "",
+   "format": ""
+  },
+  {
+   "video_id": "7705697868866211102",
+   "posted": "11-15",
+   "product": "Glueless wig (13x4 lace, 26 inch, 180% density)",
+   "views": 423,
+   "likes": 4,
+   "comments": 0,
+   "shares": null,
+   "avg_watch_time": null,
+   "sales": null,
+   "hook": "This wig will make your morning routine 10x easier. No glue needed!",
+   "angle": "",
+   "format": ""
+  },
+  {
+   "video_id": "7705691624944323871",
+   "posted": "11-14",
+   "product": "Peptide serum",
+   "views": 123,
+   "likes": 0,
+   "comments": 0,
+   "shares": null,
+   "avg_watch_time": null,
+   "sales": null,
+   "hook": "This peptide serum is your skin's new BFF",
+   "angle": "",
+   "format": ""
+  },
+  {
+   "video_id": "7705684125839101214",
+   "posted": "11-13",
+   "product": "Shower caddy",
+   "views": 56,
+   "likes": 4,
+   "comments": 0,
+   "shares": null,
+   "avg_watch_time": null,
+   "sales": null,
+   "hook": "I'm not gatekeeping this shower caddy. Game changer for my shower setup.",
+   "angle": "",
+   "format": ""
+  }
+ ]
 }

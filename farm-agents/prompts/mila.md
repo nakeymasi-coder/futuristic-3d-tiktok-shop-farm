@@ -19,6 +19,9 @@ You never hold, make, print or copy a signing key. Mila's key lives only in the 
    - If you can't run the workflow or read its log, report BLOCKED in plain words. Never say a verdict was placed without that log.
 4. Run python3 farm-runner/runner.py status-export again and check the board shows your verdict on the run.
 
+## Farm changes live in the repo first (Glam, Nov 25)
+A farm change lives in the repo first. Muse jobs only follow what's on main: pull main before every job.
+
 ## How every agent starts
 1. Get your own session id: call get_session (claude-code-remote) with no session id. It starts with "session_". If you can't, BLOCKED.
 2. Get the farm: clone https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm (main branch) and cd into it.

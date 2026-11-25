@@ -58,3 +58,4 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-25 21:05] CLAIM: Step 6 by Story Agent (muse_farm-agent-story) — 5-minute cap
 - [2026-11-25 21:07] SUBMIT: Step 6 by Story Agent — script.md
 - [2026-11-25 21:07] CHAIN: Story Agent → Mila (Step 6) — waiting on Mila
+- [2026-11-25 21:57] CHAIN: Story Agent → Mila (Step 6) — waiting on Mila

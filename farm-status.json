@@ -915,6 +915,21 @@
           ],
           "output": "steps/step6-script/script.md (sha256 2b8936dc333b9217…)",
           "result": "waiting on Mila"
+        },
+        {
+          "at": "2026-11-25 21:57",
+          "from": "Story Agent",
+          "to": "Mila",
+          "step": 6,
+          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
+          "inputs": [
+            {
+              "file": "steps/step6-script/script.md",
+              "sha256": "2b8936dc333b921786a3efaa4c5f685f6a74ee71f48b6b688d52b074ce6caa73"
+            }
+          ],
+          "output": "expected: Mila's approval or send-back",
+          "result": "waiting on Mila"
         }
       ],
       "open_job": {
@@ -925,7 +940,7 @@
         "needs": [
           "Mila (an AI agent) to read the script against the farm laws"
         ],
-        "since": "2026-11-25 21:07",
+        "since": "2026-11-25 21:57",
         "sent_back": []
       }
     }

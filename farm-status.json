@@ -286,16 +286,16 @@
     },
     {
       "run_id": "run-2026-11-25-2",
-      "pick": "BASK AND LATHER Scalp Stimulator Hair Growth Oil (Bask and Lather Co)",
-      "model": "Amara",
-      "mode": "Get Ready With Me",
+      "pick": "Bask and Lather Scalp Stimulator Oil, Rosemary & Mint (listing 1729385609961706380)",
+      "model": "",
+      "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 6 (Script) — script on file and passing the script check — waiting on Mila's script approval",
+      "headline": "BLOCKED at Step 2 (Scout) — no scout findings on file (steps/step2-scout/scout.md)",
       "state": "BLOCKED",
-      "open_step": 6,
-      "open_step_name": "Script",
-      "needs": "Mila — needs: an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
-      "owner": "Mila",
+      "open_step": 2,
+      "open_step_name": "Scout",
+      "needs": "TikTok Scout — needs: the farm's TikTok browser (Glam keeps it signed in) to read today's trends; an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
+      "owner": "TikTok Scout",
       "steps": [
         {
           "n": 1,
@@ -307,64 +307,64 @@
         {
           "n": 2,
           "name": "Scout",
-          "state": "CLEARED",
-          "reason": "scout findings + story sentence on file (smart story check passed)",
+          "state": "WAITING",
+          "reason": "no scout findings on file (steps/step2-scout/scout.md)",
           "agent": "TikTok Scout"
         },
         {
           "n": 3,
           "name": "Pick",
-          "state": "CLEARED",
-          "reason": "pick recorded: BASK AND LATHER Scalp Stimulator Hair Growth Oil (Bask and Lather Co)",
+          "state": "WAITING",
+          "reason": "no pick record on file (steps/step3-pick/pick.md)",
           "agent": "TikTok Shop Agent"
         },
         {
           "n": 4,
           "name": "Product Photo",
-          "state": "CLEARED",
-          "reason": "listing photo attached: bask-lather-listing-photo.png",
+          "state": "WAITING",
+          "reason": "no product photo attached — no photo in hand, no scene, no script, full stop",
           "agent": "TikTok Shop Agent (grabs the listing photo)"
         },
         {
           "n": 5,
           "name": "Photo Match Check",
-          "state": "CLEARED",
-          "reason": "photo MATCH recorded by Independent Photo Match Checker (did not grab the photo) (grabber: TikTok Scout (Glam signed in, her Chrome)) against the listing's own image",
+          "state": "WAITING",
+          "reason": "no match verdict recorded — the grabbed photo has not been checked against the listing's own image",
           "agent": "A checker who did not grab the photo"
         },
         {
           "n": 6,
           "name": "Script",
           "state": "WAITING",
-          "reason": "script on file and passing the script check — waiting on Mila's script approval",
-          "agent": "Mila (script approval)"
+          "reason": "no script on file (steps/step6-script/script.md)",
+          "agent": "Story Agent (writes or fixes the script)"
         },
         {
           "n": 7,
           "name": "Styled Image",
           "state": "WAITING",
-          "reason": "model photo on file (model-amara.jpg) — waiting on Mila's model photo approval",
+          "reason": "no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
           "agent": "Casting agent (Glam's uploaded model), then Mila approves"
         },
         {
           "n": 8,
           "name": "Package",
-          "state": "INVALID",
-          "reason": "package FAILS lint (BEFORE-AFTER, CAPTION, DRAWN PRODUCT) — 5 blocking finding(s); run `lint` for detail",
+          "state": "WAITING",
+          "reason": "no package on file (steps/step8-package/package.md)",
           "agent": "Story Agent + Video Agent (package)"
         },
         {
           "n": 9,
           "name": "Build",
-          "state": "INVALID",
-          "reason": "clip length check FAILS before Mila — FINAL-run-2026-11-25-2.mp4 runs 22.7 seconds — every clip is 8 seconds flat and the finished video is 4 clips plus the 1 to 2 second close-up (about 33.5 seconds)",
+          "state": "WAITING",
+          "reason": "no build files on file (steps/step9-builds/)",
           "agent": "Indigo (build)"
         },
         {
           "n": 10,
           "name": "Checks — Mila (QC owner)",
           "state": "WAITING",
-          "reason": "the verdict on file was collected before verdicts were tied to the exact builds — Mila's check needs to be collected again for these builds",
+          "reason": "no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build",
           "agent": "Mila (QC)"
         },
         {
@@ -375,17 +375,12 @@
           "agent": "Glam (lifts the freeze)"
         }
       ],
-      "review_status": "Not ready — waiting on Mila's check",
-      "watch_links": [
-        {
-          "file": "FINAL-run-2026-11-25-2.mp4",
-          "url": ""
-        }
-      ],
+      "review_status": "No build yet",
+      "watch_links": [],
       "is_test": false,
       "handoffs": [
         {
-          "at": "2026-11-25 01:03",
+          "at": "2026-11-25 15:40",
           "from": "Start a Run",
           "to": "TikTok Scout",
           "step": 2,
@@ -393,89 +388,18 @@
           "inputs": [],
           "output": "expected: steps/step2-scout/scout.md",
           "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 01:20",
-          "from": "Start a Run",
-          "to": "TikTok Shop Agent",
-          "step": 3,
-          "what": "job opened for TikTok Shop Agent: pick.md with a product: line and the listing ID/link",
-          "inputs": [
-            {
-              "file": "steps/step2-scout/scout.md",
-              "sha256": "f44e44bc690662f03bf7f39667ae9e84381b9114fdc61c30929d99e21090dd1f"
-            }
-          ],
-          "output": "expected: steps/step3-pick/pick.md",
-          "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 16:29",
-          "from": "Start a Run",
-          "to": "Story Agent",
-          "step": 6,
-          "what": "SENT BACK to Story Agent: script line 5 sets up a before-and-after ('before/after') — never, for any product",
-          "inputs": [
-            {
-              "file": "steps/step2-scout/scout.md",
-              "sha256": "f44e44bc690662f03bf7f39667ae9e84381b9114fdc61c30929d99e21090dd1f"
-            },
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "839a6ef751129ca22128654b63e0b3ea9f8385ee8df19804d204bf9d6d9417cc"
-            },
-            {
-              "file": "steps/step4-photo/bask-lather-listing-photo.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step4-photo/bask-lather-listing-photo.webp",
-              "sha256": "4c6294b4b656aae230bd87746bdf94cd67debec6e5ee771ce9a6b1e816fc306d"
-            }
-          ],
-          "output": "expected: steps/step6-script/script.md",
-          "result": "sent back"
-        },
-        {
-          "at": "2026-11-25 16:59",
-          "from": "Story Agent",
-          "to": "Mila",
-          "step": 6,
-          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
-          "inputs": [
-            {
-              "file": "steps/step6-script/script.md",
-              "sha256": "bcd989506c0d4d0f45be4512f36eab610e214f529cad669b3262551196068476"
-            }
-          ],
-          "output": "steps/step6-script/script.md (sha256 bcd989506c0d4d0f…)",
-          "result": "waiting on Mila"
-        },
-        {
-          "at": "2026-11-25 17:02",
-          "from": "Story Agent",
-          "to": "Mila",
-          "step": 6,
-          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
-          "inputs": [
-            {
-              "file": "steps/step6-script/script.md",
-              "sha256": "bcd989506c0d4d0f45be4512f36eab610e214f529cad669b3262551196068476"
-            }
-          ],
-          "output": "expected: Mila's approval or send-back",
-          "result": "waiting on Mila"
         }
       ],
       "open_job": {
-        "step": 6,
-        "agent": "Mila",
-        "job_file": "steps/step6-script/JOB.md",
-        "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "step": 2,
+        "agent": "TikTok Scout",
+        "job_file": "steps/step2-scout/JOB.md",
+        "job": "Trends-only quick check, capped at 10 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
         "needs": [
-          "Mila (an AI agent) to read the script against the farm laws"
+          "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
+          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
-        "since": "2026-11-25 17:02",
+        "since": "2026-11-25 15:40",
         "sent_back": []
       }
     },

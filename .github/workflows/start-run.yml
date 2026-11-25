@@ -1,9 +1,17 @@
-# Start Run — the red button on the farm page opens this page on GitHub.
-# Glam taps "Run workflow" and a REAL run opens: the farm runner creates it,
-# then publishes the run folder and its live status to the "farm-status"
+# Start Run — a REAL run opens two ways:
+#  1. A push from Muse (Glam, Nov 25: "that's how it's supposed to be"): Muse
+#     pushes a NEW file to farm-requests/ on main, e.g.
+#     farm-requests/2026-11-25-bask-lather.json = {"mode": "", "product": "...",
+#     "account": "@glamorousgrammyglowup"}. One new file = one run. Changed or
+#     deleted files start nothing, and a file never starts a second run.
+#  2. The red button on the farm page (Run workflow here), kept as a backup.
+# The farm runner creates the run, then publishes it to the "farm-status"
 # branch, where the Live Run Board and every agent read it. It never posts.
 name: Start a farm run
 on:
+  push:
+    branches: [main]
+    paths: ["farm-requests/*.json"]
   workflow_dispatch:
     inputs:
       mode:
@@ -28,7 +36,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Open a run for each new request file Muse pushed
+        if: ${{ github.event_name == 'push' }}
+        env:
+          FARM_HOME: ${{ runner.temp }}/farmhome
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          mkdir -p "$FARM_HOME"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            git show --name-only --diff-filter=A --format= -z "$AFTER" -- 'farm-requests/*.json' > new.txt
+          else
+            git diff --name-only --diff-filter=A -z "$BEFORE" "$AFTER" -- 'farm-requests/*.json' > new.txt
+          fi
+          COUNT=0; FAILED=0
+          while IFS= read -r -d '' f; do
+            case "$f" in farm-requests/*/*) continue;; esac
+            COUNT=$((COUNT+1))
+            echo "== Request $f"
+            HOME="$FARM_HOME" python3 farm-runner/runner.py start-request "$f" 2>&1 | tee out.txt || true
+            grep -q "^Status published to the Live Run Board" out.txt || { echo "::error::$f did not open a run on the Live Run Board. See the lines above."; FAILED=1; }
+          done < new.txt
+          [ "$COUNT" -gt 0 ] || echo "No new request files in this push, so no run was opened."
+          exit $FAILED
       - name: Open the run and publish it to the Live Run Board
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           FARM_HOME: ${{ runner.temp }}/farmhome
           MODE: ${{ inputs.mode }}

@@ -904,7 +904,33 @@ def session_guard(run, role, step, args, what):
     with ledger_path(run).open("a", encoding="utf-8") as fh:
         fh.write(json.dumps({"at": now_stamp(), "step": step, "role": role,
                              "session": sid, "what": what}) + "\n")
+    clear_blocked_report(run, step, f"{role} handed in")
     return sid
+
+
+# ---- An agent that can't do its step says so on the board at once (Glam,
+# Nov 25: "the scout hit the security wall and never told me").
+def blocked_report_path(run, step):
+    d = STEP_DIRS.get(step)
+    return (run / "steps" / d / "BLOCKED.md") if d else None
+
+
+def blocked_report(run, step):
+    p = blocked_report_path(run, step) if step else None
+    if p and p.is_file():
+        kv = parse_kv(p)
+        if kv.get("reason"):
+            return kv
+    return None
+
+
+def clear_blocked_report(run, step, why):
+    p = blocked_report_path(run, step)
+    if p and p.is_file():
+        kv = parse_kv(p)
+        p.unlink()
+        sheet_log(run, f"BLOCKED report on Step {step} cleared ({why}) — "
+                       f"was: {kv.get('by', '?')}: {kv.get('reason', '')}")
 
 
 def covers_for(paths):
@@ -1499,7 +1525,15 @@ def render_status(run):
     for n, name, state, reason in results:
         out.append(f"  Step {n:<2} {name:<28} {state:<8} {reason}")
     out.append("")
-    out.append(f"HEADLINE: {headline(results)}")
+    info = open_job_info(run)
+    br = blocked_report(run, info.get("step")) \
+        if info["kind"] in ("agent", "mila") else None
+    if br:
+        out.append(f"HEADLINE: BLOCKED at Step {info['step']} — "
+                   f"{br.get('by', info['agent'])} reported BLOCKED: "
+                   f"{br['reason']} ({br.get('at', '')})")
+    else:
+        out.append(f"HEADLINE: {headline(results)}")
     return "\n".join(out), results
 
 
@@ -1548,6 +1582,8 @@ def cmd_create(args):
         "mode": args.mode,
         "freeze": "ON",
     }
+    if getattr(args, "request", ""):
+        cfg["request"] = args.request
     (run / "config.json").write_text(json.dumps(cfg, indent=2) + "\n",
                                      encoding="utf-8")
     sheet = f"""# RUN SHEET — {run_id}
@@ -1589,6 +1625,89 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
           f"(Step {info.get('step')}).")
     write_status_file()
     return 0
+
+
+def cmd_report_blocked(args):
+    """An agent that can't do its step reports BLOCKED; the board shows it at
+    once. Nothing moves. --clear takes the report down once it's fixed."""
+    run = resolve_run(args.run)
+    info = open_job_info(run)
+    n = args.step
+    if args.clear:
+        if not blocked_report(run, n):
+            print(f"No BLOCKED report on Step {n}.")
+            return 0
+        clear_blocked_report(run, n, f"cleared by {args.by}")
+        write_status_file()
+        print(f"BLOCKED report on Step {n} cleared by {args.by}.")
+        return 0
+    if info["kind"] not in ("agent", "mila") or info["step"] != n:
+        now = (f"Step {info['step']} — {info['to']}" if info["step"]
+               else "Glam's final review")
+        print(f"REPORT REFUSED — Step {n} isn't the open job. The chain is at "
+              f"{now}.")
+        return 2
+    who_ok = (args.by.strip().lower() == "mila") if info["kind"] == "mila" \
+        else by_allowed(n, args.by)
+    if not who_ok:
+        print(f"REPORT REFUSED — Step {n} belongs to {info['agent']}; "
+              f"'{args.by}' can't report for it.")
+        return 2
+    reason = " ".join(str(args.reason or "").split())
+    if len(reason) < 5:
+        print("REPORT REFUSED — say what blocked you and why (--reason).")
+        return 2
+    p = blocked_report_path(run, n)
+    p.write_text(f"by: {args.by}\nstep: {n}\nreason: {reason}\n"
+                 f"session: {args.session or ''}\nat: {now_stamp()}\n",
+                 encoding="utf-8")
+    sheet_log(run, f"BLOCKED: Step {n} — {args.by}: {reason}")
+    write_status_file()
+    print(f"BLOCKED reported on the board: {load_config(run)['run_id']} Step "
+          f"{n} — {args.by}: {reason}. Nothing moves until it's fixed.")
+    return 0
+
+
+REQUEST_KEYS = {"mode", "product", "account"}
+
+
+def cmd_start_request(args):
+    """Open a run from a request file pushed to farm-requests/ (Glam, Nov 25:
+    a push from Muse starts the run; no button press needed)."""
+    src = Path(args.file)
+    try:
+        req = json.loads(src.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"START REFUSED — {src} is not a readable JSON request: {e}")
+        return 2
+    if not isinstance(req, dict):
+        print(f"START REFUSED — {src} must hold one JSON object.")
+        return 2
+    extra = set(req) - REQUEST_KEYS
+    if extra:
+        print(f"START REFUSED — {src} has unknown field(s): "
+              f"{', '.join(sorted(extra))}. Allowed: mode, product, account.")
+        return 2
+    vals = {}
+    for k in REQUEST_KEYS:
+        v = req.get(k, "")
+        if not isinstance(v, str) or len(v) > 300 or "\n" in v:
+            print(f"START REFUSED — '{k}' must be one line of text.")
+            return 2
+        vals[k] = v.strip()
+    name = src.name
+    if RUNS_DIR.is_dir():
+        for d in sorted(RUNS_DIR.iterdir()):
+            c = d / "config.json"
+            if c.is_file() and json.loads(c.read_text()).get("request") == name:
+                print(f"START REFUSED — request {name} already started "
+                      f"{d.name}. Push a new request file for a new run.")
+                return 2
+    ns = argparse.Namespace(mode=vals["mode"], product=vals["product"],
+                            account=vals["account"] or "@glamorousgrammyglowup",
+                            pick=vals["product"], pick_id="", model="",
+                            by=f"Muse request {name}", request=name)
+    return cmd_create(ns)
 
 
 def cmd_status(args):
@@ -2640,7 +2759,7 @@ def cmd_check_rules(args):
 # ----------------------------------------------------------------------------
 
 AGENTS = {int(a["step"]): a for a in RULES.get("agents", [])}
-CHAIN_SKIP_NAMES = {"JOB.md", "GRABBED-BY.txt", "links.md",
+CHAIN_SKIP_NAMES = {"JOB.md", "BLOCKED.md", "GRABBED-BY.txt", "links.md",
                     "verdict-covers.json", "staging-proof.md"}
 
 
@@ -2797,6 +2916,9 @@ def mila_gate_job_md(run, info):
            f"opened {now_stamp()} · posting freeze ON\n",
            locked_rule_line(),
            "## Your job", g["job"].replace("<run>", cfg["run_id"]) + "\n",
+           f"Can't do it? Stop, and put it on the board at once: runner.py "
+           f"report-blocked {cfg['run_id']} --step {n} --by Mila --reason "
+           "\"what blocked you and why\"\n",
            "## Check these (exact files)"]
     out += [f"- {f.relative_to(run)}  (sha256 {sha256_file(f)[:16]}…)"
             for f in g["files"](run)]
@@ -2845,6 +2967,10 @@ def job_md(run, info):
     else:
         out.append(f"- Submit with: runner.py submit {cfg['run_id']} --step {n} "
                    f"--by \"{a.get('agent', '').split(' + ')[0]}\" --file <your file>")
+    out.append(f"- Can't do it? Stop, and put it on the board at once: "
+               f"runner.py report-blocked {cfg['run_id']} --step {n} --by "
+               f"\"{a.get('agent', '').split(' + ')[0]}\" --reason \"what blocked you "
+               "and why\"")
     out.append(f"- Hands to: {a.get('hands_to', '')}")
     out.append("\n## What this job needs that the runner can't do by itself")
     out += [f"- {x}" for x in a.get("needs", [])]
@@ -3122,6 +3248,14 @@ def run_status_entry(run):
         elif info["kind"] == "glam":
             owner = "Glam"
             needs = f"Glam — {info['what']}"
+        br = blocked_report(run, info.get("step")) \
+            if info["kind"] in ("agent", "mila") else None
+        if br:
+            state = "STOPPED"
+            needs = (f"{br.get('by', info['agent'])} reported BLOCKED: "
+                     f"{br['reason']}")
+            head = (f"BLOCKED at Step {info['step']} — {needs} "
+                    f"({br.get('at', '')})")
     return {
         "run_id": cfg["run_id"],
         "pick": pick,
@@ -3316,6 +3450,19 @@ def main():
 
     p = sub.add_parser("status-export", help="write farm-status.json (every run's live status) for the farm page")
     p.set_defaults(fn=cmd_status_export)
+
+    p = sub.add_parser("report-blocked", help="an agent that can't do its step reports BLOCKED to the board at once (--clear once fixed)")
+    p.add_argument("run")
+    p.add_argument("--step", type=int, required=True)
+    p.add_argument("--by", required=True)
+    p.add_argument("--reason", default="")
+    p.add_argument("--session", default="")
+    p.add_argument("--clear", action="store_true")
+    p.set_defaults(fn=cmd_report_blocked)
+
+    p = sub.add_parser("start-request", help="open a run from a farm-requests/*.json file (what a push from Muse runs)")
+    p.add_argument("file")
+    p.set_defaults(fn=cmd_start_request)
 
     args = ap.parse_args()
     if args.cmd not in ("check-rules", "mila-sign", "mila-keygen"):

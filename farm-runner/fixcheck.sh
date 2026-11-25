@@ -546,4 +546,44 @@ OUT=$(wfsign session_WFTESTMila0001); expect "MILAWF the workflow signs with Mil
 [ ! -e /tmp/fx_wf/rt/mila-key ] && ok "MILAWF the key file is wiped after signing" "gone" || bad "MILAWF key wiped after signing" ""
 OUT=$($R proof $RW); expect "MILAWF proof shows the workflow's verdict under Mila's own session" "Step 6 +Mila +session_WFTESTMila0001" "$OUT"
 
+# ---------- MUSE PUSH STARTS A RUN (Glam, Nov 25): a new farm-requests/*.json pushed to main opens the run
+printf '{"mode": "", "product": "TEST Scalp Oil", "account": "@glamorousgrammyglowup"}\n' > /tmp/fx/req-a.json
+OUT=$($R start-request /tmp/fx/req-a.json 2>&1); RQ=$(echo "$OUT" | sed -n 's/^Run ID: //p'); expect "PUSHRUN a request file opens a run and the Scout's job" "Chain: job opened for TikTok Scout" "$OUT"
+OUT=$(python3 -c "import json;c=json.load(open('$HOME/workspace/farm-runs/$RQ/config.json'));print(c['pick'],'|',c['request'],'|',c['created_by'])"); expect "PUSHRUN the run records the product and which request opened it" "^TEST Scalp Oil \| req-a.json \| Muse request req-a.json" "$OUT"
+OUT=$($R start-request /tmp/fx/req-a.json 2>&1; echo "exit $?"); expect "PUSHRUN the same request never opens a second run" "already started $RQ.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+printf '{"product": "x", "post": true}\n' > /tmp/fx/req-b.json
+OUT=$($R start-request /tmp/fx/req-b.json 2>&1; echo "exit $?"); expect "PUSHRUN unknown fields are refused" "unknown field.*post.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+python3 - "$ROOTF/.github/workflows/start-run.yml" <<'PYW' && ok "PUSHRUN the workflow starts on a push of farm-requests/*.json to main, and the button still works" "push + workflow_dispatch" || bad "PUSHRUN workflow triggers" ""
+import sys,yaml
+d=yaml.safe_load(open(sys.argv[1])); on=d[True]
+assert on["push"]["branches"]==["main"] and on["push"]["paths"]==["farm-requests/*.json"], on
+assert "workflow_dispatch" in on and set(on["workflow_dispatch"]["inputs"])=={"mode","product","account"}
+PYW
+# The workflow's own push step, run against a scratch repo with a stand-in runner: only NEW top-level request files open runs.
+python3 - "$ROOTF/.github/workflows/start-run.yml" <<'PYW'
+import sys,yaml
+for st in yaml.safe_load(open(sys.argv[1]))["jobs"]["start-run"]["steps"]:
+    if st.get("name","").startswith("Open a run for each new request"): open("/tmp/fx_push.sh","w").write(st["run"])
+PYW
+PR=/tmp/fx_pushrepo; mkdir -p $PR/farm-runner $PR/farm-requests/old; cd $PR; git init -q; git config user.email t@t; git config user.name t
+printf 'import sys\nprint("Opened for "+sys.argv[2])\nprint("Status published to the Live Run Board")\n' > farm-runner/runner.py
+echo '{}' > farm-requests/a.json; git add -A; git commit -qm one; C1=$(git rev-parse HEAD)
+OUT=$(BEFORE=0000000000000000000000000000000000000000 AFTER=$C1 FARM_HOME=$PR/h bash -e /tmp/fx_push.sh 2>&1); expect "PUSHRUN first push: the new request opens a run" "Opened for farm-requests/a.json" "$OUT"
+echo '{"mode":"x"}' > farm-requests/a.json; echo '{}' > farm-requests/b.json; echo '{}' > farm-requests/old/c.json; git add -A; git commit -qm two; C2=$(git rev-parse HEAD)
+OUT=$(BEFORE=$C1 AFTER=$C2 FARM_HOME=$PR/h bash -e /tmp/fx_push.sh 2>&1); expect "PUSHRUN next push: only the NEW file opens a run (edited and sub-folder files don't)" "^== Request farm-requests/b.json Opened for farm-requests/b.json Status published to the Live Run Board$" "$(echo "$OUT"|tr '\n' ' '|sed 's/ *$//')"
+git rm -q farm-requests/b.json; git commit -qm three; C3=$(git rev-parse HEAD)
+OUT=$(BEFORE=$C2 AFTER=$C3 FARM_HOME=$PR/h bash -e /tmp/fx_push.sh 2>&1); expect "PUSHRUN deleting a request file opens nothing" "No new request files" "$OUT"
+cd "$ROOTF"
+
+# ---------- REPORT BLOCKED (Glam, Nov 25: the scout hit the security wall and never told her)
+OUT=$($R report-blocked $RQ --step 3 --by "TikTok Shop Agent" --reason "test" 2>&1; echo "exit $?"); expect "BLOCKEDREPORT only the open step can be reported" "isn't the open job.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R report-blocked $RQ --step 2 --by "Story Agent" --reason "TikTok asked for a text code" 2>&1; echo "exit $?"); expect "BLOCKEDREPORT another agent can't report for the Scout" "belongs to TikTok Scout.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R report-blocked $RQ --step 2 --by "TikTok Scout" --reason "TikTok Shop Streamer Desktop asked for a text code; only Glam can pass it" 2>&1); expect "BLOCKEDREPORT the Scout reports BLOCKED" "BLOCKED reported on the board" "$OUT"
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RQ'][0];print(r['state'],'|',r['headline'],'|',r['needs'])"); expect "BLOCKEDREPORT the board shows it at once, in the Scout's words" "^STOPPED \| BLOCKED at Step 2 — TikTok Scout reported BLOCKED: TikTok Shop Streamer Desktop asked for a text code" "$OUT"
+OUT=$($R status $RQ | grep HEADLINE); expect "BLOCKEDREPORT status shows it too" "HEADLINE: BLOCKED at Step 2 — TikTok Scout reported BLOCKED" "$OUT"
+printf 'Findings: x\nStory: Your scalp gets tight after a long week of braids.\n' > /tmp/fx/scoutq.md
+$R submit $RQ --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md >/dev/null
+[ ! -e $HOME/workspace/farm-runs/$RQ/steps/step2-scout/BLOCKED.md ] && grep -q "BLOCKED report on Step 2 cleared (TikTok Scout handed in)" $HOME/workspace/farm-runs/$RQ/RUN-SHEET.md && ok "BLOCKEDREPORT the report clears when the Scout hands in (kept in the gate log)" "cleared" || bad "BLOCKEDREPORT clears on hand-in" ""
+grep -q "report-blocked" $HOME/workspace/farm-runs/$RQ/steps/step3-pick/JOB.md && ok "BLOCKEDREPORT every JOB.md says how to report BLOCKED" "JOB.md" || bad "BLOCKEDREPORT JOB.md line" ""
+
 echo; echo "SUMMARY: $P passed, $F failed"

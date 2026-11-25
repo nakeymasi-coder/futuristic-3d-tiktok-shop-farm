@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 17:29",
+  "generated_at": "2026-11-25 17:32",
   "rules_version": "2026-11-25k",
   "freeze": "ON",
   "runs": [
@@ -674,12 +674,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 2 (Scout) — no scout findings on file (steps/step2-scout/scout.md)",
+      "headline": "BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/pick.md)",
       "state": "BLOCKED",
-      "open_step": 2,
-      "open_step_name": "Scout",
-      "needs": "TikTok Scout — needs: the farm's TikTok browser (Glam keeps it signed in) to read today's trends; an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
-      "owner": "TikTok Scout",
+      "open_step": 3,
+      "open_step_name": "Pick",
+      "needs": "TikTok Shop Agent — needs: TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product",
+      "owner": "TikTok Shop Agent",
       "steps": [
         {
           "n": 1,
@@ -691,8 +691,8 @@
         {
           "n": 2,
           "name": "Scout",
-          "state": "WAITING",
-          "reason": "no scout findings on file (steps/step2-scout/scout.md)",
+          "state": "CLEARED",
+          "reason": "scout findings + story sentence on file (smart story check passed)",
           "agent": "TikTok Scout"
         },
         {
@@ -775,13 +775,12 @@
         }
       ],
       "open_job": {
-        "step": 2,
-        "agent": "TikTok Scout",
-        "job_file": "steps/step2-scout/JOB.md",
-        "job": "Trends-only quick check, capped at 10 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "step": 3,
+        "agent": "TikTok Shop Agent",
+        "job_file": "steps/step3-pick/JOB.md",
+        "job": "Pick the day's product from this week's lineup (farm-data/weekly-lineup.json). Start with the stock and price check: a sold-out product gets skipped and the next one is picked. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
         "needs": [
-          "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
-          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+          "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
         ],
         "since": "2026-11-25 16:26",
         "sent_back": []

@@ -924,7 +924,7 @@
       var FORM = R.form || {};
       var MODES = FORM.modes || [];
       var STATUSES = ["Waiting — Step 1","Blocked — Step 3 pick","Blocked — Step 4 photo","Blocked — Step 5 match","Waiting — Glam (script)","Waiting — Glam (image)","In production","Sent back — QC","Waiting — Mila's check","Waiting — Glam's verdict","Held — freeze ON"];
-      var LAW_ICONS = {"exact-product":"🎯","words":"⏱️","hook":"🗣️","cta":"🛒","no-use-claims":"🙅🏾‍♀️","no-prices":"🚫","casting":"🧍","staging":"🧴","hashtags":"#️⃣","keywords":"🔎","repeats":"🔁","labels":"🏷️","qc":"🔍","freeze":"🧊","blocked":"🛑","no-dead-air":"✂️","feel-human":"👁️","live-games":"🎃","ptp-sequence":"👗","verify-listing":"📋"};
+      var LAW_ICONS = {"exact-product":"🎯","no-health-claims":"⛔","words":"⏱️","hook":"🗣️","cta":"🛒","no-use-claims":"🙅🏾‍♀️","no-prices":"🚫","casting":"🧍","staging":"🧴","hashtags":"#️⃣","keywords":"🔎","repeats":"🔁","labels":"🏷️","qc":"🔍","freeze":"🧊","blocked":"🛑","no-dead-air":"✂️","feel-human":"👁️","live-games":"🎃","ptp-sequence":"👗","verify-listing":"📋"};
       function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
       function lawById(id){ for (var i = 0; i < LAWS.length; i++){ if (LAWS[i].id === id) return LAWS[i]; } return null; }
       function lawsText(ids){ return (ids ? ids.map(lawById).filter(Boolean) : LAWS).map(function(l){ return l.title + ": " + l.text; }); }
@@ -1039,7 +1039,7 @@
           grid.innerHTML = LAWS.map(lawCard).join("");
         }
         function fillLaws(id, ids){ var el = document.getElementById(id); if (el) el.innerHTML = ids.map(lawById).filter(Boolean).map(lawCard).join(""); }
-        fillLaws("ggLaws", ["exact-product","no-use-claims","labels","no-prices"]);
+        fillLaws("ggLaws", ["no-health-claims","exact-product","no-use-claims","labels","no-prices"]);
         function fillList(id, ids){ var el = document.getElementById(id); if (el) el.innerHTML = ids.map(lawById).filter(Boolean).map(function(l){ return "<li><b>" + esc(l.title) + ":</b> " + esc(l.text) + "</li>"; }).join(""); }
         fillList("fcCasting", ["casting"]);
         fillList("fcFidelity", ["exact-product","no-use-claims"]);

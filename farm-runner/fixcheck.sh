@@ -12,6 +12,17 @@ bad(){ F=$((F+1)); echo "FAIL  $1 :: $2"; }
 # expect <label> <grep-pattern> <text>
 expect(){ if echo "$3" | grep -qE -- "$2"; then ok "$1" "$(echo "$3" | grep -E -- "$2" | head -1 | sed 's/  */ /g' | cut -c1-150)"; else bad "$1" "$(echo "$3" | head -3 | tr '\n' ' ' | cut -c1-200)"; fi; }
 python3 -c "open('/tmp/fx_p.png','wb').write(b'\x89PNG\r\n\x1a\n')"
+# Glam, Nov 25: runs refuse an old rules copy (tests compare against the repo
+# copy), builds are measured (real tiny mp4s), Mila's gates need her signature.
+ROOTF="$(cd "$(dirname "$0")/.." && pwd)"
+export FARM_LIVE_RULES_URL="file://$ROOTF/farm-rules.json"
+ffmpeg -v error -y -f lavfi -i color=c=black:s=16x16:r=1 -t 34 -c:v libx264 -pix_fmt yuv420p /tmp/fx_base34.mp4
+ffmpeg -v error -y -f lavfi -i color=c=black:s=16x16:r=1 -t 8 -c:v libx264 -pix_fmt yuv420p /tmp/fx_base8.mp4
+ffmpeg -v error -y -f lavfi -i color=c=black:s=16x16:r=1 -t 5 -c:v libx264 -pix_fmt yuv420p /tmp/fx_base5.mp4
+# vid <path> <tag> [base]: a real 34 s mp4 made unique by a trailing 'free' box
+vid(){ python3 -c "import sys,struct;b=open(sys.argv[3],'rb').read();t=sys.argv[2].encode();open(sys.argv[1],'wb').write(b+struct.pack('>I4s',8+len(t),b'free')+t)" "$1" "$2" "${3:-/tmp/fx_base34.mp4}"; }
+# sv <out> <run> <verdict> <builds-dir>: Mila signs a Step 10 verdict on the exact builds
+sv(){ local a=(); for f in "$4"/*.mp4; do a+=(--file "$f"); done; $R mila-sign --run "$2" --step 10 --verdict "$3" "${a[@]}" --out "$1" >/dev/null; }
 
 # ---------- #13 create with no pick/model
 OUT=$($R create --mode "Get Ready With Me" 2>&1); expect "#13 create without --pick/--model" "^Created" "$OUT"
@@ -103,60 +114,59 @@ K=$D/step8-package/package.md
 CAP='Caption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n'
 lint(){ printf "%b" "$2$CAP" > $K; OUT=$($R lint $RUN 2>&1); expect "$1" "$3" "$OUT"; }
 lint "#4 jar/tube/'product in her hand' fails" 'References: approved styled image + the real listing photo\nClip 2: she picks up the jar and lifts it to camera.\nClip 3: she holds the tube up next to her face.\nClip 4: product in her hand, spraying.\n' "LINT RESULT: FAIL"
-OUT2=$(echo "$OUT" | grep -c "\[STAGING\]"); [ "$OUT2" -ge 3 ] && ok "#4 three handling lines caught" "STAGING findings: $OUT2" || bad "#4 three handling lines caught" "STAGING findings: $OUT2"
-lint "#4 stationary jar passes" 'References: approved styled image + the real listing photo\nC01 - 8 seconds. She smiles at the counter, the jar sits on the counter untouched.\n' "package passes"
+OUT2=$(echo "$OUT" | grep -c "\[DRAWN PRODUCT\]"); [ "$OUT2" -ge 3 ] && ok "#4 three handling lines caught" "DRAWN PRODUCT findings: $OUT2" || bad "#4 three handling lines caught" "DRAWN PRODUCT findings: $OUT2"
+lint "EVERY a jar drawn on the counter now fails (real listing photo only)" 'References: approved styled image + the real listing photo\nC01 - 8 seconds. She smiles at the counter, the jar sits on the counter untouched.\n' "LINT RESULT: FAIL"
 lint "#28 five 10-second clips fail" 'References: styled image + listing photo\nClip 1 (10 seconds): "one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen"\nClip 2 (10 seconds)\nClip 3 (10 seconds)\nClip 4 (10 seconds)\nClip 5 (10 seconds)\n' "LINT RESULT: FAIL"
 echo "$OUT" | grep -q "max 12 spoken words" && ok "#28 >12 words in a clip caught" "$(echo "$OUT"|grep -m1 'max 12')" || bad "#28 >12 words" "$OUT"
 echo "$OUT" | grep -q "8 seconds flat" && ok "#28 10-second clip caught" "$(echo "$OUT"|grep -m1 '8 seconds flat'|cut -c1-120)" || bad "#28 10-second clip" ""
 echo "$OUT" | grep -q "5 clips declared" && ok "#28 five clips caught" "$(echo "$OUT"|grep -m1 'clips declared'|cut -c1-120)" || bad "#28 five clips" ""
 lint "#28 four 8s clips + 2s close-up pass" 'References: approved styled image + the real listing photo\nC01 - 8 seconds, she smiles at the counter.\nC02 - 8 seconds.\nC03 - 8 seconds.\nC04 - 8 seconds.\nC05 - close-up, 2 seconds of the real listing photo.\n' "package passes"
 lint "(d) Nov 24 failure recipe fails" 'References: styled image\nnever spoken, never mouthed\nBOTTLE: the exact product: a tall rectangular clear bottle, the label reads Amococo, TURMERIC, 200ml\nShe tips the bottle over her open palm and golden oil pools in it; she holds the bottle.\n' "LINT RESULT: FAIL"
-for c in "RETIRED GUARD TEXT" "LABEL WORDING" "PRODUCT DESCRIPTION" "STAGING" "REFERENCES"; do echo "$OUT" | grep -q "\[$c\]" && ok "(d) catches $c" "$(echo "$OUT"|grep -m1 "\[$c\]"|cut -c1-110)" || bad "(d) catches $c" ""; done
+for c in "RETIRED GUARD TEXT" "LABEL WORDING" "PRODUCT DESCRIPTION" "DRAWN PRODUCT" "REFERENCES"; do echo "$OUT" | grep -q "\[$c\]" && ok "(d) catches $c" "$(echo "$OUT"|grep -m1 "\[$c\]"|cut -c1-110)" || bad "(d) catches $c" ""; done
 touch $D/step8-package/staging-proof.md
 lint "(n-a) pour + proof still fails" 'References: approved styled image + the real listing photo\nShe pours the oil.\n' "LINT RESULT: FAIL"
-lint "(n-b) texture shot + proof passes" 'References: approved styled image + the real listing photo\nTexture shot: the product on skin only, the bottle stays on the counter.\n' "package passes"
-lint "(n-e) texture without counter fails" 'References: approved styled image + the real listing photo\nTexture shot: the product on skin only.\n' "LINT RESULT: FAIL"
-lint "(n-d) two show-it shots fail" 'References: approved styled image + the real listing photo\nTexture shot: the product on skin only, the bottle stays on the counter.\nShow-it shot: fabric moving as she walks.\n' "LINT RESULT: FAIL"
+lint "EVERY texture shot with the bottle in frame now fails" 'References: approved styled image + the real listing photo\nTexture shot: the serum on her skin, the bottle stays on the counter.\n' "LINT RESULT: FAIL"
+lint "EVERY use shot, product off frame, passes" 'References: approved styled image + the real listing photo\nUse shot: she works the oil into her scalp with her fingertips, product off frame.\n' "package passes"
+lint "EVERY two use shots pass (no one-shot limit)" 'References: approved styled image + the real listing photo\nUse shot: she smooths the cream over her hands.\nUse shot: she pats her cheeks.\n' "package passes"
 lint "(n-f) dress fabric moving + proof passes" 'References: approved styled image + the real listing photo\nShow-it shot: fabric moving as she turns.\n' "package passes"
 lint "(n-g) shoes walking + proof passes" 'References: approved styled image + the real listing photo\nShow-it shot: shoes on feet walking down the sidewalk.\n' "package passes"
-lint "(n-j) show-it with no action fails" 'References: approved styled image + the real listing photo\nShow-it shot: the dress.\n' "LINT RESULT: FAIL"
-lint "#4 show-it gadget 'spray in use' not double-flagged" 'References: approved styled image + the real listing photo\nShow-it shot: the mister in use, spraying a fine mist.\n' "package passes"
+lint "EVERY a gadget drawn in use fails" 'References: approved styled image + the real listing photo\nShow-it shot: the mister in use, spraying a fine mist.\n' "LINT RESULT: FAIL"
 rm $D/step8-package/staging-proof.md
-lint "(n-c/h) show-it without proof fails" 'References: approved styled image + the real listing photo\nShow-it shot: the gadget in use.\n' "LINT RESULT: FAIL"
+lint "EVERY 'the gadget in use' is a drawn product, fails" 'References: approved styled image + the real listing photo\nShow-it shot: the gadget in use.\n' "LINT RESULT: FAIL"
 printf "%b" 'References: approved styled image + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\n'"$CAP" > $K
 OUT=$($R check $RUN --to 9; echo "exit $?"); expect "(d) clean package clears to 9" "CHECK to Step 9: OK" "$OUT"
 # ---------- builds, handoff, verdicts (#1, #2, (f))
-echo fake1 > $D/step9-builds/v1.mp4
+vid $D/step9-builds/v1.mp4 fake1
 OUT=$($R drive $RUN); expect "(f) auto-handoff then stop at Mila" "STOP at Step 10 — human gate: Mila" "$OUT"
 H=$HOME/workspace/farm-qc-handoff/$RUN
 OUT=$($R review-decision $RUN --decision approved; echo "exit $?"); expect "(f) review decision refused before PASS" "REVIEW DECISION REFUSED" "$OUT"
-printf 'verdict: FAIL\nchecker: Mila\n' > $H/verdict.md
+sv $H/verdict.md $RUN FAIL $D/step9-builds
 OUT=$($R drive $RUN); N=$(echo "$OUT" | grep -c "Collected Mila's verdict")
 [ "$N" = 1 ] && ok "#2 FAIL collected exactly once" "Collected lines: $N" || bad "#2 FAIL collected once" "Collected lines: $N"
 N=$(grep -c "Auto-collected" $HOME/workspace/farm-runs/$RUN/RUN-SHEET.md); [ "$N" = 1 ] && ok "#2 run sheet logs one collection" "Auto-collected lines: $N" || bad "#2 run sheet logs" "$N"
 ls $H | grep -q "^verdict-collected-" && [ ! -e $H/verdict.md ] && ok "#1 verdict.md moved after collection" "$(ls $H | grep verdict)" || bad "#1 verdict moved" "$(ls $H)"
 OUT=$($R drive $RUN); N=$(echo "$OUT" | grep -c "Collected"); [ "$N" = 0 ] && ok "#2 second drive re-collects nothing" "$(echo "$OUT"|tail -1|cut -c1-120)" || bad "#2 second drive" "$N"
 OUT=$($R status $RUN); expect "#1 FAIL stops the run" "Step 10 .*INVALID.*FAIL" "$OUT"
-echo fake2 > $D/step9-builds/v2.mp4
+vid $D/step9-builds/v2.mp4 fake2
 OUT=$($R status $RUN); expect "#1 new build after FAIL waits for Mila (old FAIL not reused)" "Step 10 .*WAITING +new build since Mila's verdict" "$OUT"
 OUT=$($R drive $RUN); expect "#1 driver hands off the new build" "Auto-handoff" "$OUT"
 [ -e $H/v2.mp4 ] && ok "#1 v2 in Mila's folder" "$(ls $H | tr '\n' ' ')" || bad "#1 v2 in folder" ""
-printf 'verdict: PASS\nchecker: Mila\n' > $H/verdict.md
+sv $H/verdict.md $RUN PASS $D/step9-builds
 OUT=$($R drive $RUN); expect "(f) PASS collected, lands in Review" "Run is complete through Step 10" "$OUT"
 OUT=$($R status $RUN); expect "(e) headline Ready for Glam — freeze on" "HEADLINE: Ready for Glam — freeze on." "$OUT"
-echo fake3 > $D/step9-builds/v3.mp4
+vid $D/step9-builds/v3.mp4 fake3
 OUT=$($R status $RUN); expect "#1 build added after PASS is NOT covered" "Step 10 .*WAITING +new build since Mila's verdict" "$OUT"
 expect "#1 headline no longer Ready for Glam" "HEADLINE: BLOCKED at Step 10" "$OUT"
 OUT=$($R review-manifest); expect "#1 review shows not ready" "Not ready — waiting on Mila's check" "$OUT"
 OUT=$($R drive $RUN); [ -e $H/v3.mp4 ] && ok "#1 v3 handed to Mila" "$(echo "$OUT"|grep -m1 Auto-handoff)" || bad "#1 v3 handed" "$OUT"
-printf 'verdict: PASS\nchecker: Mila\n' > $H/verdict.md
-echo changed > $D/step9-builds/v1.mp4
+sv $H/verdict.md $RUN PASS $D/step9-builds
+vid $D/step9-builds/v1.mp4 changed
 OUT=$($R drive $RUN); OUT=$($R status $RUN); expect "#1 verdict written before a build changed does not cover the new version" "Step 10 .*WAITING +new build since Mila's verdict" "$OUT"
-printf 'verdict: PASS\nchecker: Mila\n' > $H/verdict.md; $R drive $RUN >/dev/null
+sv $H/verdict.md $RUN PASS $D/step9-builds; $R drive $RUN >/dev/null
 OUT=$($R status $RUN); expect "#1 PASS on the exact current builds clears" "Step 10 .*CLEARED" "$OUT"
-echo fake4 > $D/step9-builds/v4.mp4; $R drive $RUN >/dev/null; printf 'verdict: PASS\nchecker: Mila Rice\n' > $H/verdict.md; $R drive $RUN >/dev/null
-OUT=$($R status $RUN); expect "(f) PASS signed by someone else refused" "Step 10 .*INVALID.*signed by 'Mila Rice'" "$OUT"
-rm $D/step9-builds/v4.mp4; rm -f $H/v4.mp4; printf 'verdict: PASS\nchecker: Mila\n' > $H/verdict.md; $R drive $RUN >/dev/null
+vid $D/step9-builds/v4.mp4 fake4; $R drive $RUN >/dev/null; printf 'verdict: PASS\nchecker: Mila Rice\n' > $H/verdict.md; $R drive $RUN >/dev/null
+OUT=$($R status $RUN); expect "(f) PASS signed by someone else refused" "Step 10 .*INVALID.*not Mila's signed verdict" "$OUT"
+rm $D/step9-builds/v4.mp4; rm -f $H/v4.mp4; sv $H/verdict.md $RUN PASS $D/step9-builds; $R drive $RUN >/dev/null
 # ---------- #29 watch links
 printf 'v1.mp4: https://drive.google.com/file/d/TESTID/view\n' > $D/step9-builds/links.md
 $R review-manifest >/dev/null
@@ -249,7 +259,7 @@ printf 'Clip 1: "Your skin has been dry all winter, sis."\nClip 2: "Turmeric and
 OUT=$($R approve-script $RUN3 --by Mila 2>&1)
 expect "INDIGO script: approval refused" "APPROVAL REFUSED" "$OUT"
 expect "INDIGO 'right here on my vanity' caught as a use/ownership claim" "\[use-claim\] LINE 2" "$OUT"
-expect "INDIGO held bottle + drop on her hand caught as staging" "\[staging\] script line 3" "$OUT"
+expect "INDIGO held bottle + drop on her hand caught as staging" "\[drawn-product\] script line 3" "$OUT"
 expect "INDIGO no soft CTA up top caught" "\[no-cta\]" "$OUT"
 printf 'References: approved styled image + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\n' > $D3/step8-package/package.md
 OUT=$($R lint $RUN3 2>&1)
@@ -290,7 +300,7 @@ $R record-match $RC --checker Mila --grabber "TikTok Shop Agent" --verdict MATCH
 [ -f $CS/step6-script/JOB.md ] && grep -q "scout.md" $CS/step6-script/JOB.md && grep -q "step4-photo/listing.png" $CS/step6-script/JOB.md && ok "CHAIN Story job opened with the story sentence + listing photo as inputs" "$(grep -c sha256 $CS/step6-script/JOB.md) inputs with sha256" || bad "CHAIN Story job inputs" "$(cat $CS/step6-script/JOB.md 2>/dev/null | head -5)"
 printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift."\nShe holds the bottle up to the camera.\nLINE 2: "Tap the orange cart."\n' > $CH/script-bad.md
 OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script-bad.md; echo "exit $?"); expect "CHAIN held-bottle script SENT BACK to the Story Agent" "SENT BACK to Story Agent" "$OUT"
-grep -q "SENT BACK" $CS/step6-script/JOB.md && grep -q "stages the product" $CS/step6-script/JOB.md && ok "CHAIN findings written at the top of the Story Agent's JOB.md" "$(sed -n 3p $CS/step6-script/JOB.md | cut -c1-100)" || bad "CHAIN sent-back JOB.md" ""
+grep -q "SENT BACK" $CS/step6-script/JOB.md && grep -q "puts the product itself in a shot" $CS/step6-script/JOB.md && ok "CHAIN findings written at the top of the Story Agent's JOB.md" "$(sed -n 3p $CS/step6-script/JOB.md | cut -c1-100)" || bad "CHAIN sent-back JOB.md" ""
 OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['state'],'|',r['open_job']['agent'],'|',len(r['open_job']['sent_back']))"); expect "CHAIN status shows STOPPED, sent back to Story Agent" "^STOPPED \| Story Agent \| [1-9]" "$OUT"
 printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift."\nThe slides sit on the counter, no hands on them.\nLINE 2: "Tap the orange cart."\n' > $CH/script.md
 OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script.md); expect "CHAIN corrected script passes → Mila (not Glam)" "Handed to Mila \(Step 6\)" "$OUT"
@@ -308,11 +318,11 @@ printf 'References: approved model photo + the real listing photo\nC01 - 8 secon
 OUT=$($R submit $RC --step 8 --by "Story Agent" --file $CH/package-nocap.md; echo "exit $?"); expect "CHAIN package without a caption SENT BACK" "SENT BACK to Story Agent \+ Video Agent" "$OUT"
 printf 'References: approved model photo + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\nCaption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n' > $CH/package.md
 OUT=$($R submit $RC --step 8 --by "Video Agent" --file $CH/package.md); expect "CHAIN package with caption passes → Video Agent" "Handed to Video Agent \(Step 9\)" "$OUT"
-echo "TEST build 1" > $CH/build-1.mp4
+vid $CH/build-1.mp4 "TEST build 1"
 OUT=$($R submit $RC --step 9 --by "Indigo" --file $CH/build-1.mp4); expect "CHAIN build → Mila" "Handed to Mila \(Step 10\)" "$OUT"
 [ -f $HOME/workspace/farm-qc-handoff/$RC/build-1.mp4 ] && [ -f $CS/step10-qc/JOB.md ] && ok "CHAIN build handed to Mila's QC folder + her JOB.md" "farm-qc-handoff/$RC/build-1.mp4" || bad "CHAIN Mila handoff" ""
 OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['open_job']['agent'],'|',r['owner'])"); expect "CHAIN status open_job = Mila" "^Mila \| Mila" "$OUT"
-printf 'verdict: PASS\nchecker: Mila\nscore: TEST — minors 4/4/5\n' > $CH/verdict.md
+sv $CH/verdict.md $RC PASS $CS/step9-builds
 OUT=$($R submit $RC --step 10 --by "Mila" --file $CH/verdict.md); expect "CHAIN Mila's PASS → Glam's final review" "Handed to Glam: final review" "$OUT"
 OUT=$($R status $RC); expect "CHAIN ends at Ready for Glam — freeze on" "HEADLINE: Ready for Glam — freeze on\." "$OUT"
 OUT=$($R post $RC 2>&1; echo "exit $?"); expect "CHAIN there is no post command (nothing posts)" "invalid choice.*exit 2|exit 2" "$(echo "$OUT"|tr '\n' ' ')"
@@ -340,9 +350,9 @@ OUT=$($R review-decision $RC --decision redo --notes "Make her smile more in cli
 [ ! -f $CS/step9-builds/build-1.mp4 ] && [ -f $C/redo/redo-1/builds/build-1.mp4 ] && [ -f $C/redo/redo-1/qc/mila-verdict.md ] && ok "REVIEW old build + Mila's verdict kept in redo/redo-1" "redo/redo-1/" || bad "REVIEW redo archive" "$(ls -R $C/redo 2>&1|head)"
 grep -q "Glam asked for a redo (#1): Make her smile more in clip 2" $CS/step9-builds/JOB.md && ok "REVIEW Glam's notes at the top of the Video Agent's JOB.md" "$(sed -n 2p $CS/step9-builds/JOB.md)" || bad "REVIEW notes in JOB.md" "$(head -3 $CS/step9-builds/JOB.md)"
 OUT=$(python3 -c "import json;d=json.load(open('$HOME/workspace/farm-runner/review-manifest.json'));e=[x for x in d['entries'] if x['run_id']=='$RC'][0];print(e['review_status'],'|',e['glam_notes'])"); expect "REVIEW page list shows the redo with her notes" "^Redo — being rebuilt with Glam's notes \| Make her smile" "$OUT"
-echo "TEST build 2" > $CH/build-2.mp4
+vid $CH/build-2.mp4 "TEST build 2"
 OUT=$($R submit $RC --step 9 --by "Indigo" --file $CH/build-2.mp4); expect "REVIEW rebuild → Mila checks again" "Handed to Mila \(Step 10\)" "$OUT"
-printf 'verdict: PASS\nchecker: Mila\nscore: TEST — rebuild\n' > $CH/verdict2.md
+sv $CH/verdict2.md $RC PASS $CS/step9-builds
 OUT=$($R submit $RC --step 10 --by "Mila" --file $CH/verdict2.md); expect "REVIEW Mila's PASS on the rebuild → Glam's final review" "Handed to Glam: final review" "$OUT"
 printf '[{"run_id":"%s","decision":"approved","notes":"Love it","at":"2026-11-25T01:00:00Z"}]' $RC > $CH/taps.json
 OUT=$($R review-apply --file $CH/taps.json 2>&1); expect "REVIEW Approve tap from the review page is applied" "APPROVAL.*nothing posts" "$(echo "$OUT"|tr '\n' ' ')"
@@ -371,4 +381,42 @@ import json,sys;p=sys.argv[1];d=json.load(open(p));d['agents'][0]['laws'].remove
 PY2
 OUT=$(python3 "$TMPL/farm-runner/runner.py" check-rules 2>&1; echo "exit $?"); expect "check-rules fails if an agent loses the locked rule" "missing Glam's locked rule" "$OUT"
 rm -rf "$TMPL"
+
+# ---------- Glam, Nov 25 (2026-11-25f): every-product rules + enforcement
+# A fresh run to prove each new rule stops what it should.
+OUT=$($R create --mode "Get Ready With Me" 2>&1); RN=$(echo "$OUT" | sed -n 's/^Run ID: //p'); N=$HOME/workspace/farm-runs/$RN/steps
+printf 'Findings: x\nStory: Your feet hurt all week and you deserve a soft landing.\n' > $N/step2-scout/scout.md
+printf 'product: TEST Scalp Oil\nlisting: test\n' > $N/step3-pick/pick.md
+$R attach-photo $RN /tmp/fx_p.png --by Indigo >/dev/null; $R record-match $RN --checker Mila --grabber Indigo --verdict MATCH >/dev/null
+SN=$N/step6-script/script.md
+scn(){ printf "%b" "$2" > $SN; OUT=$($R status $RN | grep 'Step 6 '); expect "$1" "$3" "$OUT"; }
+scn "EVERY run 1's 'glide across the back of my hand' now passes (use is allowed)" 'CTA: linked below for you\nLINE 1: "You took care of everybody today. This minute is yours."\nLINE 2: "Watch it glide across the back of my hand."\n' "WAITING.*passing"
+scn "EVERY run 2's growth line fails" 'CTA: linked below for you\nLINE 1: "On your feet all day for everybody else, tonight is yours."\nLINE 2: "This hair growth oil sits by the sink."\n' "INVALID.*health-claim"
+scn "EVERY growth claim in a hashtag fails" 'CTA: linked below for you\nCaption: Scalp oil for your wash day, linked below #scalpoil #hairgrowth #washday\nLINE 1: "Your wash day deserves five quiet minutes."\n' "INVALID.*health-claim"
+scn "EVERY before-and-after spoken fails" 'CTA: linked below for you\nLINE 1: "Your wash day deserves five quiet minutes."\nLINE 2: "Before and after, you can see it."\n' "INVALID.*before-after"
+scn "EVERY hair flip reveal in directions fails" 'CTA: linked below for you\nLINE 1: "Your wash day deserves five quiet minutes."\nThen a hair flip to show the after.\n' "INVALID.*before-after"
+scn "EVERY bottle held in a direction fails" 'CTA: linked below for you\nLINE 1: "Your wash day deserves five quiet minutes."\nShe holds the bottle up to the camera.\n' "INVALID.*drawn-product"
+scn "EVERY clean use script passes" 'CTA: linked below for you\nLINE 1: "Your wash day deserves five quiet minutes."\nShe works the oil into her scalp with her fingertips, product off frame.\nLINE 2: "Tap the orange cart."\n' "WAITING.*passing"
+printf 'verdict: APPROVE\nchecker: Mila\napproved_by: Mila\n' > $N/step6-script/mila-script-approval.md
+OUT=$($R status $RN | grep 'Step 6 '); expect "EVERY a typed 'approved_by: Mila' does not clear Step 6" "WAITING.*not Mila's signed verdict" "$OUT"
+rm $N/step6-script/mila-script-approval.md
+OUT=$(MILA_SIGNING_KEY=/nonexistent $R approve-script $RN --by Mila; echo "exit $?"); expect "EVERY --by Mila without Mila's key is refused" "count only from her signed verdict file.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+$R mila-sign --run $RN --step 6 --verdict APPROVE --file $SN --out /tmp/fx/v6.md >/dev/null
+OUT=$(MILA_SIGNING_KEY=/nonexistent $R approve-script $RN --verdict-file /tmp/fx/v6.md); expect "EVERY Mila's signed verdict file clears Step 6 (no key needed to check it)" "next is Casting" "$OUT"
+$R mila-sign --run run-other-1 --step 6 --verdict APPROVE --file $SN --out /tmp/fx/v6x.md >/dev/null
+OUT=$($R approve-script $RN --verdict-file /tmp/fx/v6x.md; echo "exit $?"); expect "EVERY a signed verdict for another run is refused" "for run-other-1 Step 6, not this run.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(FARM_LIVE_RULES_URL=file:///tmp/fx/old-rules.json $R create --mode "Get Ready With Me" 2>&1; echo "exit $?")
+python3 -c "import json;d=json.load(open('$ROOTF/farm-rules.json'));d['version']='2026-11-24-old';json.dump(d,open('/tmp/fx/old-rules.json','w'))"
+OUT=$(FARM_LIVE_RULES_URL=file:///tmp/fx/old-rules.json $R create --mode "Get Ready With Me" 2>&1; echo "exit $?"); expect "EVERY a run refuses to start when this copy differs from the live rules" "START A RUN REFUSED.*live farm is version 2026-11-24-old.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(FARM_LIVE_RULES_URL=file:///tmp/fx/nothing-here.json $R submit $RN --step 7 --by "Casting / Image Agent" --file /tmp/fx_p.png 2>&1; echo "exit $?"); expect "EVERY can't reach the live rules = BLOCKED, nothing moves" "BLOCKED: can't reach the live farm rules.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+python3 - "$ROOTF/farm-runner" <<'PY' && ok "EVERY clip length is read from the mp4 itself" "34 / 8 / 5 seconds" || bad "EVERY clip length read" ""
+import sys;sys.path.insert(0,sys.argv[1]);sys.argv=['x']
+import runner as r
+assert round(r.mp4_seconds('/tmp/fx_base34.mp4'))==34 and round(r.mp4_seconds('/tmp/fx_base8.mp4'))==8
+assert r.build_length_problem('/tmp/fx_base34.mp4') is None and r.build_length_problem('/tmp/fx_base8.mp4') is None
+assert 'runs 5.0 seconds' in r.build_length_problem('/tmp/fx_base5.mp4')
+PY
+vid /tmp/fx/short.mp4 short /tmp/fx_base5.mp4
+cp /tmp/fx/short.mp4 $N/step9-builds/short.mp4
+OUT=$($R status $RN | grep 'Step 9 '); expect "EVERY a 5-second clip fails before Mila sees it" "INVALID.*clip length check FAILS before Mila.*5.0 seconds" "$OUT"
 echo; echo "SUMMARY: $P passed, $F failed"

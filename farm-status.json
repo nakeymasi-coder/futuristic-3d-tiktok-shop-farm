@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 21:02",
+  "generated_at": "2026-11-25 21:03",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -688,12 +688,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 4 (Product Photo) — no product photo attached — no photo in hand, no scene, no script, full stop",
+      "headline": "BLOCKED at Step 5 (Photo Match Check) — no match verdict recorded — the grabbed photo has not been checked against the listing's own image",
       "state": "BLOCKED",
-      "open_step": 4,
-      "open_step_name": "Product Photo",
-      "needs": "TikTok Shop Agent — needs: the product's real listing photos, saved with the weekly lineup",
-      "owner": "TikTok Shop Agent",
+      "open_step": 5,
+      "open_step_name": "Photo Match Check",
+      "needs": "Photo Match checker — needs: someone other than the grabber who can open the live listing to compare",
+      "owner": "Photo Match checker",
       "steps": [
         {
           "n": 1,
@@ -719,8 +719,8 @@
         {
           "n": 4,
           "name": "Product Photo",
-          "state": "WAITING",
-          "reason": "no product photo attached — no photo in hand, no scene, no script, full stop",
+          "state": "CLEARED",
+          "reason": "listing photo attached: 00.jpg",
           "agent": "TikTok Shop Agent (grabs the listing photo)"
         },
         {
@@ -816,17 +816,36 @@
           ],
           "output": "expected: steps/step4-photo/",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 21:03",
+          "from": "TikTok Shop Agent",
+          "to": "Photo Match checker",
+          "step": 5,
+          "what": "job opened for Photo Match checker: match-verdict.md (written by record-match)",
+          "inputs": [
+            {
+              "file": "steps/step4-photo/00.jpg",
+              "sha256": "470dccbf175a57f50337cc55e896a29a9f66c257f11f0c0a9dacfd5f8281d949"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "1fee3b43216d6cf795fb3c46fc86763e54d7385778a1a744cf1f111e1cfb0af5"
+            }
+          ],
+          "output": "steps/step4-photo/00.jpg (sha256 470dccbf175a57f5…)",
+          "result": "handed off"
         }
       ],
       "open_job": {
-        "step": 4,
-        "agent": "TikTok Shop Agent",
-        "job_file": "steps/step4-photo/JOB.md",
-        "job": "Submit the picked product's real listing photo from its photos saved with the lineup (farm-data/products/<listing id>/). It becomes the only product description for every later step. If its photos weren't saved, the product is BLOCKED with the reason. Never a drawn or substituted photo. A photo comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or the image links saved from those (image_urls in farm-data/showcase-products.json, downloaded with no browser and no sign-in), never from a regular tiktok.com video or profile page. Only a product-only image, never one with a person, face, hands or body in it. Any bot or security check: report BLOCKED at once with the site and page, never solve it or wait on it.",
+        "step": 5,
+        "agent": "Photo Match checker",
+        "job_file": "steps/step5-match/JOB.md",
+        "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. A photo with any person, face, hands or body in it is NO-MATCH. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
         "needs": [
-          "the product's real listing photos, saved with the weekly lineup"
+          "someone other than the grabber who can open the live listing to compare"
         ],
-        "since": "2026-11-25 21:02",
+        "since": "2026-11-25 21:03",
         "sent_back": []
       }
     }

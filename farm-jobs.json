@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 21:02",
+  "generated_at": "2026-11-25 21:03",
   "rules_version": "2026-11-25n",
   "jobs": [
     {
@@ -44,14 +44,14 @@
       "run_id": "run-2026-11-25-2"
     },
     {
-      "step": 4,
-      "agent": "TikTok Shop Agent",
-      "job_file": "steps/step4-photo/JOB.md",
-      "job": "Submit the picked product's real listing photo from its photos saved with the lineup (farm-data/products/<listing id>/). It becomes the only product description for every later step. If its photos weren't saved, the product is BLOCKED with the reason. Never a drawn or substituted photo. A photo comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or the image links saved from those (image_urls in farm-data/showcase-products.json, downloaded with no browser and no sign-in), never from a regular tiktok.com video or profile page. Only a product-only image, never one with a person, face, hands or body in it. Any bot or security check: report BLOCKED at once with the site and page, never solve it or wait on it.",
+      "step": 5,
+      "agent": "Photo Match checker",
+      "job_file": "steps/step5-match/JOB.md",
+      "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. A photo with any person, face, hands or body in it is NO-MATCH. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
       "needs": [
-        "the product's real listing photos, saved with the weekly lineup"
+        "someone other than the grabber who can open the live listing to compare"
       ],
-      "since": "2026-11-25 21:02",
+      "since": "2026-11-25 21:03",
       "sent_back": [],
       "run_id": "run-2026-11-25-3"
     }

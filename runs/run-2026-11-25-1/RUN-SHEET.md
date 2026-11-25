@@ -48,3 +48,5 @@ HEADLINE: BLOCKED at Step 5 (Photo Match Check) — no match verdict recorded �
 - [2026-11-25 14:40] CHAIN: TikTok Shop Agent → TikTok Shop Agent (Step 4) — handed off
 - [2026-11-25 14:42] Step 4: listing photo attached (bask-lather-scalp-stimulator-listing-1729385609961706380.png), grabbed by TikTok Shop Agent.
 - [2026-11-25 14:42] CHAIN: TikTok Shop Agent → Photo Match checker (Step 5) — handed off
+- [2026-11-25 14:44] Step 5: match verdict recorded — MATCH by Photo Match Checker (grabber: TikTok Shop Agent).
+- [2026-11-25 14:44] CHAIN: Photo Match Checker → Story Agent (Step 6) — handed off

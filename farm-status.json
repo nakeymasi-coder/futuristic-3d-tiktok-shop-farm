@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 14:42",
+  "generated_at": "2026-11-25 14:44",
   "rules_version": "2026-11-25f",
   "freeze": "ON",
   "runs": [
@@ -9,12 +9,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 5 (Photo Match Check) — no match verdict recorded — the grabbed photo has not been checked against the listing's own image",
+      "headline": "BLOCKED at Step 6 (Script) — no script on file (steps/step6-script/script.md)",
       "state": "BLOCKED",
-      "open_step": 5,
-      "open_step_name": "Photo Match Check",
-      "needs": "Photo Match checker — needs: someone other than the grabber who can open the live listing to compare",
-      "owner": "Photo Match checker",
+      "open_step": 6,
+      "open_step_name": "Script",
+      "needs": "Story Agent — needs: an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
+      "owner": "Story Agent",
       "steps": [
         {
           "n": 1,
@@ -47,8 +47,8 @@
         {
           "n": 5,
           "name": "Photo Match Check",
-          "state": "WAITING",
-          "reason": "no match verdict recorded — the grabbed photo has not been checked against the listing's own image",
+          "state": "CLEARED",
+          "reason": "photo MATCH recorded by Photo Match Checker (grabber: TikTok Shop Agent) against the listing's own image",
           "agent": "A checker who did not grab the photo"
         },
         {
@@ -166,17 +166,44 @@
           ],
           "output": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png (sha256 f4560cb38c7d133a…)",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 14:44",
+          "from": "Photo Match Checker",
+          "to": "Story Agent",
+          "step": 6,
+          "what": "job opened for Story Agent: script.md",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
+            },
+            {
+              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
+              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
+            },
+            {
+              "file": "steps/step4-photo/photo-source.md",
+              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
+            }
+          ],
+          "output": "steps/step5-match/match-verdict.md (sha256 b8e1652de44088ed…)",
+          "result": "handed off"
         }
       ],
       "open_job": {
-        "step": 5,
-        "agent": "Photo Match checker",
-        "job_file": "steps/step5-match/JOB.md",
-        "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
+        "step": 6,
+        "agent": "Story Agent",
+        "job_file": "steps/step6-script/JOB.md",
+        "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
         "needs": [
-          "someone other than the grabber who can open the live listing to compare"
+          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
-        "since": "2026-11-25 14:42",
+        "since": "2026-11-25 14:44",
         "sent_back": []
       }
     }

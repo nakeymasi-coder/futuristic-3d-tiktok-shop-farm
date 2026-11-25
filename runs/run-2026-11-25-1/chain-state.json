@@ -1,11 +1,11 @@
 {
-  "sig": "[\"agent\", 5, \"Photo Match checker\", [], \"f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d\"]",
-  "opened_at": "2026-11-25 14:42",
-  "last_actor": "TikTok Shop Agent",
+  "sig": "[\"agent\", 6, \"Story Agent\", [], \"b8e1652de44088ed22a91f8e6094f436652bd2de8a6eb25d2d16361c8444ce1d\"]",
+  "opened_at": "2026-11-25 14:44",
+  "last_actor": "Photo Match Checker",
   "open": {
     "kind": "agent",
-    "step": 5,
-    "agent": "Photo Match checker",
-    "to": "Photo Match checker"
+    "step": 6,
+    "agent": "Story Agent",
+    "to": "Story Agent"
   }
 }

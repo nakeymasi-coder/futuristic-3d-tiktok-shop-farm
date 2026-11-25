@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-11-25 13:56",
+  "rules_version": "2026-11-25f",
+  "jobs": [
+    {
+      "step": 2,
+      "agent": "TikTok Scout",
+      "job_file": "steps/step2-scout/JOB.md",
+      "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "needs": [
+        "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+      ],
+      "since": "2026-11-25 13:56",
+      "sent_back": [],
+      "run_id": "run-2026-11-25-1"
+    }
+  ]
+}

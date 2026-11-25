@@ -11,7 +11,7 @@ A farm change lives in the repo first. Muse jobs only follow what's on main: pul
 - Skip any product whose real listing photos are already saved in farm-data/products/<listing id>/.
 - Save real listing photos only, into farm-data/products/<listing id>/. Never a drawn or substituted photo.
 - A photo that won't download stays BLOCKED, with the reason written in the lineup.
-- Stay inside 5 minutes per run. At the cap, push what you saved and stop.
+- Stay inside 10 minutes per run. At the cap, push what you saved and stop.
 
 ## Hand in
 - Push what you saved to main, with one commit message that lists each product saved and each product still BLOCKED, with its reason.

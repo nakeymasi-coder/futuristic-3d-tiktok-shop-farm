@@ -120,7 +120,7 @@
       "role": "Photo finisher",
       "steps": [],
       "prompt": "prompts/photo-finisher.md",
-      "mode": "Muse job, not a run step; 5 minutes per run",
+      "mode": "Muse job, not a run step; 10 minutes per run",
       "what": "saves the weekly lineup's blocked real listing photos a few at a time, turmeric staples first",
       "trigger_id": ""
     },
@@ -137,7 +137,7 @@
       "role": "Weekly lineup",
       "steps": [],
       "prompt": "",
-      "mode": "Muse job (Indigo created it in Muse), not a run step",
+      "mode": "Muse job (Indigo created it in Muse), not a run step; 10 minutes per run",
       "schedule": "every Monday",
       "what": "picks the week's products into farm-data/weekly-lineup.json from the saved list; turmeric products always included; ranking: scorecard sales first, then past farm runs, then Scout trends",
       "trigger_id": ""

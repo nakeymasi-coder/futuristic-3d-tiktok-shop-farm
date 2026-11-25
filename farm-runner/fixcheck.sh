@@ -654,8 +654,19 @@ assert all("repo-first" in a["laws"] for a in d["agents"])
 rt=json.load(open(f"{r}/farm-agents/routines.json"))
 pf=[j for j in rt["support_jobs"] if j["role"]=="Photo finisher"][0]
 t=open(f"{r}/farm-agents/{pf['prompt']}").read()
-assert "BLOCKED" in t and "turmeric staples first" in t and "5 minutes" in t
+assert "BLOCKED" in t and "turmeric staples first" in t and "10 minutes" in t
 PYT
+python3 - "$ROOTF" <<'PYL' && ok "CAP10 weekly lineup and photo finisher are 10 minutes; Scout 10, every other job 5" "rules + routines + prompt" || bad "CAP10 support job caps" ""
+import json,sys
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json")); L={l["id"]:l for l in d["laws"]}; n=d["numbers"]
+assert n["weekly_lineup_time_cap_minutes"]==10 and n["photo_finisher_time_cap_minutes"]==10
+assert n["scout_time_cap_minutes"]==10 and n["job_time_cap_minutes"]==5
+assert "weekly lineup" in L["time-cap"]["text"] and "photo finisher" in L["time-cap"]["text"] and "5-minute cap" in L["time-cap"]["text"]
+assert "10 minutes per run" in L["weekly-lineup"]["text"] and "10 minutes per run" in L["photo-finisher"]["text"]
+rt=json.load(open(f"{r}/farm-agents/routines.json")); sj={j["role"]:j for j in rt["support_jobs"]}
+assert "10 minutes per run" in sj["Photo finisher"]["mode"] and "10 minutes per run" in sj["Weekly lineup"]["mode"]
+assert "5 minutes" not in open(f"{r}/farm-agents/prompts/photo-finisher.md").read()
+PYL
 RT=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 grep -q "Time cap: 10 minutes" $HOME/workspace/farm-runs/$RT/steps/step2-scout/JOB.md && ok "BRAIN the Scout's JOB.md gives it 10 minutes" "JOB.md" || bad "BRAIN Scout 10 min" ""
 

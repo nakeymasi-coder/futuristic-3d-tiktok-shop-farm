@@ -18,8 +18,8 @@
 
 **Support jobs in Muse (not run steps; listed in routines.json under `support_jobs`):**
 - Showcase list refresh: once a day, writes `farm-data/showcase-products.json`.
-- Weekly lineup: every Monday, writes `farm-data/weekly-lineup.json`.
-- Photo finisher: saves the lineup's blocked photos, 5 minutes per run (`prompts/photo-finisher.md`).
+- Weekly lineup: every Monday, writes `farm-data/weekly-lineup.json`, 10 minutes per run.
+- Photo finisher: saves the lineup's blocked photos, 10 minutes per run (`prompts/photo-finisher.md`).
 
 All farm data lives in `farm-data/` on main. A farm change lives in the repo first; Muse jobs only follow what's on main.
 

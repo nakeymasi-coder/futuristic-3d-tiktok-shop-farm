@@ -140,5 +140,6 @@ By Glam Hustle Hub.
 23. **No duplicate run names:** a run name exists only once. A copy made on one computer that was never on the shared farm is moved aside to `workspace/farm-runs-retired/` (kept, not deleted) and the shared run is used. A new run can't start when the shared farm can't be read. While a run is in conflict, the board shows the shared copy, not the local one.
 24. **The old local copy of run-2026-11-25-2:** it was archived on Indigo's machine (not on the farm) and its angle-log entry was removed (commit b1b6d7f). Its "Step 6 passed" does not count.
 25. **Runs 2026-11-25-2 and 2026-11-25-3** are both at Step 2 waiting on the Scout. Nothing in the code blocks a Scout refire on either: a new claim starts a fresh try and clears an old time-cap BLOCKED.
+26. **Weekly lineup and photo finisher get 10 minutes** (rules version 2026-11-25l): Glam raised both Muse support jobs to a 10-minute cap. The Scout stays at 10 and every other job stays at 5. At the cap, each saves what it has and stops.
 
 Where it lives: each rule is a law in `farm-rules.json`, so every JOB.md prints it. The Scout, Shop and Story job texts, the agent prompts and `farm-data/README.md` all carry it too.

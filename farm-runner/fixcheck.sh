@@ -643,4 +643,16 @@ PYT
 RT=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 grep -q "Time cap: 10 minutes" $HOME/workspace/farm-runs/$RT/steps/step2-scout/JOB.md && ok "BRAIN the Scout's JOB.md gives it 10 minutes" "JOB.md" || bad "BRAIN Scout 10 min" ""
 
+python3 - "$ROOTF" <<'PYU' && ok "BRAIN Muse job ids, support jobs, farm-data home, freeze and sign-ins are in the farm brain" "routines + laws" || bad "BRAIN round 3" ""
+import json,sys,os
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json")); L={l["id"]:l for l in d["laws"]}
+assert {"glam-signs-in","farm-data-home"}<=set(L) and "No farm job ever posts to TikTok" in L["freeze"]["text"]
+rt=json.load(open(f"{r}/farm-agents/routines.json"))
+assert {a["muse_job"] for a in rt["agents"] if a["muse_job"].startswith("muse_")}=={"muse_farm-agent-"+x for x in ("scout","shop","photo-match","story","casting","video")}
+roles={j["role"]:j for j in rt["support_jobs"]}
+assert roles["Showcase list refresh"]["schedule"]=="once a day" and roles["Weekly lineup"]["schedule"]=="every Monday"
+for f in ("angle-log.json","scorecard.json","showcase-products.json","weekly-lineup.json"):
+    assert not os.path.exists(f"{r}/{f}") and os.path.exists(f"{r}/farm-data/{f}"), f
+PYU
+
 echo; echo "SUMMARY: $P passed, $F failed"

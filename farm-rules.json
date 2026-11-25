@@ -158,7 +158,7 @@
     {
       "id": "freeze",
       "title": "Posting freeze ON",
-      "text": "Nothing posts while the @glamorousgrammyglowup freeze is on. Only Glam lifts it."
+      "text": "Nothing posts while the @glamorousgrammyglowup freeze is on. Only Glam lifts it. No farm job ever posts to TikTok."
     },
     {
       "id": "blocked",
@@ -269,6 +269,16 @@
       "id": "repo-first",
       "title": "Farm changes live in the repo first",
       "text": "A farm change lives in the repo first, and Muse jobs only follow what's on main."
+    },
+    {
+      "id": "glam-signs-in",
+      "title": "Glam does her own secrets and sign-ins",
+      "text": "Glam types her own secrets and does her own sign-ins. No job ever asks for, types or stores a password, code or key."
+    },
+    {
+      "id": "farm-data-home",
+      "title": "Farm data lives in farm-data/",
+      "text": "The saved product list, weekly lineup, product photos, selling points, angle log and scorecard live in farm-data/ on main. No job writes them anywhere else."
     }
   ],
   "mila_scorecard": {
@@ -762,7 +772,10 @@
         "time-cap",
         "muse-agents",
         "scout-trends-only",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
@@ -797,7 +810,10 @@
         "weekly-lineup",
         "stock-check",
         "repo-first",
-        "best-seller-ranking"
+        "best-seller-ranking",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
@@ -828,7 +844,10 @@
         "muse-agents",
         "shop-from-lineup",
         "photos-ahead",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "the product's real listing photos, saved with the weekly lineup"
@@ -860,7 +879,10 @@
         "qc",
         "time-cap",
         "muse-agents",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "someone other than the grabber who can open the live listing to compare"
@@ -904,7 +926,10 @@
         "muse-agents",
         "selling-points",
         "angle-log",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -938,7 +963,10 @@
         "exact-product",
         "time-cap",
         "muse-agents",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "access to Glam's uploaded model photos"
@@ -982,7 +1010,10 @@
         "no-use-claims",
         "time-cap",
         "muse-agents",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -1022,7 +1053,10 @@
         "labels",
         "time-cap",
         "muse-agents",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "Video Express in the farm's browser (kept signed in) to build the video"
@@ -1057,7 +1091,10 @@
         "exact-product",
         "labels",
         "time-cap",
-        "repo-first"
+        "repo-first",
+        "glam-signs-in",
+        "farm-data-home",
+        "freeze"
       ],
       "needs": [
         "Mila (an AI agent that can watch the video frame by frame and hear the audio)"

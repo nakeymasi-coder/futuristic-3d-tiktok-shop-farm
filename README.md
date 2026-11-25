@@ -130,4 +130,9 @@ By Glam Hustle Hub.
 15. **Facts Indigo found:** the showcase page shows no sold counts. Best-seller ranking uses scorecard sales first, then past farm runs, then Scout trends.
 16. **Repo first:** a farm change lives in the repo first, and Muse jobs only follow what's on main.
 
+17. **Muse job ids:** the six agents are `muse_farm-agent-scout`, `-shop`, `-photo-match`, `-story`, `-casting` and `-video`, recorded per agent in `farm-agents/routines.json` (`muse_job`). Mila has none; she stays out of Muse.
+18. **Muse support jobs:** the showcase list refresh (once a day) and the weekly lineup (every Monday), which Indigo created in Muse, plus the photo finisher. They're recorded in `farm-agents/routines.json` under `support_jobs`.
+19. **Farm data home:** Indigo's files from the top folder (angle-log.json, scorecard.json, showcase-products.json, weekly-lineup.json) moved into `farm-data/`. From now on every job writes them only in `farm-data/`.
+20. **Posting freeze and sign-ins:** the posting freeze stays ON and no farm job ever posts to TikTok. Glam types her own secrets and does her own sign-ins.
+
 Where it lives: each rule is a law in `farm-rules.json`, so every JOB.md prints it. The Scout, Shop and Story job texts, the agent prompts and `farm-data/README.md` all carry it too.

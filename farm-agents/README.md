@@ -7,6 +7,22 @@
 - Stuck? `runner.py report-blocked <run> --step <n> --by "<role>" --reason "..." --session muse_<job id>`. The board shows BLOCKED at once.
 - Mila's gates (Steps 6, 7, 10) are not Muse's. Her verdicts count only from the Mila sign workflow with her own Claude session; Muse never holds her key.
 
+**The Muse jobs (each one is its own id, one role per run):**
+- TikTok Scout: `muse_farm-agent-scout`
+- TikTok Shop Agent (Steps 3-4): `muse_farm-agent-shop`
+- Photo Match checker: `muse_farm-agent-photo-match`
+- Story Agent: `muse_farm-agent-story`
+- Casting / Image Agent: `muse_farm-agent-casting`
+- Video Agent: `muse_farm-agent-video`
+- Mila: not a Muse job. Mila stays out of Muse; the coordinator starts her when a gate opens. No Mila automation.
+
+**Support jobs in Muse (not run steps; listed in routines.json under `support_jobs`):**
+- Showcase list refresh: once a day, writes `farm-data/showcase-products.json`.
+- Weekly lineup: every Monday, writes `farm-data/weekly-lineup.json`.
+- Photo finisher: saves the lineup's blocked photos, 5 minutes per run (`prompts/photo-finisher.md`).
+
+All farm data lives in `farm-data/` on main. A farm change lives in the repo first; Muse jobs only follow what's on main.
+
 The Claude routines below are kept as a backup.
 
 Every farm agent is its own Routine. A firing starts a fresh session that does only that agent's step, hands in with its own session id, and fires the next agent. Mila is her own routine too, but she never holds a key: she reviews, then runs the "Mila sign" workflow, which signs with the repo secret MILA_SIGNING_SEED. Nobody plays another agent.

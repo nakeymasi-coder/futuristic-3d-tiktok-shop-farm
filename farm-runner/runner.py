@@ -66,6 +66,7 @@ import hashlib
 import json
 import os
 import re
+import time
 import shutil
 import sys
 import urllib.request
@@ -951,6 +952,136 @@ def clear_blocked_report(run, step, why):
                        f"was: {kv.get('by', '?')}: {kv.get('reason', '')}")
 
 
+def file_blocked_report(run, step, by, reason, session=""):
+    p = blocked_report_path(run, step)
+    if not p:
+        return
+    p.write_text(f"by: {by}\nstep: {step}\nreason: {reason}\n"
+                 f"session: {session}\nat: {now_stamp()}\n", encoding="utf-8")
+    sheet_log(run, f"BLOCKED: Step {step} — {by}: {reason}")
+
+
+# ---- Pick must be a real showcase product (Glam, Nov 25). Check only: a pick
+# that isn't in the saved showcase list makes the run report BLOCKED with the
+# reason. Nothing is swapped or replaced.
+def showcase_path():
+    if os.environ.get("FARM_SHOWCASE"):
+        return Path(os.environ["FARM_SHOWCASE"]).expanduser()
+    return Path(__file__).resolve().parent.parent / "farm-data" / \
+        "showcase-products.json"
+
+
+def _norm(t):
+    return re.sub(r"[^a-z0-9]+", " ", str(t).lower()).strip()
+
+
+def pick_showcase_problem(run, cfg):
+    """'' when the pick is in the saved showcase list, else the reason."""
+    pick = pick_from_record(run, cfg)
+    if not pick:
+        return ""
+    rec = run / "steps" / STEP_DIRS[3] / "pick.md"
+    text = pick + "\n" + (rec.read_text(encoding="utf-8", errors="replace")
+                          if rec.exists() else "")
+    try:
+        products = json.loads(showcase_path().read_text(
+            encoding="utf-8")).get("products") or []
+    except (OSError, ValueError):
+        products = []
+    if not products:
+        return ("there is no saved showcase list to check the pick against "
+                "(farm-data/showcase-products.json)")
+    ids = set(re.findall(r"\d{12,}", text))
+    want = _norm(pick)
+    for prod in products:
+        lid = str(prod.get("listing_id") or "").strip()
+        if lid and lid in ids:
+            return ""
+        name = _norm(prod.get("name", ""))
+        if name and want and (name == want or (len(want) >= 12 and (
+                name.startswith(want) or want.startswith(name)))):
+            return ""
+    return (f"the pick '{pick}' is not in the saved showcase list "
+            "(farm-data/showcase-products.json)")
+
+
+# ---- Time caps enforced by the farm (Glam, Nov 25): a job claims its step,
+# and a hand-in past the cap is refused and BLOCKED goes on the board.
+def cap_minutes(step):
+    nums = RULES.get("numbers", {})
+    if step == 2:
+        return int(nums.get("scout_time_cap_minutes", 10))
+    return int(nums.get("job_time_cap_minutes", 5))
+
+
+def claim_path(run, step):
+    d = STEP_DIRS.get(step)
+    return (run / "steps" / d / "CLAIM.md") if d else None
+
+
+def read_claim(run, step):
+    p = claim_path(run, step)
+    return parse_kv(p) if p and p.is_file() else {}
+
+
+def claim_expired(run, step):
+    kv = read_claim(run, step)
+    try:
+        started = float(kv.get("claimed_epoch", ""))
+    except ValueError:
+        return False, kv
+    return (time.time() - started) > cap_minutes(step) * 60, kv
+
+
+def cap_guard(run, step, args, what):
+    """True when the hand-in is inside the step's time cap."""
+    kv = read_claim(run, step)
+    if not kv:
+        if test_mode():
+            return True
+        print(f"{what} REFUSED — claim the job first, so the time cap can "
+              f"start: runner.py claim {run.name} --step {step} --by "
+              "\"<your role>\" --session <your id>.")
+        return False
+    sid = (getattr(args, "session", None) or os.environ.get(
+        "FARM_SESSION_ID") or "").strip()
+    if sid and kv.get("session") and kv.get("session") != sid:
+        print(f"{what} REFUSED — Step {step} was claimed by {kv.get('session')}, "
+              f"not {sid}. The job that claims the step hands it in.")
+        return False
+    expired, _ = claim_expired(run, step)
+    if expired:
+        mins = cap_minutes(step)
+        reason = (f"time cap reached: claimed at {kv.get('claimed_at', '?')}, "
+                  f"{mins}-minute cap")
+        file_blocked_report(run, step, kv.get("by", "?"), reason,
+                            kv.get("session", ""))
+        write_status_file()
+        print(f"{what} REFUSED — {reason}. BLOCKED is on the board. Claim the "
+              "step again to start a fresh try.")
+        return False
+    return True
+
+
+def drop_claim(run, step):
+    p = claim_path(run, step)
+    if p and p.is_file():
+        p.unlink()
+
+
+def flag_expired_claims(run):
+    """At every status export: a claim past its cap with no hand-in files
+    BLOCKED 'time cap reached' on the board."""
+    for step in STEP_DIRS:
+        expired, kv = claim_expired(run, step)
+        if expired and not blocked_report(run, step):
+            file_blocked_report(
+                run, step, kv.get("by", "?"),
+                f"time cap reached: claimed at {kv.get('claimed_at', '?')}, "
+                f"{cap_minutes(step)}-minute cap, nothing handed in",
+                kv.get("session", ""))
+
+
 def covers_for(paths):
     return ",".join(sorted(sha256_file(Path(p)) for p in paths))
 
@@ -1160,7 +1291,7 @@ class _FarmGit:
     def run_files(self, run):
         files = []
         for f in sorted(run.rglob("*")):
-            if f.is_file() and f.name != SYNC_MARK and not f.name.endswith(".tmp"):
+            if f.is_file() and f.name not in (SYNC_MARK, ".farm-conflict") and not f.name.endswith(".tmp"):
                 files.append(f)
         return files
 
@@ -1200,6 +1331,11 @@ def _sync_mark(run):
     return f.read_text(encoding="utf-8").strip() if f.exists() else ""
 
 
+SYNC_STATE = {"state": "off"}
+SHARED_ENTRIES = {}
+CONFLICT_MARK = ".farm-conflict"
+
+
 def sync_runs():
     """Before every command: bring down runs other agents (or Start Run on
     the farm page) put on the shared branch. A run changed here AND there
@@ -1213,9 +1349,17 @@ def sync_runs():
     fg = _FarmGit()
     if not fg.ok:
         return
+    SYNC_STATE["state"] = "failed"
     try:
         if not fg.fetch():
+            SYNC_STATE["state"] = "ok"
             return
+        try:
+            shared = json.loads(fg.git("show", f"{fg.head}:farm-status.json"))
+            SHARED_ENTRIES.update({r.get("run_id"): r
+                                   for r in shared.get("runs", [])})
+        except (RuntimeError, ValueError):
+            pass
         RUNS_DIR.mkdir(parents=True, exist_ok=True)
         for name, rtree in fg.remote_runs().items():
             local = RUNS_DIR / name
@@ -1224,19 +1368,31 @@ def sync_runs():
                 base = _sync_mark(local)
                 if ltree == rtree:
                     (local / SYNC_MARK).write_text(rtree + "\n", encoding="utf-8")
+                    (local / CONFLICT_MARK).unlink(missing_ok=True)
                     continue
-                if base and ltree != base and rtree != base:
+                if not base and ltree != rtree:
+                    # Glam, Nov 25: a run name exists only once. This copy was
+                    # never on the shared farm, so it's moved aside (kept, not
+                    # deleted) and the shared run is used.
+                    retired = WORKSPACE / "farm-runs-retired"
+                    retired.mkdir(parents=True, exist_ok=True)
+                    dest = retired / f"{name}-local-{datetime.now():%Y%m%d-%H%M%S}"
+                    shutil.move(str(local), str(dest))
+                    print(f"DUPLICATE RUN NAME — a copy of {name} made on this "
+                          "computer was never on the shared farm. It was moved "
+                          f"aside to {dest} and the shared {name} is used. "
+                          "Report it.")
+                elif base and ltree != base and rtree != base:
                     print(f"RUN CONFLICT — {name} changed here and on the shared "
                           "farm since the last sync. Nothing was overwritten. "
                           "Report it to Claude before going on.")
+                    (local / CONFLICT_MARK).write_text(rtree + "\n",
+                                                       encoding="utf-8")
                     continue
-                if ltree != base and base:
+                elif ltree != base and base:
                     continue  # only changed here: it goes up on the next publish
-                if not base and ltree != rtree:
-                    print(f"RUN CONFLICT — {name} exists here and on the shared "
-                          "farm with different files. Nothing was overwritten. "
-                          "Report it to Claude before going on.")
-                    continue
+                else:
+                    pass
             data = fg.git("archive", "--format=tar", f"{fg.head}:runs/{name}",
                           text=False)
             tmpd = RUNS_DIR / (name + ".sync-tmp")
@@ -1255,6 +1411,7 @@ def sync_runs():
             if local.exists():
                 shutil.rmtree(local)
             tmpd.rename(local)
+        SYNC_STATE["state"] = "ok"
     except Exception as e:  # noqa: BLE001
         print(f"SHARED RUNS NOT SYNCED — {e}. You may be working on an old "
               "copy of the run. Report it.")
@@ -1352,6 +1509,9 @@ def eval_step(run, cfg, n):
                            "(smart story check passed)")
     if n == 3:
         if nonempty_file(steps / STEP_DIRS[3] / "pick.md"):
+            why = pick_showcase_problem(run, cfg)
+            if why:
+                return ("INVALID", f"BLOCKED: {why}")
             return ("CLEARED", f"pick recorded: {pick_from_record(run, cfg)}")
         return ("WAITING", "no pick record on file (steps/step3-pick/pick.md)")
     if n == 4:
@@ -1579,6 +1739,11 @@ def write_derived_block(run):
 def cmd_create(args):
     if refuse_if_old_rules("START A RUN"):
         return 2
+    if SYNC_STATE["state"] == "failed":
+        print("START A RUN REFUSED — couldn't read the shared farm, so a new "
+              "run name can't be checked against the runs already there. "
+              "Try again; report it if it keeps happening.")
+        return 2
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     today = datetime.now().strftime("%Y-%m-%d")
     n = 1
@@ -1686,6 +1851,37 @@ def cmd_report_blocked(args):
     return 0
 
 
+def cmd_claim(args):
+    """A job claims its open step; its time cap starts now (Scout 10 minutes,
+    every other job 5). Claiming again starts a fresh try."""
+    run = resolve_run(args.run)
+    info = open_job_info(run)
+    n = args.step
+    if info["kind"] != "agent" or info["step"] != n:
+        now = (f"Step {info['step']} — {info['to']}" if info["step"]
+               else "Glam's final review")
+        print(f"CLAIM REFUSED — Step {n} isn't an open agent job. The chain is "
+              f"at {now}.")
+        return 2
+    if not by_allowed(n, args.by):
+        print(f"CLAIM REFUSED — Step {n} belongs to {info['agent']}; "
+              f"'{args.by}' can't claim it.")
+        return 2
+    sid = session_guard(run, args.by, n, args, "CLAIM")
+    if not sid:
+        return 2
+    mins = cap_minutes(n)
+    claim_path(run, n).write_text(
+        f"by: {args.by}\nstep: {n}\nsession: {sid}\nclaimed_at: {now_stamp()}\n"
+        f"claimed_epoch: {time.time():.0f}\ncap_minutes: {mins}\n",
+        encoding="utf-8")
+    sheet_log(run, f"CLAIM: Step {n} by {args.by} ({sid}) — {mins}-minute cap")
+    write_status_file()
+    print(f"Claimed {run.name} Step {n} for {args.by}. Your {mins}-minute cap "
+          "starts now: hand in, or report-blocked, before it runs out.")
+    return 0
+
+
 REQUEST_KEYS = {"mode", "product", "account"}
 
 
@@ -1778,6 +1974,8 @@ def cmd_attach_photo(args):
     if src.suffix.lower() not in IMAGE_EXTS:
         raise SystemExit(f"Not an image file ({src.suffix}); the Step 4 "
                          "evidence must be the listing photo image itself.")
+    if not cap_guard(run, 4, args, "ATTACH PHOTO"):
+        return 2
     if not session_guard(run, args.by, 4, args, "ATTACH PHOTO"):
         return 2
     dest_dir = run / "steps" / STEP_DIRS[4]
@@ -1786,6 +1984,7 @@ def cmd_attach_photo(args):
     (dest_dir / "GRABBED-BY.txt").write_text(args.by + "\n", encoding="utf-8")
     sheet_log(run, f"Step 4: listing photo attached ({src.name}), grabbed by {args.by}.")
     print(f"Attached {src.name} to {run.name}/steps/step4-photo/ (grabber of record: {args.by})")
+    drop_claim(run, 4)
     sync_chain(run, actor=args.by, submitted=dest)
     write_status_file()
     return 0
@@ -1793,6 +1992,8 @@ def cmd_attach_photo(args):
 
 def cmd_record_match(args):
     run = resolve_run(args.run)
+    if not cap_guard(run, 5, args, "RECORD MATCH"):
+        return 2
     if not session_guard(run, args.checker, 5, args, "RECORD MATCH"):
         return 2
     dest = run / "steps" / STEP_DIRS[5] / "match-verdict.md"
@@ -1812,6 +2013,7 @@ def cmd_record_match(args):
     if args.checker.strip().lower() == args.grabber.strip().lower():
         print("WARNING: checker == grabber. The derivation will REFUSE to "
               "count this verdict — a self-check is not a check.")
+    drop_claim(run, 5)
     sync_chain(run, actor=args.checker,
                submitted=run / "steps" / STEP_DIRS[5] / "match-verdict.md")
     write_status_file()
@@ -2779,7 +2981,7 @@ def cmd_check_rules(args):
 # ----------------------------------------------------------------------------
 
 AGENTS = {int(a["step"]): a for a in RULES.get("agents", [])}
-CHAIN_SKIP_NAMES = {"JOB.md", "BLOCKED.md", "GRABBED-BY.txt", "links.md",
+CHAIN_SKIP_NAMES = {"JOB.md", "BLOCKED.md", "CLAIM.md", ".farm-conflict", "GRABBED-BY.txt", "links.md",
                     "verdict-covers.json", "staging-proof.md"}
 
 
@@ -2921,11 +3123,10 @@ def open_job_info(run):
 
 def time_cap_line(step=None):
     """Glam, Nov 25: the Scout gets 10 minutes; every other job gets 5."""
-    from datetime import timedelta
-    mins = 10 if step == 2 else 5
-    due = (datetime.now() + timedelta(minutes=mins)).strftime("%Y-%m-%d %H:%M")
-    return (f"⏱ Time cap: {mins} minutes (until {due}). At the cap, hand in "
-            "what you have, or run report-blocked with the reason.\n")
+    mins = cap_minutes(step)
+    return (f"⏱ Time cap: {mins} minutes, counted from when you claim the "
+            "step. At the cap, hand in what you have, or run report-blocked "
+            "with the reason.\n")
 
 
 def streamer_only_line():
@@ -2985,6 +3186,11 @@ def job_md(run, info):
     out.append(streamer_only_line())
     out.append(locked_rule_line())
     out.append(time_cap_line(n))
+    out.append(f"▶ Start by claiming the step (the clock starts then): "
+               f"runner.py claim {cfg['run_id']} --step {n} --by "
+               f"\"{a.get('agent', '').split(' + ')[0]}\" --session <your id>. "
+               "A hand-in past the cap is refused and BLOCKED goes on the board. "
+               "Claim again to start a fresh try.\n")
     out.append("## Your job")
     out.append(fill(a.get("job", "")) + "\n")
     out.append("## Read these (exact files)")
@@ -3138,6 +3344,8 @@ def cmd_submit(args):
     if not src.is_file():
         print(f"SUBMIT REFUSED — file not found: {src}")
         return 2
+    if n != 10 and not cap_guard(run, n, args, "SUBMIT"):
+        return 2
     if not session_guard(run, "Mila" if n == 10 else args.by, n, args,
                          "SUBMIT"):
         return 2
@@ -3165,6 +3373,7 @@ def cmd_submit(args):
         if n == 4:
             (folder / "GRABBED-BY.txt").write_text(args.by + "\n", encoding="utf-8")
     sheet_log(run, f"SUBMIT: Step {n} by {args.by} — {dest.name}")
+    drop_claim(run, n)
     after = sync_chain(run, actor=args.by, submitted=dest)
     write_status_file()
     if after["kind"] == "agent" and after["step"] == n and after["findings"]:
@@ -3295,6 +3504,12 @@ def run_status_entry(run):
         elif info["kind"] == "glam":
             owner = "Glam"
             needs = f"Glam — {info['what']}"
+        if not nonempty_file(run / "steps" / STEP_DIRS[3] / "pick.md") \
+                and (cfg.get("pick") or "").strip():
+            why = pick_showcase_problem(run, cfg)
+            if why:
+                needs += f" (note: {why}; Step 3 will report BLOCKED unless " \
+                         "it's in the list)"
         br = blocked_report(run, info.get("step")) \
             if info["kind"] in ("agent", "mila") else None
         if br:
@@ -3333,6 +3548,10 @@ def write_status_file():
     if RUNS_DIR.is_dir():
         for run in sorted(d for d in RUNS_DIR.iterdir()
                           if d.is_dir() and (d / "config.json").exists()):
+            if (run / CONFLICT_MARK).exists() and run.name in SHARED_ENTRIES:
+                runs.append(SHARED_ENTRIES[run.name])  # the board shows shared state
+                continue
+            flag_expired_claims(run)
             runs.append(run_status_entry(run))
     data = {"generated_at": now_stamp(), "rules_version": RULES["version"],
             "freeze": "ON", "runs": runs}
@@ -3506,6 +3725,13 @@ def main():
     p.add_argument("--session", default="")
     p.add_argument("--clear", action="store_true")
     p.set_defaults(fn=cmd_report_blocked)
+
+    p = sub.add_parser("claim", help="a job claims its open step; its time cap (Scout 10 min, others 5) starts now")
+    p.add_argument("run")
+    p.add_argument("--step", type=int, required=True)
+    p.add_argument("--by", required=True)
+    p.add_argument("--session", default="")
+    p.set_defaults(fn=cmd_claim)
 
     p = sub.add_parser("start-request", help="open a run from a farm-requests/*.json file (what a push from Muse runs)")
     p.add_argument("file")

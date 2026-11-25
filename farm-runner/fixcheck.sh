@@ -9,6 +9,9 @@ export FARM_NO_PUBLISH=1
 # Glam, Nov 25: tests run in test mode with their own throwaway Mila key;
 # the real key lives only in Mila's own session.
 export FARM_TEST_MODE=1
+# Glam, Nov 25: picks are checked against the saved showcase list; tests use their own list.
+python3 -c "import json;json.dump({'products':[{'name':n,'listing_id':i} for n,i in [('TEST Cloud Slides','100000000001'),('TEST Mug','100000000002'),('TEST Scalp Oil','100000000003'),('Test Oil','100000000004'),('Turmeric + Honey Body Oil (Elowen Lab)','100000000005'),('a tall rectangular clear bottle, the label reads Amococo, TURMERIC, 200ml','100000000006')]]},open('/tmp/fx_showcase.json','w'))"
+export FARM_SHOWCASE=/tmp/fx_showcase.json
 python3 -c "import os;open('/tmp/fx_mila_key','w').write(os.urandom(32).hex())"
 export MILA_SIGNING_KEY=/tmp/fx_mila_key
 export FARM_TEST_MILA_PUBKEY=$(python3 -c "import sys;sys.path.insert(0,'$(cd "$(dirname "$0")" && pwd)');import ed25519 as e;print(e.public_key(bytes.fromhex(open('/tmp/fx_mila_key').read().strip())).hex())")
@@ -457,6 +460,17 @@ OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home2 python3 $PB/farm2/farm-run
 expect "SHARED the same run changed on two computers is a loud conflict, nothing overwritten" "RUN CONFLICT|changed on the shared farm" "$(echo "$OUT"|tr '\n' ' ')"
 OUT=$(cat $PB/home2/workspace/farm-runs/$RID/steps/step2-scout/clash.txt); expect "SHARED the conflicting copy was kept, not overwritten" "^edit B$" "$OUT"
 rm -f $PB/home/workspace/farm-runs/$RID/steps/step2-scout/clash.txt $PB/home2/workspace/farm-runs/$RID/steps/step2-scout/clash.txt
+# Glam, Nov 25: a run name exists once. A local copy never on the shared farm is moved aside and the shared run is used.
+mkdir -p $PB/home3/workspace/farm-runs/$RID/steps/step2-scout
+printf '{"run_id": "%s", "mode": "LOCAL OVERNIGHT COPY", "freeze": "ON"}\n' "$RID" > $PB/home3/workspace/farm-runs/$RID/config.json
+git clone -q $PB/origin.git $PB/farm3 2>/dev/null; cp -r "$ROOTF/farm-runner" "$ROOTF/farm-rules.json" "$ROOTF/index.html" $PB/farm3/
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home3 python3 $PB/farm3/farm-runner/runner.py status $RID 2>&1)
+expect "DUPNAME a local copy that was never shared is moved aside, not used" "DUPLICATE RUN NAME — a copy of $RID" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(python3 -c "import json;print(json.load(open('$PB/home3/workspace/farm-runs/$RID/config.json'))['mode'])"); expect "DUPNAME the shared run is the one used" "^Get Ready With Me$" "$OUT"
+ls -d $PB/home3/workspace/farm-runs-retired/$RID-local-* >/dev/null 2>&1 && ok "DUPNAME the local copy is kept aside, not deleted" "farm-runs-retired" || bad "DUPNAME local copy lost" ""
+git clone -q $PB/origin.git $PB/farm4 2>/dev/null; cp -r "$ROOTF/farm-runner" "$ROOTF/farm-rules.json" "$ROOTF/index.html" $PB/farm4/; git -C $PB/farm4 remote set-url origin $PB/missing.git
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home4 python3 $PB/farm4/farm-runner/runner.py create --mode "Get Ready With Me" 2>&1; echo "exit $?")
+expect "DUPNAME no new run when the shared farm can't be read (its names can't be checked)" "START A RUN REFUSED — couldn't read the shared farm.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
 echo x > $PB/home/workspace/farm-runs/$(ls $PB/home/workspace/farm-runs|head -1)/steps/step2-scout/more.txt
 OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home python3 $PB/farm/farm-runner/runner.py status-export 2>&1)
 expect "STATUS a second publish stacks on the first" "Status published to the Live Run Board" "$OUT"
@@ -484,10 +498,12 @@ Rn(){ env -u FARM_TEST_MODE HOME=$SG/home python3 "$ROOTF/farm-runner/runner.py"
 Rn create --mode "Get Ready With Me" >/dev/null 2>&1
 SR=$(ls $SG/home/workspace/farm-runs | head -1)
 printf 'Scout notes: the trends.\nStory: For grown ladies who give everyone else their evenings, this is a little scalp-care moment that is just theirs.\n' > $SG/scout.md
-OUT=$(Rn submit $SR --step 2 --by "TikTok Scout" --file $SG/scout.md 2>&1; echo "exit $?"); expect "SESSION a hand-in without the agent's own session is refused" "SUBMIT REFUSED.*names the agent's own id.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rn claim $SR --step 2 --by "TikTok Scout" 2>&1; echo "exit $?"); expect "SESSION a hand-in without the agent's own session is refused" "REFUSED.*names the agent's own id.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+Rn claim $SR --step 2 --by "TikTok Scout" --session session_01SCOUTAAAAAAA >/dev/null 2>&1
 OUT=$(Rn submit $SR --step 2 --by "TikTok Scout" --file $SG/scout.md --session session_01SCOUTAAAAAAA 2>&1); expect "SESSION the Scout's own session hands in" "checks passed|Handed to" "$OUT"
 printf 'product: Test Oil\nlisting ID: 123\n' > $SG/pick.md
-OUT=$(Rn submit $SR --step 3 --by "TikTok Shop Agent" --file $SG/pick.md --session session_01SCOUTAAAAAAA 2>&1; echo "exit $?"); expect "SESSION one session can't play a second agent" "already acted as TikTok Scout.*One session, one role.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rn claim $SR --step 3 --by "TikTok Shop Agent" --session session_01SCOUTAAAAAAA 2>&1; echo "exit $?"); expect "SESSION one session can't play a second agent" "already acted as TikTok Scout.*One session, one role.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+Rn claim $SR --step 3 --by "TikTok Shop Agent" --session session_01SHOPBBBBBBBB >/dev/null 2>&1
 OUT=$(Rn submit $SR --step 3 --by "TikTok Shop Agent" --file $SG/pick.md --session session_01SHOPBBBBBBBB 2>&1); expect "SESSION the Shop Agent's own session hands in" "checks passed|Handed to" "$OUT"
 OUT=$(Rn proof $SR 2>&1); expect "PROOF lists a different session per step" "OK — 2 different id" "$(echo "$OUT"|tr '\n' ' ')"
 mkdir -p $SG/shared; cp /tmp/fx_mila_key $SG/shared/k
@@ -588,7 +604,7 @@ grep -q "report-blocked" $HOME/workspace/farm-runs/$RQ/steps/step3-pick/JOB.md &
 
 # ---------- MUSE IDS (Glam, Nov 25: "This is Muse job"): Muse jobs hand in with their own job id
 RM=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p'); MS=$HOME/workspace/farm-runs/$RM/steps
-OUT=$(env -u FARM_TEST_MODE $R submit $RM --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md 2>&1; echo "exit $?"); expect "MUSEID a hand-in with no id is still refused" "REFUSED — every hand-in names the agent's own id.*muse_.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(env -u FARM_TEST_MODE $R claim $RM --step 2 --by "TikTok Scout" 2>&1; echo "exit $?"); expect "MUSEID a hand-in with no id is still refused" "REFUSED — every hand-in names the agent's own id.*muse_.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
 OUT=$($R submit $RM --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md --session "muse_x" 2>&1; echo "exit $?"); expect "MUSEID a malformed Muse id is refused" "REFUSED.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
 OUT=$($R submit $RM --step 2 --by "TikTok Scout" --file /tmp/fx/scoutq.md --session muse_job-scout-7f3a 2>&1); expect "MUSEID the Muse Scout job hands in with its own job id" "Handed to TikTok Shop Agent \(Step 3\)" "$OUT"
 printf 'product: TEST Scalp Oil\nlisting: test\n' > /tmp/fx/pickm.md
@@ -654,5 +670,43 @@ assert roles["Showcase list refresh"]["schedule"]=="once a day" and roles["Weekl
 for f in ("angle-log.json","scorecard.json","showcase-products.json","weekly-lineup.json"):
     assert not os.path.exists(f"{r}/{f}") and os.path.exists(f"{r}/farm-data/{f}"), f
 PYU
+
+# ---------- FIXES (Glam, Nov 25: "all the damn fixes done and the farm updated")
+# Pick must be a real showcase product: check only, BLOCKED with the reason, nothing swapped.
+RP=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p'); PS=$HOME/workspace/farm-runs/$RP/steps
+printf 'Findings: x\nStory: Your scalp feels tight after a long week of braids.\n' > $PS/step2-scout/scout.md
+printf 'product: BASK AND LATHER Scalp Stimulator Hair Growth Oil\nlisting ID: 1729385609961706380\n' > $PS/step3-pick/pick.md
+OUT=$($R status $RP | grep 'Step 3 '); expect "PICKCHECK a pick that isn't in the showcase list stops Step 3 as BLOCKED with the reason" "INVALID +BLOCKED: the pick 'BASK AND LATHER.*not in the saved showcase list" "$OUT"
+grep -q "BASK AND LATHER" $PS/step3-pick/pick.md && ok "PICKCHECK the pick is left as it was, nothing swapped" "pick.md unchanged" || bad "PICKCHECK pick changed" ""
+printf 'product: some other name\nlisting ID: 100000000003\n' > $PS/step3-pick/pick.md
+OUT=$($R status $RP | grep 'Step 3 '); expect "PICKCHECK a pick whose listing ID is in the showcase list clears" "CLEARED +pick recorded" "$OUT"
+OUT=$(FARM_SHOWCASE=/tmp/fx/none.json $R status $RP | grep 'Step 3 '); expect "PICKCHECK no saved showcase list = BLOCKED, never a guess" "INVALID +BLOCKED: there is no saved showcase list" "$OUT"
+printf '{"product": "BASK AND LATHER Scalp Stimulator Hair Growth Oil (listing 1729385609961706380)"}\n' > /tmp/fx/req-bl.json
+RQB=$($R start-request /tmp/fx/req-bl.json | sed -n 's/^Run ID: //p')
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RQB'][0];print(r['needs'])"); expect "PICKCHECK a preset pick that isn't in the list shows that note on the board" "note: the pick .*not in the saved showcase list.*Step 3 will report BLOCKED" "$OUT"
+# Time caps enforced by the farm (outside test mode): claim first, refused past the cap, BLOCKED on the board.
+RC2=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p'); CS2=$HOME/workspace/farm-runs/$RC2/steps
+printf 'Findings: x\nStory: Your scalp feels tight after a long week of braids.\n' > /tmp/fx/scout-cap.md
+Rr(){ env -u FARM_TEST_MODE -u FARM_TEST_MILA_PUBKEY python3 "$ROOTF/farm-runner/runner.py" "$@"; }
+OUT=$(Rr submit $RC2 --step 2 --by "TikTok Scout" --file /tmp/fx/scout-cap.md --session muse_farm-agent-scout 2>&1; echo "exit $?"); expect "CAP a hand-in without a claim is refused (the clock must start)" "REFUSED — claim the job first.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rr claim $RC2 --step 3 --by "TikTok Shop Agent" --session muse_farm-agent-shop 2>&1; echo "exit $?"); expect "CAP only the open step can be claimed" "CLAIM REFUSED — Step 3 isn't an open agent job.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rr claim $RC2 --step 2 --by "TikTok Scout" --session muse_farm-agent-scout 2>&1); expect "CAP the Scout claims its step and gets 10 minutes" "Your 10-minute cap starts now" "$OUT"
+grep -q "Time cap: 10 minutes, counted from when you claim" $CS2/step2-scout/JOB.md && grep -q "runner.py claim $RC2 --step 2" $CS2/step2-scout/JOB.md && ok "CAP the Scout's JOB.md says claim first and counts 10 minutes from the claim" "JOB.md" || bad "CAP JOB.md claim line" ""
+python3 - $CS2/step2-scout/CLAIM.md <<'PYC'
+import re,sys,time;p=sys.argv[1];t=open(p).read();open(p,'w').write(re.sub(r"claimed_epoch: \d+",f"claimed_epoch: {int(time.time())-11*60}",t))
+PYC
+OUT=$(Rr submit $RC2 --step 2 --by "TikTok Scout" --file /tmp/fx/scout-cap.md --session muse_farm-agent-scout 2>&1; echo "exit $?"); expect "CAP a hand-in past the 10-minute cap is refused" "REFUSED — time cap reached: claimed at .*10-minute cap.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC2'][0];print(r['state'],'|',r['needs'])"); expect "CAP BLOCKED 'time cap reached' is on the board at once" "^STOPPED \| TikTok Scout reported BLOCKED: time cap reached" "$OUT"
+OUT=$(Rr claim $RC2 --step 2 --by "TikTok Scout" --session muse_farm-agent-scout 2>&1); expect "REFIRE the Scout can be fired again: a new claim starts a fresh try" "Your 10-minute cap starts now" "$OUT"
+[ ! -e $CS2/step2-scout/BLOCKED.md ] && ok "REFIRE the new claim clears the old time-cap BLOCKED" "cleared" || bad "REFIRE old BLOCKED still there" ""
+OUT=$(Rr submit $RC2 --step 2 --by "TikTok Scout" --file /tmp/fx/scout-cap.md --session muse_farm-agent-scout 2>&1); expect "REFIRE the refired Scout hands in inside its cap" "Handed to TikTok Shop Agent \(Step 3\)" "$OUT"
+[ ! -e $CS2/step2-scout/CLAIM.md ] && ok "CAP the claim is cleared once the step is handed in" "CLAIM.md gone" || bad "CAP claim left behind" ""
+OUT=$(Rr claim $RC2 --step 3 --by "TikTok Shop Agent" --session muse_farm-agent-shop 2>&1); expect "CAP every other job gets 5 minutes" "Your 5-minute cap starts now" "$OUT"
+OUT=$(Rr submit $RC2 --step 3 --by "TikTok Shop Agent" --file /tmp/fx/pickm.md --session muse_farm-agent-story 2>&1; echo "exit $?"); expect "CAP only the job that claimed the step can hand it in" "was claimed by muse_farm-agent-shop, not muse_farm-agent-story.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+python3 - $CS2/step3-pick/CLAIM.md <<'PYC'
+import re,sys,time;p=sys.argv[1];t=open(p).read();open(p,'w').write(re.sub(r"claimed_epoch: \d+",f"claimed_epoch: {int(time.time())-6*60}",t))
+PYC
+Rr status-export >/dev/null 2>&1
+grep -q "time cap reached: .*5-minute cap, nothing handed in" $CS2/step3-pick/BLOCKED.md && ok "CAP a claim past its cap with nothing handed in is flagged BLOCKED at the next status export" "BLOCKED.md" || bad "CAP export flagging" "$(cat $CS2/step3-pick/BLOCKED.md 2>&1)"
 
 echo; echo "SUMMARY: $P passed, $F failed"

@@ -667,6 +667,25 @@ rt=json.load(open(f"{r}/farm-agents/routines.json")); sj={j["role"]:j for j in r
 assert "10 minutes per run" in sj["Photo finisher"]["mode"] and "10 minutes per run" in sj["Weekly lineup"]["mode"]
 assert "5 minutes" not in open(f"{r}/farm-agents/prompts/photo-finisher.md").read()
 PYL
+python3 - "$ROOTF" <<'PYB' && ok "BOTCHK photos only from Streamer Desktop and bot check = BLOCKED are in rules, prompts and routines" "laws + prompts + routines" || bad "BOTCHK photo/bot-check rules" ""
+import json,sys
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json")); L={l["id"]:l for l in d["laws"]}
+pt=L["photos-streamer-only"]["text"]; bt=L["bot-check-blocked"]["text"]
+assert "ONLY from TikTok Shop Streamer Desktop" in pt and "Never open a regular tiktok.com" in pt and "BLOCKED" in pt
+assert "never try to solve it and never wait on it" in bt and "BLOCKED at once" in bt and "site and the page" in bt
+assert all("bot-check-blocked" in a["laws"] for a in d["agents"])
+A={a["step"]:a for a in d["agents"] if a.get("kind")!="mila"}
+assert "photos-streamer-only" in A[4]["laws"] and "Streamer Desktop" in A[4]["job"] and "bot or security check" in A[4]["job"]
+for lid in ("photo-finisher","weekly-lineup"):
+    assert "never from a regular tiktok.com page" in L[lid]["text"] and "BLOCKED at once" in L[lid]["text"]
+for f in ("photo-finisher.md","shop.md"):
+    t=open(f"{r}/farm-agents/prompts/{f}").read()
+    assert "Never open a regular tiktok.com product or video page" in t and "never try to solve it and never wait on it" in t
+rt=json.load(open(f"{r}/farm-agents/routines.json")); sj={j["role"]:j for j in rt["support_jobs"]}
+assert all("BLOCKED at once" in sj[k]["what"] for k in ("Photo finisher","Weekly lineup"))
+PYB
+RP=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
+grep -q "Bot check means BLOCKED at once" $HOME/workspace/farm-runs/$RP/steps/step2-scout/JOB.md && ok "BOTCHK a new run's JOB.md carries the bot-check rule" "JOB.md" || bad "BOTCHK JOB.md" ""
 RT=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 grep -q "Time cap: 10 minutes" $HOME/workspace/farm-runs/$RT/steps/step2-scout/JOB.md && ok "BRAIN the Scout's JOB.md gives it 10 minutes" "JOB.md" || bad "BRAIN Scout 10 min" ""
 

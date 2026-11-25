@@ -4,6 +4,8 @@
 Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, report BLOCKED and Glam signs in herself.
 Step 3: read the Scout's findings and pick the product from Glam's showcase in TikTok Shop Streamer Desktop (read only). Write pick.md with a product: line (exact listing name), the listing ID, price and status as the showcase shows them, and why.
 Step 4: attach the product's real main listing photo, unchanged, with runner.py attach-photo <run> <file> --by "TikTok Shop Agent" --session <id>. If you can't get the real photo file, BLOCKED. Never use a photo you can't trace to the live listing; never draw or edit one. You need Glam's Chrome.
+Step 4 photos come ONLY from TikTok Shop Streamer Desktop / LIVE Manager (shop.tiktok.com/streamer/...). Never open a regular tiktok.com product or video page to get a product photo. If Streamer Desktop can't give the photo, BLOCKED with the reason, no substitute.
+Any bot or security check on any page (a CAPTCHA, a "Security Check" page, a slider puzzle): never try to solve it and never wait on it. Report BLOCKED at once with the site and the page, and stop.
 
 ## Rules every farm agent follows (Glam, Nov 25)
 - You are ONE farm agent. Do only your own step. Never do another agent's work, never act for another agent, never hand in for another role.

@@ -19,13 +19,13 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 <!-- DERIVED-STATUS:BEGIN -->
 ```
 RUN run-2026-11-25-1 — BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth · (model at Step 7) · (mode open) · @glamorousgrammyglowup
-Status derived from evidence on disk at 2026-11-25 14:42 — never set by hand.
+Status derived from evidence on disk at 2026-11-25 14:44 — never set by hand.
 
   Step 1  Start Run                    CLEARED  run created; config recorded from operator input
   Step 2  Scout                        CLEARED  scout findings + story sentence on file (smart story check passed)
   Step 3  Pick                         CLEARED  pick recorded: BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth
   Step 4  Product Photo                CLEARED  listing photo attached: bask-lather-scalp-stimulator-listing-1729385609961706380.png
-  Step 5  Photo Match Check            WAITING  no match verdict recorded — the grabbed photo has not been checked against the listing's own image
+  Step 5  Photo Match Check            CLEARED  photo MATCH recorded by Photo Match Checker (grabber: TikTok Shop Agent) against the listing's own image
   Step 6  Script                       WAITING  no script on file (steps/step6-script/script.md)
   Step 7  Styled Image                 WAITING  no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo
   Step 8  Package                      WAITING  no package on file (steps/step8-package/package.md)
@@ -33,7 +33,7 @@ Status derived from evidence on disk at 2026-11-25 14:42 — never set by hand.
   Step 10 Checks — Mila (QC owner)     WAITING  no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build
   Step 11 Caption & Post               FROZEN   posting freeze is ON — the runner has no posting action; Step 11 never clears here
 
-HEADLINE: BLOCKED at Step 5 (Photo Match Check) — no match verdict recorded — the grabbed photo has not been checked against the listing's own image
+HEADLINE: BLOCKED at Step 6 (Script) — no script on file (steps/step6-script/script.md)
 ```
 <!-- DERIVED-STATUS:END -->
 

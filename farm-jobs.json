@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-25 17:10",
-  "rules_version": "2026-11-25j",
+  "generated_at": "2026-11-25 17:29",
+  "rules_version": "2026-11-25k",
   "jobs": [
     {
       "step": 2,
@@ -18,15 +18,17 @@
       "run_id": "run-2026-11-24-1"
     },
     {
-      "step": 6,
-      "agent": "Mila",
-      "job_file": "steps/step6-script/JOB.md",
-      "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+      "step": 3,
+      "agent": "TikTok Shop Agent",
+      "job_file": "steps/step3-pick/JOB.md",
+      "job": "Pick the day's product from this week's lineup (farm-data/weekly-lineup.json). Start with the stock and price check: a sold-out product gets skipped and the next one is picked. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
       "needs": [
-        "Mila (an AI agent) to read the script against the farm laws"
+        "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
       ],
-      "since": "2026-11-25 16:29",
-      "sent_back": [],
+      "since": "2026-11-25 14:50",
+      "sent_back": [
+        "BLOCKED: the pick 'BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth' is not in the saved showcase list (farm-data/showcase-products.json)"
+      ],
       "run_id": "run-2026-11-25-1"
     },
     {

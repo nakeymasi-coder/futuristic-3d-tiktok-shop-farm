@@ -17,7 +17,7 @@
 - Mila: not a Muse job. Mila stays out of Muse; the coordinator starts her when a gate opens. No Mila automation.
 
 **Support jobs in Muse (not run steps; listed in routines.json under `support_jobs`):**
-- Showcase list refresh: once a day, writes `farm-data/showcase-products.json`.
+- Showcase list refresh: once a day, writes `farm-data/showcase-products.json`, including each product's saved image links (`image_urls`).
 - Weekly lineup: every Monday, writes `farm-data/weekly-lineup.json`, 10 minutes per run.
 - Photo finisher: saves the lineup's blocked photos, 10 minutes per run (`prompts/photo-finisher.md`).
 

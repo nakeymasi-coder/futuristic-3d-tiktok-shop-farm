@@ -863,6 +863,19 @@ def key_in_shared_folder(p):
 # agent's role"). Every hand-in names the session that did it; one session
 # acts as one role per run; the ledger is the proof per step.
 SESSION_RE = re.compile(r"^session_[A-Za-z0-9]{8,}$")
+# Glam, Nov 25: "This is Muse job." Muse (Indigo) runs the agent steps as
+# separate scheduled jobs; each hands in with its own Muse job id, written
+# muse_<job id>. Mila's gates still need her signed verdict (Claude session +
+# the Mila sign workflow); Muse never gets her key.
+MUSE_JOB_RE = re.compile(r"^muse_[A-Za-z0-9][A-Za-z0-9_-]{3,79}$")
+
+
+def id_kind(sid):
+    if SESSION_RE.match(sid):
+        return "Claude session"
+    if MUSE_JOB_RE.match(sid):
+        return "Muse job"
+    return ""
 
 
 def ledger_path(run):
@@ -889,15 +902,20 @@ def session_guard(run, role, step, args, what):
            or "").strip()
     if not sid and test_mode():
         sid = "session_TESTMODE" + re.sub(r"[^A-Za-z0-9]", "", role)[:20]
-    if not SESSION_RE.match(sid):
-        print(f"{what} REFUSED — every hand-in names the agent's own session "
-              "(--session session_...; the agent reads it with get_session). "
-              "Each farm agent runs as its own session.")
+    is_mila = role.strip().lower() == "mila"
+    if is_mila and not SESSION_RE.match(sid):
+        print(f"{what} REFUSED — Mila's verdicts carry her own Claude session "
+              "id (session_...) and come only through the Mila sign workflow.")
+        return None
+    if not id_kind(sid):
+        print(f"{what} REFUSED — every hand-in names the agent's own id with "
+              "--session: muse_<your Muse job id> for a Muse job, or a Claude "
+              "session id (session_...). Each farm agent runs as its own job.")
         return None
     norm = role.strip().lower()
     for rec in read_ledger(run):
         if rec.get("session") == sid and rec.get("role", "").lower() != norm:
-            print(f"{what} REFUSED — session {sid} already acted as "
+            print(f"{what} REFUSED — {sid} already acted as "
                   f"{rec.get('role')} on this run. One session, one role: "
                   f"{role} must be its own session.")
             return None
@@ -2013,25 +2031,27 @@ def cmd_mila_keygen(args):
 
 def cmd_proof(args):
     """Who did each step: the session id per step, from the run's ledger.
-    Check each id against the farm agent's own Routine run record."""
+    Check each id against that agent's own run record: its Muse job history
+    (muse_...) or its Claude session (session_...)."""
     run = resolve_run(args.run)
     recs = read_ledger(run)
     if not recs:
         print(f"PROOF {run.name}: no hand-ins with a session on file.")
         return 1
-    print(f"PROOF {run.name} — session per hand-in (check each against that "
-          "agent's Routine run record):")
+    print(f"PROOF {run.name} — the id behind every hand-in (check each "
+          "against that agent's own Muse job history or Claude session):")
     roles = {}
     for r in recs:
         print(f"  Step {r.get('step')}  {r.get('role'):<26} {r.get('session')}"
-              f"  {r.get('at')}  {r.get('what')}")
+              f"  ({id_kind(r.get('session', '')) or '?'})  {r.get('at')}  "
+              f"{r.get('what')}")
         roles.setdefault(r.get("session"), set()).add(r.get("role"))
     multi = {s: sorted(v) for s, v in roles.items() if len(v) > 1}
     if multi:
-        print("PROOF FAILS — one session played more than one role: "
+        print("PROOF FAILS — one id played more than one role: "
               + "; ".join(f"{s}: {', '.join(v)}" for s, v in multi.items()))
         return 2
-    print(f"OK — {len(roles)} different session(s), one role each.")
+    print(f"OK — {len(roles)} different id(s), one role each.")
     return 0
 
 
@@ -2963,14 +2983,19 @@ def job_md(run, info):
     elif n == 5:
         out.append("- Submit with: runner.py record-match "
                    f"{cfg['run_id']} --checker <you> --grabber <grabber> "
-                   "--verdict MATCH|NO-MATCH")
+                   "--verdict MATCH|NO-MATCH --session <your id>")
     else:
         out.append(f"- Submit with: runner.py submit {cfg['run_id']} --step {n} "
-                   f"--by \"{a.get('agent', '').split(' + ')[0]}\" --file <your file>")
+                   f"--by \"{a.get('agent', '').split(' + ')[0]}\" --file <your file> "
+                   "--session <your id>")
+    if n != 10:
+        out.append("- <your id> is muse_ followed by YOUR OWN Muse scheduled "
+                   "job's id (a Claude agent uses its session_... id). One id "
+                   "acts as one role per run; the proof lists it for this step.")
     out.append(f"- Can't do it? Stop, and put it on the board at once: "
                f"runner.py report-blocked {cfg['run_id']} --step {n} --by "
                f"\"{a.get('agent', '').split(' + ')[0]}\" --reason \"what blocked you "
-               "and why\"")
+               "and why\" --session <your id>")
     out.append(f"- Hands to: {a.get('hands_to', '')}")
     out.append("\n## What this job needs that the runner can't do by itself")
     out += [f"- {x}" for x in a.get("needs", [])]

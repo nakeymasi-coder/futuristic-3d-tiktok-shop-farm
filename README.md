@@ -46,7 +46,10 @@ Glam, Nov 25: "Don't wait for my approval to make the video." Nothing before the
 
 - **Jobs:** when a step clears, the runner opens the next agent's job as `steps/<step>/JOB.md`. The job text, the laws that agent follows and what it needs all come from `farm-rules.json → agents`. JOB.md also lists the exact input files with their sha256.
 - **Finding your work:** `python3 farm-runner/runner.py jobs` lists every open job and writes `farm-jobs.json` next to `farm-status.json`.
-- **Handing in:** `python3 farm-runner/runner.py submit <run> --step N --by "<agent>" --file <your file>`. Step 5 uses `record-match` instead. The step's checks run at once (story check, script check, lint and caption).
+- **Starting a run:** Muse pushes a new file into `farm-requests/` on main, and the run opens (see `farm-requests/README.md`). The Start Run button still works.
+- **Handing in:** `python3 farm-runner/runner.py submit <run> --step N --by "<agent>" --file <your file> --session <your id>`. Step 5 uses `record-match` instead. The step's checks run at once (story check, script check, lint and caption).
+  - **Your id:** a Muse job passes `muse_` followed by its own Muse scheduled job's id; a Claude agent passes its `session_...` id. One id plays one role per run, and `runner.py proof <run>` lists the id behind every step. Mila's gates take only her signed verdict from the Mila sign workflow.
+  - **Stuck?** `runner.py report-blocked <run> --step N --by "<agent>" --reason "..." --session <your id>` puts BLOCKED on the board at once.
   - If they pass, the next agent's job opens, or Glam's or Mila's gate.
   - If they fail, the work is **sent back** to the same agent with the findings at the top of its JOB.md.
   - `--by` must be that step's agent, and a step out of order is refused.

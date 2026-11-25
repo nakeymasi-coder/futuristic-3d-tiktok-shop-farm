@@ -68,3 +68,4 @@ HEADLINE: BLOCKED at Step 6 (Script) — an approval is on file but Mila's key i
 - [2026-11-25 14:49] CHAIN: Story Agent → Mila (Step 6) — waiting on Mila
 - [2026-11-25 14:50] Step 6: Mila's signed verdict placed — APPROVE.
 - [2026-11-25 14:50] CHAIN: Mila → Casting / Image Agent (Step 7) — handed off
+- [2026-11-25 17:29] CHAIN: Mila → TikTok Shop Agent (Step 3) — sent back

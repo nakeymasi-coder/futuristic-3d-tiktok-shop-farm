@@ -463,6 +463,11 @@ grep -q "STATUS COULDN.T LOAD\|Live Run Board couldn" "$ROOTF/index.html" && ok 
 grep -q 'id="autoRunBtn" href="https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm/actions/workflows/start-run.yml"' "$ROOTF/index.html" && ok "START the page button opens the real Start Run on GitHub" "index.html" || bad "START button does not open the real Start Run" ""
 ! grep -q "finishAutoRun\|walkStepsEl" "$ROOTF/index.html" && ok "START the fake run animation is gone" "index.html" || bad "START fake animation still on the page" ""
 grep -q "workflow_dispatch" "$ROOTF/.github/workflows/start-run.yml" && grep -q 'runner.py create' "$ROOTF/.github/workflows/start-run.yml" && grep -q "contents: write" "$ROOTF/.github/workflows/start-run.yml" && ok "START the GitHub workflow creates the run and may publish it" "start-run.yml" || bad "START workflow" ""
+grep -q 'class="btn btn-pink mini lane-real" href="https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm/actions/workflows/start-run.yml"' "$ROOTF/index.html" && ok "LANES the Shop lane starts the real run" "index.html" || bad "LANES Shop lane" ""
+[ "$(grep -c 'Start this run →\|Start a posting run →' "$ROOTF/index.html")" = 0 ] && ok "LANES no lane button claims to start a run it doesn't" "index.html" || bad "LANES a lane button still claims to start a run" ""
+[ "$(grep -c 'Write a draft prompt (no run)' "$ROOTF/index.html")" = 5 ] && ok "LANES the five lanes without run steps say draft only" "5 buttons" || bad "LANES draft labels" ""
+grep -q 'window.open("https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm/actions/workflows/start-run.yml"' "$ROOTF/index.html" && ! grep -q 'Product-to-Post run added to your queue' "$ROOTF/index.html" && ok "LANES Product-to-Post opens the real run, no queue draft" "index.html" || bad "LANES Product-to-Post" ""
+grep -q 'product:' "$ROOTF/.github/workflows/start-run.yml" && grep -q -- '--pick "$PRODUCT"' "$ROOTF/.github/workflows/start-run.yml" && ok "LANES the workflow takes the product for Product-to-Post" "start-run.yml" || bad "LANES workflow product input" ""
 grep -q "UP NOW" "$ROOTF/index.html" && ok "BOARD agents light up from the real status" "index.html" || bad "BOARD agent lights" ""
 
 echo; echo "SUMMARY: $P passed, $F failed"

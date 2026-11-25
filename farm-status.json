@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 16:29",
+  "generated_at": "2026-11-25 16:34",
   "rules_version": "2026-11-25g",
   "freeze": "ON",
   "runs": [
@@ -255,6 +255,21 @@
           ],
           "output": "expected: steps/step6-script/script.md",
           "result": "sent back"
+        },
+        {
+          "at": "2026-11-25 16:29",
+          "from": "Start a Run",
+          "to": "Mila",
+          "step": 6,
+          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
+          "inputs": [
+            {
+              "file": "steps/step6-script/script.md",
+              "sha256": "8d3178893e1cbcf80767673c4efd78405b4eba2792a560a852bf2815b7daec28"
+            }
+          ],
+          "output": "expected: Mila's approval or send-back",
+          "result": "waiting on Mila"
         }
       ],
       "open_job": {
@@ -265,7 +280,7 @@
         "needs": [
           "Mila (an AI agent) to read the script against the farm laws"
         ],
-        "since": "2026-11-25 01:20",
+        "since": "2026-11-25 16:29",
         "sent_back": []
       }
     },
@@ -393,6 +408,33 @@
           ],
           "output": "expected: steps/step3-pick/pick.md",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 16:29",
+          "from": "Start a Run",
+          "to": "Story Agent",
+          "step": 6,
+          "what": "SENT BACK to Story Agent: script line 5 sets up a before-and-after ('before/after') — never, for any product",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "f44e44bc690662f03bf7f39667ae9e84381b9114fdc61c30929d99e21090dd1f"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "839a6ef751129ca22128654b63e0b3ea9f8385ee8df19804d204bf9d6d9417cc"
+            },
+            {
+              "file": "steps/step4-photo/bask-lather-listing-photo.png",
+              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
+            },
+            {
+              "file": "steps/step4-photo/bask-lather-listing-photo.webp",
+              "sha256": "4c6294b4b656aae230bd87746bdf94cd67debec6e5ee771ce9a6b1e816fc306d"
+            }
+          ],
+          "output": "expected: steps/step6-script/script.md",
+          "result": "sent back"
         }
       ],
       "open_job": {
@@ -403,7 +445,7 @@
         "needs": [
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
-        "since": "2026-11-25 01:20",
+        "since": "2026-11-25 16:29",
         "sent_back": [
           "script line 5 sets up a before-and-after ('before/after') — never, for any product",
           "script line 11 (CTA/caption) makes a banned health/beauty claim ('hair growth') — never on screen or in the caption, even if the listing says it"

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 16:29",
+  "generated_at": "2026-11-25 16:34",
   "rules_version": "2026-11-25g",
   "jobs": [
     {
@@ -25,7 +25,7 @@
       "needs": [
         "Mila (an AI agent) to read the script against the farm laws"
       ],
-      "since": "2026-11-25 01:20",
+      "since": "2026-11-25 16:29",
       "sent_back": [],
       "run_id": "run-2026-11-25-1"
     },
@@ -37,7 +37,7 @@
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
       ],
-      "since": "2026-11-25 01:20",
+      "since": "2026-11-25 16:29",
       "sent_back": [
         "script line 5 sets up a before-and-after ('before/after') — never, for any product",
         "script line 11 (CTA/caption) makes a banned health/beauty claim ('hair growth') — never on screen or in the caption, even if the listing says it"

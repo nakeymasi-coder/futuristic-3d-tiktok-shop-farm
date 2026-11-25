@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25m",
+  "version": "2026-11-25n",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -82,17 +82,27 @@
     {
       "id": "streamer-desktop-only",
       "title": "Products only from TikTok Shop Streamer Desktop",
-      "text": "Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself."
+      "text": "Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. The one exception is a product's listing photos, which may also come from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed). Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself."
     },
     {
       "id": "photos-streamer-only",
-      "title": "Listing photos only from Streamer Desktop",
-      "text": "Product listing photos come ONLY from TikTok Shop Streamer Desktop / LIVE Manager (shop.tiktok.com/streamer/...). Never open a regular tiktok.com product or video page to get a product photo. If Streamer Desktop can't give the photo, that product is BLOCKED with the reason, no substitute."
+      "title": "Listing photos only from Streamer Desktop or the public Shop listing",
+      "text": "Product listing photos come ONLY from TikTok Shop Streamer Desktop / LIVE Manager (shop.tiktok.com/streamer/...), from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or from the image links saved from those two (image_urls in farm-data/showcase-products.json). Never open a regular tiktok.com video or profile page to get a product photo. If neither can give the photo, that product is BLOCKED with the reason, no substitute."
     },
     {
       "id": "bot-check-blocked",
       "title": "Bot check means BLOCKED at once",
       "text": "Any bot or security check on any page (a CAPTCHA, a \"Security Check\" page, a slider puzzle): never try to solve it and never wait on it. Report BLOCKED at once with the site and the page, and stop that item."
+    },
+    {
+      "id": "photo-links-saved",
+      "title": "Photo links saved once, photos downloaded with no sign-in",
+      "text": "The product's real image links are saved once in farm-data/showcase-products.json, as image_urls: a list where each entry gives url (the image link exactly as the page shows it) and shows_person (true or false). They are captured from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or from Streamer Desktop's showcase list or read-only product view while Glam is signed in. Capture is read-only: never click Save, Confirm, Cover, delete or drag in any Edit Product window; close it with X. The photo finisher and Shop Step 4 then download photos straight from those saved links, with no browser and no sign-in, into farm-data/products/<listing id>/. Links are only ever captured from those two places, never a regular tiktok.com video or profile page. A link that fails: that product is BLOCKED with the reason. A lineup product with no saved image_urls is BLOCKED \"image link not captured yet\" until its links are captured from its public Shop listing page or Streamer Desktop."
+    },
+    {
+      "id": "no-people-photos",
+      "title": "No product images with people in them",
+      "text": "Glam's rule (Nov 25): the farm can't use product images with people in them. Only product-only images (the product itself and its packaging, with no person, face, hands or body) are saved and used. Every saved image link records whether it shows a person (shows_person), and any image that does is skipped. If a product has no product-only image, it is BLOCKED \"no product-only image\". Photo Match (Step 5) rejects any photo with a person in it as NO-MATCH."
     },
     {
       "id": "exact-product",
@@ -232,12 +242,12 @@
     {
       "id": "weekly-lineup",
       "title": "Weekly lineup",
-      "text": "Once a week, pick that week's products to promote from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily. Save it in the repo (farm-data/weekly-lineup.json). Any product photo it pulls comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, never from a regular tiktok.com page. A bot or security check is BLOCKED at once, never solved or waited on. It stays inside 10 minutes per run; at the cap, it saves what it has and stops."
+      "text": "Once a week, pick that week's products to promote from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily. Save it in the repo (farm-data/weekly-lineup.json). Any product photo it pulls comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager or the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), never from a regular tiktok.com video or profile page. A bot or security check is BLOCKED at once, never solved or waited on. It stays inside 10 minutes per run; at the cap, it saves what it has and stops."
     },
     {
       "id": "photos-ahead",
       "title": "Photos pulled ahead",
-      "text": "Each lineup product's real listing photos are pulled once, from TikTok Shop Streamer Desktop / LIVE Manager only, and saved with the lineup (farm-data/products/<listing id>/). If a photo won't download, that product is BLOCKED with the reason. Never use a drawn or substituted photo."
+      "text": "Each lineup product's real listing photos are pulled once, only from TikTok Shop Streamer Desktop / LIVE Manager or the public TikTok Shop listing page, and saved with the lineup (farm-data/products/<listing id>/). If a photo won't download, that product is BLOCKED with the reason. Never use a drawn or substituted photo."
     },
     {
       "id": "shop-from-lineup",
@@ -277,7 +287,7 @@
     {
       "id": "photo-finisher",
       "title": "Photo finisher job",
-      "text": "The photo finisher job works through the lineup's blocked photos a few at a time, turmeric staples first, and skips any already saved. It stays inside 10 minutes per run and saves real listing photos only, taken ONLY from TikTok Shop Streamer Desktop / LIVE Manager, never from a regular tiktok.com page. A photo that won't download stays BLOCKED with the reason. A bot or security check is BLOCKED at once, never solved or waited on."
+      "text": "The photo finisher job works through the lineup's blocked photos a few at a time, turmeric staples first, and skips any already saved. It stays inside 10 minutes per run and saves real listing photos only, downloaded with no browser and no sign-in from the saved image links (image_urls in farm-data/showcase-products.json, captured from the public TikTok Shop listing page or Streamer Desktop), never from a regular tiktok.com video or profile page. It saves product-only images and skips any image that shows a person. No saved link: BLOCKED \"image link not captured yet\". No product-only image: BLOCKED \"no product-only image\". A photo that won't download stays BLOCKED with the reason. A bot or security check is BLOCKED at once, never solved or waited on."
     },
     {
       "id": "repo-first",
@@ -816,6 +826,8 @@
       "laws": [
         "streamer-desktop-only",
         "photos-streamer-only",
+        "photo-links-saved",
+        "no-people-photos",
         "bot-check-blocked",
         "own-step-handoff",
         "repeats",
@@ -843,7 +855,7 @@
       "by": [
         "TikTok Shop Agent"
       ],
-      "job": "Submit the picked product's real listing photo from its photos saved with the lineup (farm-data/products/<listing id>/). It becomes the only product description for every later step. If its photos weren't saved, the product is BLOCKED with the reason. Never a drawn or substituted photo. A photo comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, never from a regular tiktok.com product or video page. Any bot or security check: report BLOCKED at once with the site and page, never solve it or wait on it.",
+      "job": "Submit the picked product's real listing photo from its photos saved with the lineup (farm-data/products/<listing id>/). It becomes the only product description for every later step. If its photos weren't saved, the product is BLOCKED with the reason. Never a drawn or substituted photo. A photo comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or the image links saved from those (image_urls in farm-data/showcase-products.json, downloaded with no browser and no sign-in), never from a regular tiktok.com video or profile page. Only a product-only image, never one with a person, face, hands or body in it. Any bot or security check: report BLOCKED at once with the site and page, never solve it or wait on it.",
       "inputs": [
         "the pick record"
       ],
@@ -855,6 +867,8 @@
       "laws": [
         "streamer-desktop-only",
         "photos-streamer-only",
+        "photo-links-saved",
+        "no-people-photos",
         "bot-check-blocked",
         "own-step-handoff",
         "exact-product",
@@ -880,7 +894,7 @@
         "Mila",
         "Photo Match checker"
       ],
-      "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
+      "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. A photo with any person, face, hands or body in it is NO-MATCH. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
       "inputs": [
         "the listing photo",
         "the pick record"
@@ -894,6 +908,7 @@
       "laws": [
         "streamer-desktop-only",
         "bot-check-blocked",
+        "no-people-photos",
         "own-step-handoff",
         "exact-product",
         "qc",

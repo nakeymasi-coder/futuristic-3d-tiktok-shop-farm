@@ -671,21 +671,42 @@ python3 - "$ROOTF" <<'PYB' && ok "BOTCHK photos only from Streamer Desktop and b
 import json,sys
 r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json")); L={l["id"]:l for l in d["laws"]}
 pt=L["photos-streamer-only"]["text"]; bt=L["bot-check-blocked"]["text"]
-assert "ONLY from TikTok Shop Streamer Desktop" in pt and "Never open a regular tiktok.com" in pt and "BLOCKED" in pt
+assert "ONLY from TikTok Shop Streamer Desktop" in pt and "public TikTok Shop listing page" in pt and "Never open a regular tiktok.com video or profile page" in pt and "BLOCKED" in pt
 assert "never try to solve it and never wait on it" in bt and "BLOCKED at once" in bt and "site and the page" in bt
 assert all("bot-check-blocked" in a["laws"] for a in d["agents"])
 A={a["step"]:a for a in d["agents"] if a.get("kind")!="mila"}
 assert "photos-streamer-only" in A[4]["laws"] and "Streamer Desktop" in A[4]["job"] and "bot or security check" in A[4]["job"]
 for lid in ("photo-finisher","weekly-lineup"):
-    assert "never from a regular tiktok.com page" in L[lid]["text"] and "BLOCKED at once" in L[lid]["text"]
+    assert "never from a regular tiktok.com video or profile page" in L[lid]["text"] and "BLOCKED at once" in L[lid]["text"]
 for f in ("photo-finisher.md","shop.md"):
     t=open(f"{r}/farm-agents/prompts/{f}").read()
-    assert "Never open a regular tiktok.com product or video page" in t and "never try to solve it and never wait on it" in t
+    assert "Never open a regular tiktok.com video or profile page" in t and "public TikTok Shop listing page" in t and "never try to solve it and never wait on it" in t
 rt=json.load(open(f"{r}/farm-agents/routines.json")); sj={j["role"]:j for j in rt["support_jobs"]}
 assert all("BLOCKED at once" in sj[k]["what"] for k in ("Photo finisher","Weekly lineup"))
 PYB
 RP=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 grep -q "Bot check means BLOCKED at once" $HOME/workspace/farm-runs/$RP/steps/step2-scout/JOB.md && ok "BOTCHK a new run's JOB.md carries the bot-check rule" "JOB.md" || bad "BOTCHK JOB.md" ""
+python3 - "$ROOTF" <<'PYN' && ok "LINKS saved image links, no-sign-in download and no-people rule are in rules, prompts, routines and data" "laws + prompts + routines + data" || bad "LINKS photo links / no people" ""
+import json,sys
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json")); L={l["id"]:l for l in d["laws"]}
+lt=L["photo-links-saved"]["text"]; nt=L["no-people-photos"]["text"]
+assert "image_urls" in lt and "shows_person" in lt and "no browser and no sign-in" in lt and "never click Save, Confirm, Cover, delete or drag" in lt
+assert "image link not captured yet" in lt and "public TikTok Shop listing page" in lt and "never a regular tiktok.com video or profile page" in lt and "{" not in lt
+assert "product-only" in nt and "no product-only image" in nt and "NO-MATCH" in nt
+A={a["step"]:a for a in d["agents"]}
+for n in (3,4): assert {"photo-links-saved","no-people-photos"}<=set(A[n]["laws"])
+assert "no-people-photos" in A[5]["laws"] and "NO-MATCH" in A[5]["job"] and "person" in A[5]["job"]
+assert "image_urls" in A[4]["job"] and "product-only" in A[4]["job"]
+assert "image_urls" in L["photo-finisher"]["text"] and "no product-only image" in L["photo-finisher"]["text"]
+pf=open(f"{r}/farm-agents/prompts/photo-finisher.md").read()
+assert "image_urls" in pf and "image link not captured yet" in pf and "no product-only image" in pf and "shows_person" in pf
+assert "image_urls" in open(f"{r}/farm-agents/prompts/shop.md").read() and "no product-only image" in open(f"{r}/farm-agents/prompts/shop.md").read()
+assert "NO-MATCH" in open(f"{r}/farm-agents/prompts/photo-check.md").read().split("No people:")[1]
+rt=json.load(open(f"{r}/farm-agents/routines.json")); sj={j["role"]:j for j in rt["support_jobs"]}
+assert "image_urls" in sj["Showcase list refresh"]["what"] and "image_urls" in sj["Photo finisher"]["what"]
+sc=json.load(open(f"{r}/farm-data/showcase-products.json"))["products"]
+assert all(isinstance(p.get("image_urls"),list) for p in sc)
+PYN
 RT=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 grep -q "Time cap: 10 minutes" $HOME/workspace/farm-runs/$RT/steps/step2-scout/JOB.md && ok "BRAIN the Scout's JOB.md gives it 10 minutes" "JOB.md" || bad "BRAIN Scout 10 min" ""
 

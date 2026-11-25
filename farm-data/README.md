@@ -2,7 +2,7 @@
 
 These files live in the repo so every run uses the same saved data. Nobody pages all 264 showcase products on a run.
 
-- `showcase-products.json`: the saved showcase product list (name, sold count, in stock). It's refreshed once a day, not every run.
+- `showcase-products.json`: the saved showcase product list (name, sold count, in stock). It's refreshed once a day, not every run. Each product also has `image_urls`: its real product image links, saved from its public TikTok Shop listing page (no sign-in) or from Streamer Desktop while Glam is signed in, each as `{"url": ..., "shows_person": true|false}`. The photo finisher downloads from these with no sign-in. An empty list means not captured yet. Images with a person in them are never used.
 - `weekly-lineup.json`: this week's products to promote, picked once a week from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily.
 - `products/<listing id>/`: each lineup product's real listing photos, pulled once and saved here. If a photo won't download, that product is BLOCKED with the reason. Never a drawn or substituted photo.
   - `selling-points.md` in the same folder holds the approved, claim-safe selling points, with no health or growth claims. Story uses them.

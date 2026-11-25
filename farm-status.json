@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-11-25 14:13",
+  "generated_at": "2026-11-25 14:40",
   "rules_version": "2026-11-25f",
   "freeze": "ON",
   "runs": [
     {
       "run_id": "run-2026-11-25-1",
-      "pick": "",
+      "pick": "BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth",
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/pick.md)",
+      "headline": "BLOCKED at Step 4 (Product Photo) — no product photo attached — no photo in hand, no scene, no script, full stop",
       "state": "BLOCKED",
-      "open_step": 3,
-      "open_step_name": "Pick",
-      "needs": "TikTok Shop Agent — needs: the farm's TikTok Shop seller view (kept signed in) to see the showcase, what's selling and what's sold out",
+      "open_step": 4,
+      "open_step_name": "Product Photo",
+      "needs": "TikTok Shop Agent — needs: the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo",
       "owner": "TikTok Shop Agent",
       "steps": [
         {
@@ -33,8 +33,8 @@
         {
           "n": 3,
           "name": "Pick",
-          "state": "WAITING",
-          "reason": "no pick record on file (steps/step3-pick/pick.md)",
+          "state": "CLEARED",
+          "reason": "pick recorded: BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth",
           "agent": "TikTok Shop Agent"
         },
         {
@@ -132,17 +132,32 @@
           ],
           "output": "steps/step2-scout/scout.md (sha256 6432c62f850e75ae…)",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 14:40",
+          "from": "TikTok Shop Agent",
+          "to": "TikTok Shop Agent",
+          "step": 4,
+          "what": "job opened for TikTok Shop Agent: the real listing photo (an image file)",
+          "inputs": [
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
+            }
+          ],
+          "output": "steps/step3-pick/pick.md (sha256 08917f41a00e4a34…)",
+          "result": "handed off"
         }
       ],
       "open_job": {
-        "step": 3,
+        "step": 4,
         "agent": "TikTok Shop Agent",
-        "job_file": "steps/step3-pick/JOB.md",
-        "job": "Read the Scout's findings and pick the product from what's actually selling in the showcase. A selling product may repeat any day; skip sold-out products. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
+        "job_file": "steps/step4-photo/JOB.md",
+        "job": "Pull the ACTUAL listing photo for the picked product from the listing itself and submit it. It becomes the only product description for every later step. No photo in hand = full stop.",
         "needs": [
-          "the farm's TikTok Shop seller view (kept signed in) to see the showcase, what's selling and what's sold out"
+          "the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo"
         ],
-        "since": "2026-11-25 14:13",
+        "since": "2026-11-25 14:40",
         "sent_back": []
       }
     }

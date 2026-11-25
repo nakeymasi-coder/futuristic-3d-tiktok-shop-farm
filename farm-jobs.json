@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-11-25 14:13",
+  "generated_at": "2026-11-25 14:40",
   "rules_version": "2026-11-25f",
   "jobs": [
     {
-      "step": 3,
+      "step": 4,
       "agent": "TikTok Shop Agent",
-      "job_file": "steps/step3-pick/JOB.md",
-      "job": "Read the Scout's findings and pick the product from what's actually selling in the showcase. A selling product may repeat any day; skip sold-out products. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
+      "job_file": "steps/step4-photo/JOB.md",
+      "job": "Pull the ACTUAL listing photo for the picked product from the listing itself and submit it. It becomes the only product description for every later step. No photo in hand = full stop.",
       "needs": [
-        "the farm's TikTok Shop seller view (kept signed in) to see the showcase, what's selling and what's sold out"
+        "the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo"
       ],
-      "since": "2026-11-25 14:13",
+      "since": "2026-11-25 14:40",
       "sent_back": [],
       "run_id": "run-2026-11-25-1"
     }

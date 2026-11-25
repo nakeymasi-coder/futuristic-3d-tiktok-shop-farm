@@ -674,11 +674,11 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/pick.md)",
-      "state": "BLOCKED",
+      "headline": "BLOCKED at Step 3 — TikTok Shop Agent reported BLOCKED: No lineup product has a saved real listing photo: all 14 products in farm-data/weekly-lineup.json are marked photo_status BLOCKED (5-minute cap reached) with no photo_file, and farm-data/products/ is empty. No pick can proceed to Step 4 (attach-photo needs a saved real listing photo), and no photo may be drawn, generated or substituted. Photo finisher must save the photos first. (2026-11-25 17:33)",
+      "state": "STOPPED",
       "open_step": 3,
       "open_step_name": "Pick",
-      "needs": "TikTok Shop Agent — needs: TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product",
+      "needs": "TikTok Shop Agent reported BLOCKED: No lineup product has a saved real listing photo: all 14 products in farm-data/weekly-lineup.json are marked photo_status BLOCKED (5-minute cap reached) with no photo_file, and farm-data/products/ is empty. No pick can proceed to Step 4 (attach-photo needs a saved real listing photo), and no photo may be drawn, generated or substituted. Photo finisher must save the photos first.",
       "owner": "TikTok Shop Agent",
       "steps": [
         {

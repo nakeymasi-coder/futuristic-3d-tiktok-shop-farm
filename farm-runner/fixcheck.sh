@@ -494,7 +494,13 @@ mkdir -p $SG/shared; cp /tmp/fx_mila_key $SG/shared/k
 OUT=$(env -u FARM_TEST_MODE MILA_SIGNING_KEY=/mnt/project-files/.mila-test-never HOME=$SG/home python3 -c "import sys;sys.path.insert(0,'$ROOTF/farm-runner');import runner as r;print(r.key_in_shared_folder('/mnt/project-files/.mila/mila-signing-key'), r.key_in_shared_folder('$SG/home/.mila/k'))"); expect "MILA a key in the shared project files is never used" "^True False$" "$OUT"
 OUT=$(env -u MILA_SIGNING_KEY -u FARM_TEST_MODE HOME=$SG/home python3 "$ROOTF/farm-runner/runner.py" mila-keygen 2>&1); expect "MILA her own session makes her key, prints only the public key" "stays only in this session.*Public key for farm-rules.json" "$(echo "$OUT"|tr '\n' ' ')"
 [ -f $SG/home/.mila/mila-signing-key ] && [ "$(stat -c %a $SG/home/.mila/mila-signing-key)" = 600 ] && ok "MILA key file sits in her session's home, owner-only" "600" || bad "MILA key file" ""
-grep -q '"public_key": ""' "$ROOTF/farm-rules.json" && ok "MILA the old shared key is retired (no verdict counts until her new key is registered)" "public_key empty" || bad "MILA old key still registered" ""
+python3 -c "import json,sys;k=json.load(open(sys.argv[1]))['mila_signing']['public_key'];assert len(bytes.fromhex(k))==32 and k!='94a3ade11b6979b27e533893ad4820d84fa42e7e74f960966a5fa2832631c62c'" "$ROOTF/farm-rules.json" && ok "MILA the old shared key is retired; the registered key is the Mila sign workflow's" "32-byte key, not the old one" || bad "MILA old key still registered" ""
+# Outside test mode, a verdict signed by any key other than the registered one is refused.
+SGK=$SG/otherkey; python3 -c "import os;open('$SGK','w').write(os.urandom(32).hex())"
+SR=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p'); SS=$HOME/workspace/farm-runs/$SR/steps/step6-script; mkdir -p $SS; echo x > $SS/script.md
+MILA_SIGNING_KEY=$SGK $R mila-sign --run $SR --step 6 --verdict APPROVE --file $SS/script.md --session session_OTHERKEYtest01 --out $SG/vk.md >/dev/null
+OUT=$(env -u FARM_TEST_MODE -u FARM_TEST_MILA_PUBKEY MILA_SIGNING_KEY=/nonexistent python3 "$ROOTF/farm-runner/runner.py" approve-script $SR --verdict-file $SG/vk.md --session session_OTHERKEYtest01 2>&1; echo "exit $?")
+echo "$OUT" | grep -q "exit 0" && bad "MILA a verdict signed by another key is refused" "$(echo "$OUT"|tr '\n' ' '|cut -c1-200)" || ok "MILA a verdict signed by another key is refused against the registered key" "$(echo "$OUT"|grep -iE "refused|signature|not mila"|head -1|cut -c1-120)"
 python3 - "$ROOTF" <<'PYX' && ok "AGENTS every agent has its own Routine prompt that hands in with its session and stops on BLOCKED" "routines.json" || bad "AGENTS prompts" ""
 import json,sys,os
 root=sys.argv[1]; d=json.load(open(f"{root}/farm-agents/routines.json"))

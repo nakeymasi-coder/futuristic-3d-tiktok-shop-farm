@@ -153,6 +153,7 @@ create → scout/pick evidence → photo attached → match (independent checker
     1–2 second clean close-up of the REAL listing photo is KEPT — it is
     what protects the label from being rendered wrong. Runbook Step 8
     carries the rule; the farm page edit carries it to the page.
+    CORRECTED Nov 24 (later): max 12 spoken words, ~34 seconds total — see RUNBOOK
 
 (n) TEXTURE SHOT, THEN SHOW-IT FOR EVERY CATEGORY (Nov 24, Glam + Claude):
     the staging proof used to waive ANY handling finding — narrowed so
@@ -168,3 +169,17 @@ create → scout/pick evidence → photo attached → match (independent checker
     (f) dress fabric moving + proof -> PASS; (g) shoes walking + proof
     -> PASS; (h) gadget in use, no proof -> FAIL; (i) texture + show-it
     both declared -> FAIL; (j) show-it with no action stated -> FAIL.
+
+## (o) AUDIT FIX ROUND — Nov 24–25
+Glam's call (Nov 24): fix all 33 audit problems, nothing left for later. Fixed on branch claude/project-thread-r6019m; live page not touched until Glam approves.
+Test: `farm-runner/fixcheck.sh` (runs in a scratch HOME, never the real run folders) — **99 passed, 0 failed**. It reruns every failing audit case plus cheat tests (a)–(n) as regressions:
+- Mila's verdict covers the exact builds she was handed (name + sha256); a new or changed build waits on her again; a verdict is collected once and moved to verdict-collected-<stamp>.md (no 12x loop).
+- Glam's script approval stores the script's sha256; any edit puts Step 6 back to waiting on her.
+- Handling lint covers any product (jar, tube, pump, spray, "product in her hand"), not just bottles; the declared show-it line is exempt.
+- One spoken call to buy, closing line only; "tap/click the link" banned anywhere.
+- Story check accepts men's and neutral person words (guy, dad, anyone, they…).
+- Hook must speak to the viewer, not only the model's own voice; Hook: rows are checked; all 16 mode names caught as label openers.
+- Clip rule linted: 8-second clips, max 12 spoken words a clip, max 4 clips + the 1–2 s close-up.
+- Runs can start empty; the pick lands at Step 3 from pick.md.
+- Review cards show a ▶ Watch link from steps/step9-builds/links.md.
+Note: approvals and verdicts recorded before this change carry no fingerprint, so those runs (including the mock run) show WAITING until re-recorded.

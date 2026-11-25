@@ -34,7 +34,9 @@ Evidence map (what clears each step):
                    "Story:" line — one real sentence in Glam's voice: who
                    this is for and why they'd care. No story line, no
                    handoff: findings alone never clear this step.
-  3 Pick           steps/step3-pick/pick.md, non-empty (pick also in config)
+  3 Pick           steps/step3-pick/pick.md, non-empty — the pick is its
+                   "product:" line (a run is created empty; the Shop Agent
+                   picks here, not at create)
   4 Product Photo  an image file in steps/step4-photo/
   5 Photo Match    steps/step5-match/match-verdict.md with verdict: MATCH,
                    signed by a checker who is NOT the grabber of record
@@ -43,16 +45,21 @@ Evidence map (what clears each step):
                    person-first hook not just the mode name, soft CTA on
                    file, no specs/prices/sold counts/use claims) AND
                    steps/step6-script/glam-approval.md (approved_by: Glam)
+                   whose script_sha256 matches the script on file — an edit
+                   after her approval needs her approval again
   7 Styled Image   an image file in steps/step7-styled/
   8 Package        steps/step8-package/package.md present AND passing lint
                    (references-only, no product words, staging bar)
   9 Build          a video file in steps/step9-builds/
  10 Checks         steps/step10-qc/mila-verdict.md with verdict: PASS,
-                   checker: Mila (collected from the QC handoff folder)
+                   checker: Mila (collected ONCE from the QC handoff folder)
+                   covering exactly the current build files (verdict-
+                   covers.json) — a new or changed build waits on Mila
  11 Caption & Post FREEZE-LOCKED — never clears, by design
 """
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -156,12 +163,31 @@ STAGING_PATTERNS = [
     r"\bsmooths?\s+[^.]{0,40}\bbottle\s+in\s+hand\b",
 ]
 
+# Generic handling (audit fix #4, Nov 24): the staging bar holds for ANY
+# product, not just bottles — a jar, tube, spray, compact or "the product in
+# her hand" is handling too. These are NOT applied to the one declared
+# Texture shot: / Show-it shot: line (that shot is judged by its own rules).
+HANDLING_NOUNS = (r"(?:bottle|jar|tube|tub|pump|spray|can|box|tin|compact|"
+                  r"palette|stick|pouch|container|package|product|item)s?")
+HANDLING_VERBS = (r"(?:picks?\s+up|picking\s+up|picked\s+up|lifts?|lifting|"
+                  r"lifted|holds?|holding|held|raises?|raising|hands?|"
+                  r"passes|passing|shakes?|shaking|squeezes?|squeezing|"
+                  r"opens?|opening|tilts?|tilting|sprays?|spraying)")
+GENERIC_HANDLING_PATTERNS = [
+    r"\b" + HANDLING_VERBS + r"\s+(?:up\s+)?(?:the|her|his|a|an|one|this|that|"
+    r"their)\s+(?:\w+\s+){0,2}?" + HANDLING_NOUNS + r"\b",
+    r"\b" + HANDLING_NOUNS + r"\s+in\s+(?:her|his|one|both|the|their)\s+hands?\b",
+    r"\bspray(?:s|ing|ed)?\b",
+    r"\bsqueez(?:e|es|ing|ed)\b",
+]
+
 GUARD_PATTERNS = [
     r"never\s+spoken,\s+never\s+mouthed",
     r"the\s+only\s+spoken\s+words\s+in\s+this\s+entire\s+video",
     r"silent\s+visual\s+direction",
 ]
 
+CLIP_HEADER = re.compile(r"(?i)\s*(?:\*\*)?(?:C\d{2}\b|clip\s+\d+\b)")
 REFERENCES_LINE = re.compile(r"references?\s*:", re.IGNORECASE)
 LISTING_PHOTO_MENTION = re.compile(r"listing\s+photo", re.IGNORECASE)
 
@@ -212,6 +238,37 @@ def files_with_ext(folder, exts):
     )
 
 
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def build_set(folder):
+    """{name: sha256} for the video files in a folder."""
+    return {v.name: sha256_file(v) for v in files_with_ext(folder, VIDEO_EXTS)}
+
+
+def pick_from_record(run, cfg):
+    """The pick is whatever steps/step3-pick/pick.md names (a 'product:' line,
+    else its first non-empty line); the config pick is used only if present
+    and the record is missing (audit fix #13 — a run starts empty and the
+    Shop Agent picks at Step 3)."""
+    rec = run / "steps" / "step3-pick" / "pick.md"
+    if rec.exists():
+        lines = [l.strip() for l in rec.read_text(
+            encoding="utf-8", errors="replace").splitlines() if l.strip()]
+        for l in lines:
+            m = re.match(r"(?i)\s*(?:product|pick)\s*:\s*(.+)", l)
+            if m:
+                return m.group(1).strip()
+        if lines:
+            return lines[0].lstrip("#").strip()
+    return (cfg.get("pick") or "").strip()
+
+
 def nonempty_file(path):
     return path.exists() and path.read_text(
         encoding="utf-8", errors="replace").strip() != ""
@@ -246,7 +303,27 @@ STORY_PERSON_WORDS = (
     "you", "your", "yours", "her", "hers", "she", "i", "i'm", "my", "me",
     "we", "our", "mom", "grandma", "sister", "friend", "girl", "woman",
     "women", "ladies", "he", "his", "him",
+    # audit fix #6 (Nov 24): men's and neutral person words — casting now
+    # covers men's clothing and unisex, so the story check has to see them.
+    "man", "men", "guy", "guys", "dad", "father", "husband", "brother", "son",
+    "grandpa", "grandson", "boyfriend", "uncle", "daughter", "wife", "aunt",
+    "they", "them", "their", "anyone", "everyone", "someone", "somebody",
+    "he's", "she's", "y'all",
 )
+# First-person words: a hook built only on these speaks for the model, not
+# to the viewer (audit fix #26 — "the hook speaks to the VIEWER's moment").
+FIRST_PERSON_WORDS = ("i", "i'm", "i've", "i'll", "i'd", "my", "me", "mine",
+                      "we", "our", "us")
+
+
+# Everyday phrases that contain a spec word but are not specs (audit fix #25).
+SPEC_EXEMPT_PHRASES = ("silk press",)
+
+
+def spec_text(low):
+    for ph in SPEC_EXEMPT_PHRASES:
+        low = low.replace(ph, " ")
+    return low
 
 
 def story_sentence_state(path):
@@ -272,7 +349,7 @@ def story_sentence_state(path):
         return (False, "story sentence FAILED the smart story check — it "
                        "contains a number: it names a spec, not a person "
                        "(label copy does not leave the Scout)")
-    low = sentence.lower()
+    low = spec_text(sentence.lower())
     for w in STORY_SPEC_WORDS:
         hit = (re.search(r"\b" + re.escape(w) + r"\b", low)
                if w.replace("-", "").isalpha() else w in low)
@@ -296,14 +373,18 @@ SCRIPT_SPEC_WORDS = STORY_SPEC_WORDS
 # Mode names (the Mode Barn) — a first line that is ONLY the mode name is a
 # label, not a hook (Claude, Nov 24).
 MODE_NAMES = (
-    "get ready with me", "grwm", "bathroom vanity demo", "before you buy",
-    "morning routine", "nighttime routine", "restock day",
-    "unboxing reveal",
+    # all 16 modes in the page's Mode Barn (audit fix #21)
+    "problem solution", "problem to solution", "get ready with me", "grwm",
+    "unboxing reveal", "nighttime routine", "bathroom vanity demo",
+    "before you buy", "my honest take", "restock day", "comment reply video",
+    "side by side test", "side-by-side test", "morning routine",
+    "what i actually use", "quick tip", "shelf tour", "first impression",
+    "the closer look",
 )
 # Use claims the AI model can never make (the hook speaks to the VIEWER's
 # moment, never "I used it" — Claude's line, Nov 24).
 USE_CLAIM_PATTERNS = (
-    r"\bi (?:used|use|tried|bought|ordered)\b",
+    r"\bi (?:used(?! to\b)|use|tried|bought|ordered)\b",
     r"\bbeen using\b",
     r"\bworks for me\b",
     r"\bmy results\b",
@@ -319,6 +400,20 @@ USE_CLAIM_PATTERNS = (
 )
 
 
+# Any spoken call to buy (audit fix #5): allowed once, in the closing line.
+SPOKEN_CTA_PATTERNS = (
+    r"\blink\s+(?:is\s+)?(?:below|down\s+below|in\s+(?:my\s+|the\s+)?bio)\b",
+    r"\bin\s+my\s+bio\b",
+    r"\bshop\s+(?:now|it|yours|this)\b",
+    r"\b(?:buy|order)\s+(?:now|it|yours|one|this|today)\b",
+    r"\b(?:grab|get|snag|cop)\s+(?:yours|one|it\s+now)\b",
+    r"\badd\s+(?:it\s+)?to\s+(?:your\s+)?cart\b",
+    r"\bcheck\s+(?:it\s+)?out\s+(?:below|now|here)\b",
+    r"\b(?:tap|click|hit|press)\s+(?:the\s+)?(?:orange\s+|yellow\s+)?"
+    r"(?:cart|basket|card|button)\b",
+)
+
+
 def spoken_lines(script_path):
     """The script's spoken lines: the quoted text on LINE rows of script.md."""
     out = []
@@ -326,7 +421,8 @@ def spoken_lines(script_path):
         return out
     for raw in script_path.read_text(
             encoding="utf-8", errors="replace").splitlines():
-        if not raw.strip().lower().startswith("line"):
+        head = raw.strip().lstrip("*-# ").lower()
+        if not (head.startswith("line") or head.startswith("hook")):
             continue
         m = re.search(r'"([^"]+)"', raw) or re.search(r"“([^”]+)”", raw)
         if m:
@@ -353,39 +449,44 @@ def script_findings(run):
         return [("no-spoken-lines", "script.md carries no LINE rows with "
                  "quoted spoken lines — there is nothing the script check "
                  "can read")]
+    cta_lines = []
     for i, line in enumerate(lines, 1):
         low = line.lower()
         n_words = len(line.split())
         if n_words > 12:
             findings.append(("line-length", f"LINE {i} is {n_words} spoken "
                              "words (bar: 12 max)"))
-        if "tap the link" in low:
-            findings.append(("tap-the-link", f"LINE {i} says 'tap the "
+        if re.search(r"\b(?:tap|click|hit|press)\s+(?:the|that|this|my)\s+link\b", low):
+            findings.append(("tap-the-link", f"LINE {i} says 'tap/click the "
                              "link' — that phrase is banned; the one "
                              "allowed spoken CTA sits in the final line, "
                              "like 'tap the orange cart'"))
-        elif (any(p in low for p in ("tap the orange cart",
-                                     "tap the orange card", "tap the cart",
-                                     "tap the card", "click the cart",
-                                     "click the card"))
-              and i != len(lines)):
-            findings.append(("cta-position", f"LINE {i} carries a spoken "
-                             "CTA — only the final line may carry one, "
-                             "one short CTA at the end"))
+        elif any(re.search(p, low) for p in SPOKEN_CTA_PATTERNS):
+            cta_lines.append(i)
+            if i != len(lines):
+                findings.append(("cta-position", f"LINE {i} carries a spoken "
+                                 "call to buy — only the final line may "
+                                 "carry one, one short CTA at the end"))
         if any(ch.isdigit() for ch in line):
             findings.append(("spec", f"LINE {i} contains a number — spoken "
                              "lines carry no specs"))
+        slow = spec_text(low)
         for w in SCRIPT_SPEC_WORDS:
-            hit = (re.search(r"\b" + re.escape(w) + r"\b", low)
-                   if w.replace("-", "").isalpha() else w in low)
+            hit = (re.search(r"\b" + re.escape(w) + r"\b", slow)
+                   if w.replace("-", "").isalpha() else w in slow)
             if hit:
                 findings.append(("spec", f"LINE {i} contains the spec word "
                                  f"'{w}' — label copy is not spoken"))
                 break
-        if "$" in line or "dollar" in low or "price" in low:
+        if ("$" in line or re.search(r"\bdollars?\b", low)
+                or re.search(r"\bpric(?:e|es|ed|ing)\b", low)):
             findings.append(("price", f"LINE {i} carries a price — no "
                              "prices in spoken lines"))
-        if re.search(r"\bsold\b", low):
+        if re.search(r"\bsold\s*out\b|\bselling\s+out\b", low):
+            findings.append(("urgency", f"LINE {i} makes an urgency/sold-out "
+                             "claim — the GG shield bans invented urgency "
+                             "claims"))
+        elif re.search(r"\bsold\b", low):
             findings.append(("sold-count", f"LINE {i} carries a sold "
                              "count — never in a script"))
         claimed = False
@@ -417,9 +518,14 @@ def script_findings(run):
                              "more words after it)"))
             break
     tokens = set(re.findall(r"[a-z']+", lines[0].lower()))
-    if not tokens.intersection(STORY_PERSON_WORDS):
+    persons = tokens.intersection(STORY_PERSON_WORDS)
+    if not persons:
         findings.append(("hook", "LINE 1 names no person (you, her, my, "
                          "she...) — the hook is person-first or it fails"))
+    elif persons.issubset(FIRST_PERSON_WORDS):
+        findings.append(("hook", "LINE 1 speaks only in the model's own "
+                         "voice (I/my/me) — the hook speaks to the VIEWER's "
+                         "moment (you, your, her, a mom...)"))
     text = (script.read_text(encoding="utf-8", errors="replace")
             if script.exists() else "")
     cta_ok = any(l.strip().lower().startswith("cta:") and "below" in l.lower()
@@ -478,10 +584,45 @@ def lint_package(run):
             if re.search(pat, low):
                 findings.append(("RETIRED GUARD TEXT", i, line))
                 break
+        is_showit = bool(re.match(r"(?i)\s*(texture|show-it)\s+shot\s*:", raw))
+        staged = False
         for pat in STAGING_PATTERNS:
             if re.search(pat, low):
                 findings.append(("STAGING", i, line))
+                staged = True
                 break
+        if not staged and not is_showit:
+            for pat in GENERIC_HANDLING_PATTERNS:
+                if re.search(pat, low):
+                    findings.append(("STAGING", i, line))
+                    break
+        # CLIP RULE (Glam + Claude, Nov 24 — audit fix #28): every clip is
+        # 8 seconds flat, max 12 spoken words in a clip, four clips make the
+        # video; the 1-2 second clean close-up of the listing photo is kept.
+        for q in re.findall(r'"([^"]+)"|“([^”]+)”', line):
+            qt = (q[0] or q[1]).strip()
+            if len(qt.split()) > 12:
+                findings.append(("CLIP RULE", i, f"{len(qt.split())} spoken "
+                                 "words in one clip — max 12 spoken words in a "
+                                 "clip"))
+                break
+        is_clip = bool(CLIP_HEADER.match(raw))
+        if is_clip and "close-up" not in low and "close up" not in low:
+            for m in re.finditer(r"\b(\d+(?:\.\d+)?)\s*(?:-|–|to)?\s*"
+                                 r"(?:s|sec|secs|second|seconds)\b", low):
+                if float(m.group(1)) != 8:
+                    findings.append(("CLIP RULE", i, f"clip length "
+                                     f"{m.group(1)} seconds — every clip is "
+                                     "8 seconds flat"))
+                    break
+
+    clip_headers = [raw for raw in lines if CLIP_HEADER.match(raw)
+                    and "close-up" not in raw.lower()
+                    and "close up" not in raw.lower()]
+    if len(clip_headers) > 4:
+        findings.append(("CLIP RULE", 0, f"{len(clip_headers)} clips declared "
+                         "— four clips make the video (plus the 1-2 second "
+                         "close-up)"))
 
     # SHOW-IT SHOT — the one legal motion/hand shot per video, any category
     # (Glam + Claude, Nov 24): exactly one declared shot, proven first.
@@ -552,8 +693,8 @@ def eval_step(run, cfg, n):
         return ("CLEARED", "scout findings + story sentence on file "
                            "(smart story check passed)")
     if n == 3:
-        if nonempty_file(steps / STEP_DIRS[3] / "pick.md") and cfg.get("pick"):
-            return ("CLEARED", f"pick recorded: {cfg['pick']}")
+        if nonempty_file(steps / STEP_DIRS[3] / "pick.md"):
+            return ("CLEARED", f"pick recorded: {pick_from_record(run, cfg)}")
         return ("WAITING", "no pick record on file (steps/step3-pick/pick.md)")
     if n == 4:
         photos = files_with_ext(steps / STEP_DIRS[4], IMAGE_EXTS)
@@ -604,6 +745,15 @@ def eval_step(run, cfg, n):
                                "Glam is not the first filter")
         approval = parse_kv(steps / STEP_DIRS[6] / "glam-approval.md")
         approved = approval.get("approved_by", "").lower() == "glam"
+        if approved and not approval.get("script_sha256"):
+            return ("WAITING", "Glam's approval on file was recorded before "
+                               "approvals were tied to the exact script — "
+                               "re-record it with approve-script once she "
+                               "confirms this script")
+        if approved and approval.get("script_sha256") != sha256_file(script):
+            return ("WAITING", "script changed after Glam's approval — "
+                               "needs her approval again (her approval "
+                               "covers the exact script she saw)")
         if approved:
             return ("CLEARED", "script on file, passing the script check, "
                                "and Glam's approval recorded")
@@ -639,6 +789,21 @@ def eval_step(run, cfg, n):
         kv = parse_kv(verdict_path)
         verdict = kv.get("verdict", "").upper()
         checker = kv.get("checker", "")
+        covers_path = steps / STEP_DIRS[10] / "verdict-covers.json"
+        try:
+            covers = json.loads(covers_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            covers = None
+        current = build_set(steps / STEP_DIRS[9])
+        if covers is None:
+            return ("WAITING", "the verdict on file was collected before "
+                               "verdicts were tied to the exact builds — "
+                               "Mila's check needs to be collected again for "
+                               "these builds")
+        if covers != current:
+            return ("WAITING", "new build since Mila's verdict — waiting on "
+                               "her check (her verdict covers only the exact "
+                               "build files she was handed)")
         if verdict == "PASS" and checker.strip().lower() == "mila":
             return ("CLEARED", "Mila's PASS recorded in the run folder")
         if verdict == "PASS":
@@ -681,8 +846,10 @@ def headline(results):
 def render_status(run):
     cfg, results = derive(run)
     out = []
-    out.append(f"RUN {cfg['run_id']} — {cfg['pick']} · {cfg['cast_model']} · "
-               f"{cfg['mode']} · {cfg['account']}")
+    out.append(f"RUN {cfg['run_id']} — "
+               f"{pick_from_record(run, cfg) or '(pick at Step 3)'} · "
+               f"{cfg.get('cast_model') or '(model at Step 7)'} · "
+               f"{cfg.get('mode') or '(mode open)'} · {cfg.get('account', '')}")
     out.append("Status derived from evidence on disk at "
                f"{now_stamp()} — never set by hand.")
     out.append("")
@@ -741,9 +908,9 @@ def cmd_create(args):
     sheet = f"""# RUN SHEET — {run_id}
 
 - Account: {cfg['account']}
-- Pick: {cfg['pick']}{(' (ID ' + cfg['pick_id'] + ')') if cfg['pick_id'] else ''}
-- Cast model: {cfg['cast_model']}
-- Mode: {cfg['mode']}
+- Pick: {cfg['pick'] or '(picked at Step 3 by the Shop Agent — steps/step3-pick/pick.md)'}{(' (ID ' + cfg['pick_id'] + ')') if cfg['pick_id'] else ''}
+- Cast model: {cfg['cast_model'] or "(Glam's uploaded model, picked at Step 7)"}
+- Mode: {cfg['mode'] or '(open)'}
 - Created: {cfg['created_at']} by {cfg['created_by']}
 - Posting freeze: ON — this run ends at "Ready for Glam — freeze on."
 
@@ -794,6 +961,11 @@ def cmd_check(args):
         print(msg)
         sheet_log(run, "CHECK to Step 11: REFUSED — freeze-locked (posting freeze ON).")
         return 3
+    if target < 2 or target > 11:
+        print(f"CHECK to Step {target}: not a step that can be checked — "
+              "use --to 2 through 11 (Step 1 is the run itself; Step 11 is "
+              "freeze-locked).")
+        return 2
     cfg, results = derive(run)
     failures = [(n, name, state, reason) for (n, name, state, reason) in results
                 if n < target and state != "CLEARED"]
@@ -862,7 +1034,9 @@ def cmd_approve_script(args):
                        f"script check ({len(bad)} finding(s)).")
         return 2
     dest = run / "steps" / STEP_DIRS[6] / "glam-approval.md"
+    script = run / "steps" / STEP_DIRS[6] / "script.md"
     body = (f"approved_by: Glam\n"
+            f"script_sha256: {sha256_file(script)}\n"
             f"recorded_by: {args.recorded_by}\n"
             f"recorded_at: {now_stamp()}\n")
     dest.write_text(body, encoding="utf-8")
@@ -901,13 +1075,20 @@ def cmd_handoff(args):
     run = resolve_run(args.run)
     cfg = load_config(run)
     builds = sorted(f for f in (run / "steps" / STEP_DIRS[9]).iterdir()
-                    if f.is_file()) if (run / "steps" / STEP_DIRS[9]).is_dir() else []
+                    if f.is_file() and f.name != "links.md") if (run / "steps" / STEP_DIRS[9]).is_dir() else []
     if not builds:
         print("HANDOFF REFUSED — no build files in steps/step9-builds/. "
               "There is nothing to hand to Mila.")
         sheet_log(run, "HANDOFF refused — no build files on file.")
         return 2
     dest = handoff_dir_for(cfg["run_id"])
+    if (dest / "verdict.md").exists():
+        # A verdict Mila wrote covers the builds she was handed BEFORE this
+        # handoff — collect it first so it can never be read as covering
+        # the new builds (audit fix #1).
+        cmd_collect_verdict(argparse.Namespace(run=str(run)))
+        sheet_log(run, "HANDOFF: a waiting verdict was collected first — it "
+                       "covers only the builds handed before this handoff.")
     dest.mkdir(parents=True, exist_ok=True)
     copied = []
     for b in builds:
@@ -924,7 +1105,7 @@ def cmd_handoff(args):
     manifest = (
         f"# QC HANDOFF — {cfg['run_id']}\n"
         f"Handed off at {now_stamp()} by the farm runner.\n"
-        f"Product: {cfg['pick']} · Model: {cfg['cast_model']} · Mode: {cfg['mode']}\n"
+        f"Product: {pick_from_record(run, cfg)} · Model: {cfg.get('cast_model', '')} · Mode: {cfg.get('mode', '')}\n"
         f"Build files in the run folder: {len(builds)} — files copied here: "
         f"{len(copied)} (every build, good and bad; the builder selects nothing).\n"
         + "".join(f"- {c}\n" for c in copied)
@@ -953,6 +1134,19 @@ def cmd_collect_verdict(args):
         return 2
     dest = run / "steps" / STEP_DIRS[10] / "mila-verdict.md"
     shutil.copy2(src, dest)
+    # The verdict covers exactly the build files sitting in the handoff
+    # folder when it is collected (audit fix #1) — a later build is not
+    # covered and waits on Mila again.
+    covers = build_set(handoff_dir_for(cfg["run_id"]))
+    (run / "steps" / STEP_DIRS[10] / "verdict-covers.json").write_text(
+        json.dumps(covers, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    moved = src.with_name(f"verdict-collected-{stamp}.md")
+    n = 1
+    while moved.exists():
+        n += 1
+        moved = src.with_name(f"verdict-collected-{stamp}-{n}.md")
+    src.rename(moved)  # collected once — never re-collected (audit fix #2)
     kv = parse_kv(dest)
     sheet_log(run, f"Step 10: Mila's verdict collected from the QC handoff — "
                    f"{kv.get('verdict', '?')} (checker: {kv.get('checker', '?')}).")
@@ -978,6 +1172,7 @@ def drive_run(run):
         log.append(msg)
         sheet_log(run, f"DRIVE: {msg}")
 
+    done_actions = set()
     for _ in range(12):  # bounded passes; each pass must do something or stop
         _, results = derive(run)
         states = {n: (state, reason) for n, name, state, reason in results}
@@ -997,7 +1192,14 @@ def drive_run(run):
         state, reason = states[first_open]
         if first_open == 6:
             script_exists = nonempty_file(run / "steps" / STEP_DIRS[6] / "script.md")
-            if script_exists:
+            if script_exists and state == "INVALID":
+                note(f"STOP at Step 6 — the script FAILS the script check and "
+                     f"goes back to the Story Agent to fix ({reason}). Glam "
+                     "is not asked to approve a failing script.")
+            elif script_exists and "changed after Glam" in reason:
+                note("STOP at Step 6 — the script changed after Glam's "
+                     "approval; human gate: Glam's approval of the new text.")
+            elif script_exists:
                 note("STOP at Step 6 — human gate: Glam's script approval. "
                      "The script is written; the driver cannot approve it.")
             else:
@@ -1011,15 +1213,19 @@ def drive_run(run):
         if first_open == 10:
             builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
             dest = handoff_dir_for(cfg["run_id"])
-            handed = dest.is_dir() and all(
-                (dest / b.name).exists() for b in builds) and builds
+            handed = bool(builds) and dest.is_dir() and all(
+                (dest / b.name).exists()
+                and sha256_file(dest / b.name) == sha256_file(b)
+                for b in builds)
             verdict_waiting = (dest / "verdict.md").exists()
-            if builds and not handed:
+            if builds and not handed and "handoff" not in done_actions:
+                done_actions.add("handoff")
                 cmd_handoff(argparse.Namespace(run=str(run)))
                 note("Auto-handoff: every build copied to the QC handoff "
                      "folder for Mila.")
                 continue
-            if verdict_waiting:
+            if verdict_waiting and "collect" not in done_actions:
+                done_actions.add("collect")
                 cmd_collect_verdict(argparse.Namespace(run=str(run)))
                 note("Auto-collected Mila's verdict from the QC handoff folder.")
                 continue
@@ -1067,6 +1273,21 @@ def cmd_drive_all(args):
 # Review manifest — every finished video lands on the farm's Review section
 # ----------------------------------------------------------------------------
 
+def watch_links(run):
+    """steps/step9-builds/links.md: one 'filename: https://...' line per
+    build (the video's Google Drive link), so Glam can watch it from the
+    Review section (audit fix #29). Only https links are kept."""
+    out = {}
+    path = run / "steps" / STEP_DIRS[9] / "links.md"
+    if not path.exists():
+        return out
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        m = re.match(r"\s*[-*]?\s*([^:]+?)\s*:\s*(https://\S+)\s*$", line)
+        if m:
+            out[m.group(1).strip()] = m.group(2).strip()
+    return out
+
+
 def review_entry(run):
     cfg, results = derive(run)
     states = {n: state for n, name, state, reason in results}
@@ -1085,15 +1306,17 @@ def review_entry(run):
         status = "Waiting for Glam"
     else:
         status = "Not ready — waiting on Mila's check"
+    links = watch_links(run)
     return {
         "run_id": cfg["run_id"],
-        "product": cfg["pick"],
-        "cast_model": cfg["cast_model"],
-        "mode": cfg["mode"],
-        "account": cfg["account"],
+        "product": pick_from_record(run, cfg),
+        "cast_model": cfg.get("cast_model", ""),
+        "mode": cfg.get("mode", ""),
+        "account": cfg.get("account", ""),
         "mila_verdict": mila_verdict,
         "videos": [f"~/workspace/farm-runs/{cfg['run_id']}/steps/step9-builds/{v.name}"
                    for v in builds],
+        "watch_links": {v.name: links.get(v.name, "") for v in builds},
         "review_status": status,
         "ready_for_review": states.get(10) == "CLEARED",
     }
@@ -1129,7 +1352,7 @@ def render_review_html(entries):
     """The Review section's entries block for the farm page.
 
     This exact markup sits between REVIEW-ENTRIES:BEGIN / :END markers on
-    the farm page; `sync-review` output (this file) is what an artifact
+    the farm page; `review-manifest` output (this file) is what an artifact
     edit pastes between those markers.
     """
     if not entries:
@@ -1141,8 +1364,17 @@ def render_review_html(entries):
         test_badge = (' <span class="review-test">TEST</span>'
                       if "TEST" in e["product"].upper() or "MOCK" in e["product"].upper()
                       else "")
-        vids = "".join(
-            f'<div class="review-video">🎬 {esc(v)}</div>' for v in e["videos"])
+        vids = ""
+        for v in e["videos"]:
+            name = v.rsplit("/", 1)[-1]
+            link = e.get("watch_links", {}).get(name, "")
+            if link:
+                vids += (f'<div class="review-video">🎬 {esc(name)} — '
+                         f'<a href="{esc(link)}" target="_blank" '
+                         f'rel="noopener">▶ Watch</a></div>')
+            else:
+                vids += (f'<div class="review-video">🎬 {esc(name)} — No '
+                         'watch link yet — add it to links.md</div>')
         cards.append(
             f'<div class="review-card">'
             f'<div class="review-run">{esc(e["run_id"])}{test_badge}</div>'
@@ -1204,10 +1436,12 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("create", help="create a run folder with an empty, earned-only run sheet")
-    p.add_argument("--pick", required=True)
+    p.add_argument("--pick", default="",
+                   help="optional — the Shop Agent picks at Step 3 (pick.md)")
     p.add_argument("--pick-id", default="")
-    p.add_argument("--model", required=True)
-    p.add_argument("--mode", required=True)
+    p.add_argument("--model", default="",
+                   help="optional — Glam's uploaded model is picked at Step 7")
+    p.add_argument("--mode", default="")
     p.add_argument("--account", default="@glamorousgrammyglowup")
     p.add_argument("--by", default="Indigo")
     p.set_defaults(fn=cmd_create)

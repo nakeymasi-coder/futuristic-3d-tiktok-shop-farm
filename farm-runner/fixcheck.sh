@@ -5,6 +5,7 @@
 export HOME=/tmp/fx; rm -rf $HOME; mkdir -p $HOME
 # Live status goes to a scratch file during tests, never into the repo.
 export FARM_STATUS_OUT=/tmp/fx/farm-status.json
+export FARM_NO_PUBLISH=1
 R="python3 $(cd "$(dirname "$0")" && pwd)/runner.py"
 P=0; F=0
 ok(){ P=$((P+1)); echo "PASS  $1 :: $2"; }
@@ -230,7 +231,7 @@ keys={"run_id","pick","model","mode","account","headline","state","open_step","o
 for r in d["runs"]:
     assert set(r)==keys, set(r)^keys
     assert r["state"] in ("READY","BLOCKED","STOPPED")
-    for st in r["steps"]: assert set(st)=={"n","name","state","reason"}
+    for st in r["steps"]: assert set(st)=={"n","name","state","reason","agent"}
     for w in r["watch_links"]: assert set(w)=={"file","url"}
 PY
 OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RUN'][0];print(r['state'],r['open_step'],r['is_test'],r['review_status'])")
@@ -419,4 +420,49 @@ PY
 vid /tmp/fx/short.mp4 short /tmp/fx_base5.mp4
 cp /tmp/fx/short.mp4 $N/step9-builds/short.mp4
 OUT=$($R status $RN | grep 'Step 9 '); expect "EVERY a 5-second clip fails before Mila sees it" "INVALID.*clip length check FAILS before Mila.*5.0 seconds" "$OUT"
+# Glam, Nov 25: every step publishes to the Live Run Board, and a failed publish is loud.
+PB=/tmp/fx_pub; rm -rf $PB; mkdir -p $PB
+git init -q --bare $PB/origin.git
+git clone -q $PB/origin.git $PB/farm 2>/dev/null
+cp -r "$ROOTF/farm-runner" "$ROOTF/farm-rules.json" "$ROOTF/index.html" $PB/farm/
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home python3 $PB/farm/farm-runner/runner.py create --mode "Get Ready With Me" 2>&1)
+expect "STATUS a new run publishes to the Live Run Board" "Status published to the Live Run Board" "$OUT"
+OUT=$(git --git-dir=$PB/origin.git show farm-status:farm-status.json 2>&1 | python3 -c "import json,sys;d=json.load(sys.stdin);print(len(d['runs']),d['runs'][0]['open_step'])" 2>&1)
+expect "STATUS the farm-status branch holds the run, open at Step 2" "^1 2$" "$OUT"
+OUT=$(git --git-dir=$PB/origin.git ls-tree --name-only farm-status | tr '\n' ' ')
+expect "STATUS the farm-status branch holds the two status files and the shared runs" "^farm-jobs.json farm-status.json runs $" "$OUT"
+RID=$(git --git-dir=$PB/origin.git ls-tree --name-only farm-status:runs | head -1)
+OUT=$(git --git-dir=$PB/origin.git show farm-status:runs/$RID/config.json | python3 -c "import json,sys;print(json.load(sys.stdin)['mode'])" 2>&1)
+expect "STATUS the whole run folder is shared on GitHub" "Get Ready With Me" "$OUT"
+# A second agent on another computer gets the run before it does anything.
+git clone -q $PB/origin.git $PB/farm2 2>/dev/null; cp -r "$ROOTF/farm-runner" "$ROOTF/farm-rules.json" "$ROOTF/index.html" $PB/farm2/
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home2 python3 $PB/farm2/farm-runner/runner.py status $RID 2>&1)
+expect "SHARED a second agent's computer pulls the run down first" "Step 2" "$OUT"
+[ -f $PB/home2/workspace/farm-runs/$RID/config.json ] && ok "SHARED run folder arrived on the second computer" "$RID" || bad "SHARED run folder missing on the second computer" ""
+echo "scout notes from computer 2" > $PB/home2/workspace/farm-runs/$RID/steps/step2-scout/note2.txt
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home2 python3 $PB/farm2/farm-runner/runner.py status-export 2>&1)
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home python3 $PB/farm/farm-runner/runner.py status-export 2>&1)
+[ -f $PB/home/workspace/farm-runs/$RID/steps/step2-scout/note2.txt ] && ok "SHARED work done on computer 2 reaches computer 1" "note2.txt" || bad "SHARED work from computer 2 did not arrive" "$OUT"
+echo "edit A" > $PB/home/workspace/farm-runs/$RID/steps/step2-scout/clash.txt
+echo "edit B" > $PB/home2/workspace/farm-runs/$RID/steps/step2-scout/clash.txt
+(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home python3 $PB/farm/farm-runner/runner.py status-export >/dev/null 2>&1)
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home2 python3 $PB/farm2/farm-runner/runner.py status-export 2>&1)
+expect "SHARED the same run changed on two computers is a loud conflict, nothing overwritten" "RUN CONFLICT|changed on the shared farm" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(cat $PB/home2/workspace/farm-runs/$RID/steps/step2-scout/clash.txt); expect "SHARED the conflicting copy was kept, not overwritten" "^edit B$" "$OUT"
+rm -f $PB/home/workspace/farm-runs/$RID/steps/step2-scout/clash.txt $PB/home2/workspace/farm-runs/$RID/steps/step2-scout/clash.txt
+echo x > $PB/home/workspace/farm-runs/$(ls $PB/home/workspace/farm-runs|head -1)/steps/step2-scout/more.txt
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home python3 $PB/farm/farm-runner/runner.py status-export 2>&1)
+expect "STATUS a second publish stacks on the first" "Status published to the Live Run Board" "$OUT"
+N2=$(git --git-dir=$PB/origin.git rev-list --count farm-status); expect "STATUS branch history kept (2+ commits)" "^([2-9]|[1-9][0-9])$" "$N2"
+mv $PB/origin.git $PB/gone.git
+OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home python3 $PB/farm/farm-runner/runner.py status-export 2>&1)
+expect "STATUS a failed publish says so out loud, never silent" "STATUS NOT PUBLISHED" "$OUT"
+mv $PB/gone.git $PB/origin.git
+grep -q "farm-status/farm-status.json\|refs/heads/farm-status\|commits/farm-status" "$ROOTF/index.html" && ok "STATUS live page reads the farm-status branch" "index.html" || bad "STATUS live page reads the farm-status branch" "not found"
+grep -q "STATUS COULDN.T LOAD\|Live Run Board couldn" "$ROOTF/index.html" && ok "STATUS live page shows an error when it can't load" "index.html" || bad "STATUS live page error message" "not found"
+grep -q 'id="autoRunBtn" href="https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm/actions/workflows/start-run.yml"' "$ROOTF/index.html" && ok "START the page button opens the real Start Run on GitHub" "index.html" || bad "START button does not open the real Start Run" ""
+! grep -q "finishAutoRun\|walkStepsEl" "$ROOTF/index.html" && ok "START the fake run animation is gone" "index.html" || bad "START fake animation still on the page" ""
+grep -q "workflow_dispatch" "$ROOTF/.github/workflows/start-run.yml" && grep -q 'runner.py create' "$ROOTF/.github/workflows/start-run.yml" && grep -q "contents: write" "$ROOTF/.github/workflows/start-run.yml" && ok "START the GitHub workflow creates the run and may publish it" "start-run.yml" || bad "START workflow" ""
+grep -q "UP NOW" "$ROOTF/index.html" && ok "BOARD agents light up from the real status" "index.html" || bad "BOARD agent lights" ""
+
 echo; echo "SUMMARY: $P passed, $F failed"

@@ -978,29 +978,237 @@ def refuse_if_old_rules(what):
     return False
 
 
-def publish_status(out):
-    """Publish farm-status.json after every step when this runner sits in a
-    clone of the farm repo, so the Live Run Board shows every run."""
-    import subprocess
-    if os.environ.get("FARM_STATUS_OUT") or os.environ.get("FARM_NO_PUBLISH"):
+STATUS_BRANCH = "farm-status"
+SYNC_MARK = ".farm-sync"          # per-run note of the shared copy it last matched
+BIG_FILE = 95 * 1024 * 1024      # GitHub refuses files over 100 MB
+
+
+class _FarmGit:
+    """Git plumbing for the shared farm-status branch (Glam, Nov 25: a run
+    started from the farm page lives on GitHub where every agent and the
+    Live Run Board can see it). Never touches the clone's own branch,
+    index or files."""
+
+    def __init__(self):
+        import subprocess
+        import tempfile
+        self.sp = subprocess
+        self.repo = Path(__file__).resolve().parent.parent
+        self.ok = (self.repo / ".git").exists()
+        self.tmp = Path(tempfile.mkdtemp(prefix="farmgit-"))
+        self.env = dict(os.environ,
+                        GIT_AUTHOR_NAME="Farm runner",
+                        GIT_AUTHOR_EMAIL="farm-runner@users.noreply.github.com",
+                        GIT_COMMITTER_NAME="Farm runner",
+                        GIT_COMMITTER_EMAIL="farm-runner@users.noreply.github.com",
+                        GIT_INDEX_FILE=str(self.tmp / "index"))
+        self.head = ""
+
+    def git(self, *a, inp=None, text=True):
+        r = self.sp.run(["git", "-C", str(self.repo), *a], input=inp,
+                        capture_output=True, text=text, env=self.env, timeout=120)
+        if r.returncode != 0:
+            err = r.stderr if text else r.stderr.decode("utf-8", "replace")
+            raise RuntimeError(f"git {a[0]}: {(err or '').strip()[:300]}")
+        return r.stdout.strip() if text else r.stdout
+
+    def fetch(self):
+        """Fetch the shared branch. '' when it doesn't exist yet."""
+        try:
+            self.git("fetch", "-q", "origin",
+                     f"+refs/heads/{STATUS_BRANCH}:refs/farm/{STATUS_BRANCH}")
+        except RuntimeError as e:
+            if "couldn't find remote ref" in str(e).lower():
+                self.head = ""
+                return ""
+            raise
+        self.head = self.git("rev-parse", f"refs/farm/{STATUS_BRANCH}")
+        return self.head
+
+    def remote_runs(self):
+        if not self.head:
+            return {}
+        try:
+            out = self.git("ls-tree", f"{self.head}:runs")
+        except RuntimeError:
+            return {}
+        res = {}
+        for line in out.splitlines():
+            meta, name = line.split("\t", 1)
+            if meta.split()[1] == "tree":
+                res[name] = meta.split()[2]
+        return res
+
+    def run_files(self, run):
+        files = []
+        for f in sorted(run.rglob("*")):
+            if f.is_file() and f.name != SYNC_MARK and not f.name.endswith(".tmp"):
+                files.append(f)
+        return files
+
+    def local_tree(self, run, write=True):
+        """Tree hash of a local run folder (what it would be on the branch).
+        Files over 95 MB are left out and named."""
+        idx = self.tmp / ("idx-" + run.name)
+        env = dict(self.env, GIT_INDEX_FILE=str(idx))
+        if idx.exists():
+            idx.unlink()
+        skipped = []
+        lines = []
+        for f in self.run_files(run):
+            if f.stat().st_size > BIG_FILE:
+                skipped.append(f.relative_to(run).as_posix())
+                continue
+            args = ["hash-object"] + (["-w"] if write else []) + [str(f)]
+            blob = self.sp.run(["git", "-C", str(self.repo), *args],
+                               capture_output=True, text=True, env=env,
+                               timeout=120).stdout.strip()
+            lines.append(f"100644 {blob}\t{f.relative_to(run).as_posix()}")
+        r = self.sp.run(["git", "-C", str(self.repo), "update-index",
+                         "--add", "--index-info"],
+                        input="\n".join(lines) + ("\n" if lines else ""),
+                        capture_output=True, text=True, env=env, timeout=120)
+        if r.returncode != 0:
+            raise RuntimeError(f"git update-index: {r.stderr.strip()[:300]}")
+        tree = self.sp.run(["git", "-C", str(self.repo), "write-tree",
+                            "--missing-ok"],
+                           capture_output=True, text=True, env=env,
+                           timeout=120).stdout.strip()
+        return tree, skipped
+
+
+def _sync_mark(run):
+    f = run / SYNC_MARK
+    return f.read_text(encoding="utf-8").strip() if f.exists() else ""
+
+
+def sync_runs():
+    """Before every command: bring down runs other agents (or Start Run on
+    the farm page) put on the shared branch. A run changed here AND there
+    since the last sync is a CONFLICT and is never overwritten — it's said
+    out loud. Off when FARM_NO_PUBLISH is set (tests, offline work)."""
+    import shutil
+    import tarfile
+    import io
+    if os.environ.get("FARM_NO_PUBLISH"):
         return
-    repo = Path(__file__).resolve().parent.parent
-    if not (repo / ".git").exists() or out.parent != repo:
-        print(f"Status written to {out} (not published: this runner is not "
-              "in a clone of the farm repo).")
+    fg = _FarmGit()
+    if not fg.ok:
         return
     try:
-        subprocess.run(["git", "-C", str(repo), "add", "farm-status.json"],
-                       check=True, capture_output=True, timeout=30)
-        c = subprocess.run(["git", "-C", str(repo), "commit", "-m",
-                            "Farm status update (runner)"],
-                           capture_output=True, timeout=30)
-        if c.returncode == 0:
-            subprocess.run(["git", "-C", str(repo), "push"], check=True,
-                           capture_output=True, timeout=60)
-            print("Status published to the Live Run Board.")
+        if not fg.fetch():
+            return
+        RUNS_DIR.mkdir(parents=True, exist_ok=True)
+        for name, rtree in fg.remote_runs().items():
+            local = RUNS_DIR / name
+            if local.exists():
+                ltree, _ = fg.local_tree(local, write=False)
+                base = _sync_mark(local)
+                if ltree == rtree:
+                    (local / SYNC_MARK).write_text(rtree + "\n", encoding="utf-8")
+                    continue
+                if base and ltree != base and rtree != base:
+                    print(f"RUN CONFLICT — {name} changed here and on the shared "
+                          "farm since the last sync. Nothing was overwritten. "
+                          "Report it to Claude before going on.")
+                    continue
+                if ltree != base and base:
+                    continue  # only changed here: it goes up on the next publish
+                if not base and ltree != rtree:
+                    print(f"RUN CONFLICT — {name} exists here and on the shared "
+                          "farm with different files. Nothing was overwritten. "
+                          "Report it to Claude before going on.")
+                    continue
+            data = fg.git("archive", "--format=tar", f"{fg.head}:runs/{name}",
+                          text=False)
+            tmpd = RUNS_DIR / (name + ".sync-tmp")
+            if tmpd.exists():
+                shutil.rmtree(tmpd)
+            tmpd.mkdir()
+            with tarfile.open(fileobj=io.BytesIO(data)) as tf:
+                for m in tf.getmembers():
+                    if m.name.startswith("/") or ".." in Path(m.name).parts:
+                        raise RuntimeError(f"unsafe path in shared run {name}")
+                tf.extractall(tmpd)
+            (tmpd / SYNC_MARK).write_text(rtree + "\n", encoding="utf-8")
+            if local.exists():
+                shutil.rmtree(local)
+            tmpd.rename(local)
     except Exception as e:  # noqa: BLE001
-        print(f"Status NOT published ({e}) — report it.")
+        print(f"SHARED RUNS NOT SYNCED — {e}. You may be working on an old "
+              "copy of the run. Report it.")
+
+
+def publish_status(out):
+    """Publish farm-status.json, farm-jobs.json and every run folder to the
+    farm repo's 'farm-status' branch after every step, so the Live Run Board
+    on the live farm page — and every agent — sees the same runs.
+    Glam, Nov 25: never fail silently — every outcome is printed."""
+    if os.environ.get("FARM_NO_PUBLISH"):
+        return
+    fg = _FarmGit()
+    if not fg.ok:
+        print("STATUS NOT PUBLISHED — this runner is not inside a clone of the "
+              "farm repo, so the Live Run Board can't see this run. Run the "
+              "farm from a clone of nakeymasi-coder/futuristic-3d-tiktok-shop-"
+              "farm. Report it.")
+        return
+    try:
+        parent = fg.fetch()
+        remote = fg.remote_runs()
+        if parent:
+            fg.git("read-tree", parent)
+        else:
+            fg.git("read-tree", "--empty")
+        published = {}
+        problems = []
+        if RUNS_DIR.is_dir():
+            for run in sorted(d for d in RUNS_DIR.iterdir()
+                              if d.is_dir() and (d / "config.json").exists()):
+                ltree, skipped = fg.local_tree(run)
+                base = _sync_mark(run)
+                rtree = remote.get(run.name)
+                if rtree and rtree != ltree and rtree != base:
+                    problems.append(f"{run.name} changed on the shared farm "
+                                    "since this copy synced — not overwritten")
+                    continue
+                for sk in skipped:
+                    problems.append(f"{run.name}/{sk} is over 95 MB and stays "
+                                    "only on this computer")
+                if rtree:
+                    fg.git("rm", "-r", "-q", "--cached", f"runs/{run.name}")
+                fg.git("read-tree", f"--prefix=runs/{run.name}/", ltree)
+                published[run] = ltree
+        for name in ("farm-status.json", "farm-jobs.json"):
+            f = out if name == "farm-status.json" else out.parent / name
+            if f.exists():
+                blob = fg.git("hash-object", "-w", str(f))
+                fg.git("update-index", "--add", "--cacheinfo",
+                       f"100644,{blob},{name}")
+        tree = fg.git("write-tree")
+        if parent and tree == fg.git("rev-parse", f"{parent}^{{tree}}"):
+            print("Status published to the Live Run Board (nothing new).")
+        else:
+            args = ["commit-tree", tree, "-m", f"Farm status {now_stamp()}"]
+            if parent:
+                args += ["-p", parent]
+            commit = fg.git(*args)
+            try:
+                fg.git("push", "-q", "origin",
+                       f"{commit}:refs/heads/{STATUS_BRANCH}")
+            except RuntimeError as e:
+                if "non-fast-forward" in str(e) or "rejected" in str(e):
+                    raise RuntimeError("another agent published at the same "
+                                       "moment — run the same command again")
+                raise
+            print("Status published to the Live Run Board.")
+        for run, t in published.items():
+            (run / SYNC_MARK).write_text(t + "\n", encoding="utf-8")
+        for pr in problems:
+            print(f"STATUS NOTE — {pr}. Report it.")
+    except Exception as e:  # noqa: BLE001
+        print(f"STATUS NOT PUBLISHED — {e}. The Live Run Board won't show "
+              "this step. Report it.")
 
 
 def eval_step(run, cfg, n):
@@ -2762,7 +2970,8 @@ def run_status_entry(run):
         "open_step_name": open_name,
         "needs": needs,
         "owner": owner,
-        "steps": [{"n": n, "name": name, "state": st, "reason": reason}
+        "steps": [{"n": n, "name": name, "state": st, "reason": reason,
+                   "agent": step_owner(run, n, st)}
                   for n, name, st, reason in results],
         "review_status": review["review_status"] if review else "No build yet",
         "watch_links": [{"file": b.name, "url": links.get(b.name, "")}
@@ -2788,9 +2997,9 @@ def write_status_file():
     tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n",
                    encoding="utf-8")
     os.replace(tmp, out)
-    publish_status(out)
     write_jobs_file([dict(r["open_job"], run_id=r["run_id"])
                      for r in runs if r.get("open_job")])
+    publish_status(out)
     return out, data
 
 
@@ -2931,6 +3140,8 @@ def main():
     p.set_defaults(fn=cmd_status_export)
 
     args = ap.parse_args()
+    if args.cmd not in ("check-rules", "mila-sign"):
+        sync_runs()
     return args.fn(args)
 
 

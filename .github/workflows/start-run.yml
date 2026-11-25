@@ -1,0 +1,35 @@
+# Start Run — the red button on the farm page opens this page on GitHub.
+# Glam taps "Run workflow" and a REAL run opens: the farm runner creates it,
+# then publishes the run folder and its live status to the "farm-status"
+# branch, where the Live Run Board and every agent read it. It never posts.
+name: Start a farm run
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Video mode (leave blank and the Story Agent picks)"
+        required: false
+        default: ""
+      account:
+        description: "TikTok account"
+        required: false
+        default: "@glamorousgrammyglowup"
+permissions:
+  contents: write
+concurrency:
+  group: farm-status
+  cancel-in-progress: false
+jobs:
+  start-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open the run and publish it to the Live Run Board
+        env:
+          FARM_HOME: ${{ runner.temp }}/farmhome
+          MODE: ${{ inputs.mode }}
+          ACCOUNT: ${{ inputs.account }}
+        run: |
+          mkdir -p "$FARM_HOME"
+          HOME="$FARM_HOME" python3 farm-runner/runner.py create --mode "$MODE" --account "$ACCOUNT" --by "Glam (Start Run)" 2>&1 | tee out.txt
+          grep -q "^Status published to the Live Run Board" out.txt || { echo "::error::The run did not reach the Live Run Board. See the lines above."; exit 1; }

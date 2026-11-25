@@ -546,6 +546,271 @@
       "below",
       "linked"
     ],
-    "_note_caption": "Step 8 lint reads the package's Caption: block: first line names the product (keyword) and points below (soft CTA); numbers.hashtags_min..hashtags_max hashtags; none from generic_hashtags."
-  }
+    "_note_caption": "Step 8 lint reads the package's Caption: block: first line names the product (keyword) and points below (soft CTA); numbers.hashtags_min..hashtags_max hashtags; none from generic_hashtags.",
+    "_note_login": "The farm's browser stays signed in (Glam, Nov 24). If a sign-in screen ever appears, the agent stops and reports BLOCKED: sign-in needed — it never works around it."
+  },
+  "agents": [
+    {
+      "step": 2,
+      "agent": "TikTok Scout",
+      "by": [
+        "TikTok Scout"
+      ],
+      "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "inputs": [
+        "the run (opened empty at Start a Run)"
+      ],
+      "input_files": [],
+      "output": "scout.md with real findings and a Story: line",
+      "output_file": "steps/step2-scout/scout.md",
+      "laws": [
+        "repeats",
+        "blocked"
+      ],
+      "needs": [
+        "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+      ],
+      "hands_to": "TikTok Shop Agent"
+    },
+    {
+      "step": 3,
+      "agent": "TikTok Shop Agent",
+      "by": [
+        "TikTok Shop Agent"
+      ],
+      "job": "Read the Scout's findings and pick the product from what's actually selling in the showcase. A selling product may repeat any day; skip sold-out products. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
+      "inputs": [
+        "the Scout's findings and story sentence"
+      ],
+      "input_files": [
+        "steps/step2-scout/scout.md"
+      ],
+      "output": "pick.md with a product: line and the listing ID/link",
+      "output_file": "steps/step3-pick/pick.md",
+      "laws": [
+        "repeats",
+        "verify-listing",
+        "blocked"
+      ],
+      "needs": [
+        "the farm's TikTok Shop seller view (kept signed in) to see the showcase, what's selling and what's sold out"
+      ],
+      "hands_to": "TikTok Shop Agent"
+    },
+    {
+      "step": 4,
+      "agent": "TikTok Shop Agent",
+      "by": [
+        "TikTok Shop Agent"
+      ],
+      "job": "Pull the ACTUAL listing photo for the picked product from the listing itself and submit it. It becomes the only product description for every later step. No photo in hand = full stop.",
+      "inputs": [
+        "the pick record"
+      ],
+      "input_files": [
+        "steps/step3-pick/pick.md"
+      ],
+      "output": "the real listing photo (an image file)",
+      "output_file": "steps/step4-photo/",
+      "laws": [
+        "exact-product",
+        "blocked"
+      ],
+      "needs": [
+        "the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo"
+      ],
+      "hands_to": "Photo Match checker"
+    },
+    {
+      "step": 5,
+      "agent": "Photo Match checker",
+      "by": [
+        "Mila",
+        "Photo Match checker"
+      ],
+      "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
+      "inputs": [
+        "the listing photo",
+        "the pick record"
+      ],
+      "input_files": [
+        "steps/step4-photo/*",
+        "steps/step3-pick/pick.md"
+      ],
+      "output": "match-verdict.md (written by record-match)",
+      "output_file": "steps/step5-match/match-verdict.md",
+      "laws": [
+        "exact-product",
+        "qc"
+      ],
+      "needs": [
+        "someone other than the grabber who can open the live listing to compare"
+      ],
+      "hands_to": "Story Agent"
+    },
+    {
+      "step": 6,
+      "agent": "Story Agent",
+      "by": [
+        "Story Agent"
+      ],
+      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Glam approves the exact script.",
+      "inputs": [
+        "the Scout's story sentence",
+        "the pick record",
+        "the real listing photo"
+      ],
+      "input_files": [
+        "steps/step2-scout/scout.md",
+        "steps/step3-pick/pick.md",
+        "steps/step4-photo/*"
+      ],
+      "output": "script.md",
+      "output_file": "steps/step6-script/script.md",
+      "laws": [
+        "words",
+        "hook",
+        "cta",
+        "no-use-claims",
+        "no-prices",
+        "staging",
+        "exact-product",
+        "feel-human",
+        "no-dead-air"
+      ],
+      "needs": [
+        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+      ],
+      "hands_to": "Glam (script approval), then Casting / Image Agent"
+    },
+    {
+      "step": 7,
+      "agent": "Casting / Image Agent",
+      "by": [
+        "Casting / Image Agent",
+        "Casting Agent"
+      ],
+      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Glam approves it.",
+      "inputs": [
+        "the approved script",
+        "the pick record",
+        "the real listing photo"
+      ],
+      "input_files": [
+        "steps/step6-script/script.md",
+        "steps/step3-pick/pick.md",
+        "steps/step4-photo/*"
+      ],
+      "output": "the uploaded model photo (an image file)",
+      "output_file": "steps/step7-styled/",
+      "laws": [
+        "casting",
+        "exact-product"
+      ],
+      "needs": [
+        "access to Glam's uploaded model photos"
+      ],
+      "hands_to": "Glam (model photo approval), then Story Agent + Video Agent"
+    },
+    {
+      "step": 8,
+      "agent": "Story Agent + Video Agent",
+      "by": [
+        "Story Agent",
+        "Video Agent"
+      ],
+      "job": "Write the \"Next\" package: Video Express clip prompts (C## format, Realistic Consistent Character workflow), the hook and the caption. A 'References:' line names the approved model photo and the real listing photo. Never describe the product in words. Lint runs the moment you submit; a failing package comes straight back.",
+      "inputs": [
+        "the approved script",
+        "the approved model photo",
+        "the real listing photo"
+      ],
+      "input_files": [
+        "steps/step6-script/script.md",
+        "steps/step7-styled/*",
+        "steps/step4-photo/*"
+      ],
+      "output": "package.md (clip prompts + hook + Caption:)",
+      "output_file": "steps/step8-package/package.md",
+      "laws": [
+        "exact-product",
+        "words",
+        "hook",
+        "cta",
+        "staging",
+        "hashtags",
+        "keywords",
+        "labels",
+        "no-prices",
+        "no-use-claims"
+      ],
+      "needs": [
+        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+      ],
+      "hands_to": "Video Agent"
+    },
+    {
+      "step": 9,
+      "agent": "Video Agent",
+      "by": [
+        "Video Agent",
+        "Indigo"
+      ],
+      "job": "Build the video in Video Express with the Realistic Consistent Character workflow from the package, the approved model photo and the real listing photo. Submit EVERY build, good or bad; the builder never checks her own work.",
+      "inputs": [
+        "the package",
+        "the approved model photo",
+        "the real listing photo"
+      ],
+      "input_files": [
+        "steps/step8-package/package.md",
+        "steps/step7-styled/*",
+        "steps/step4-photo/*"
+      ],
+      "output": "the build video file(s)",
+      "output_file": "steps/step9-builds/",
+      "laws": [
+        "exact-product",
+        "words",
+        "staging",
+        "feel-human",
+        "no-dead-air",
+        "labels"
+      ],
+      "needs": [
+        "Video Express in the farm's browser (kept signed in) to build the video"
+      ],
+      "hands_to": "Mila"
+    },
+    {
+      "step": 10,
+      "agent": "Mila",
+      "by": [
+        "Mila"
+      ],
+      "job": "Check every build in the QC handoff folder frame by frame, bottle first, then the lines word for word against the approved script, using your scorecard. Write verdict.md (verdict: PASS or FAIL, checker: Mila) in the handoff folder, or submit it. Your PASS covers only the exact builds you were handed.",
+      "inputs": [
+        "every build",
+        "the approved script",
+        "the real listing photo"
+      ],
+      "input_files": [
+        "steps/step9-builds/*",
+        "steps/step6-script/script.md",
+        "steps/step4-photo/*"
+      ],
+      "output": "verdict.md",
+      "output_file": "steps/step10-qc/mila-verdict.md",
+      "laws": [
+        "qc",
+        "exact-product",
+        "labels"
+      ],
+      "needs": [
+        "Mila (an AI agent that can watch the video frame by frame and hear the audio)"
+      ],
+      "hands_to": "Glam (final review; freeze stays on)"
+    }
+  ]
 }

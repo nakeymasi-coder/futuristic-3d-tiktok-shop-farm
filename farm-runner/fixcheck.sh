@@ -86,6 +86,7 @@ OUT=$($R drive $RUN); expect "#3 drive asks Glam again" "changed after Glam's ap
 $R approve-script $RUN >/dev/null
 # ---------- Step 7/8 lint
 cp /tmp/fx_p.png $D/step7-styled/model.png
+$R approve-image $RUN >/dev/null  # chain: Glam approves the model photo (Step 7 gate)
 K=$D/step8-package/package.md
 CAP='Caption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n'
 lint(){ printf "%b" "$2$CAP" > $K; OUT=$($R lint $RUN 2>&1); expect "$1" "$3" "$OUT"; }
@@ -203,7 +204,7 @@ import json,sys
 d=json.load(open(sys.argv[1]))
 assert set(d)=={"generated_at","rules_version","freeze","runs"}, set(d)
 assert d["freeze"]=="ON"
-keys={"run_id","pick","model","mode","account","headline","state","open_step","open_step_name","needs","owner","steps","review_status","watch_links","is_test"}
+keys={"run_id","pick","model","mode","account","headline","state","open_step","open_step_name","needs","owner","steps","review_status","watch_links","is_test","handoffs","open_job"}
 for r in d["runs"]:
     assert set(r)==keys, set(r)^keys
     assert r["state"] in ("READY","BLOCKED","STOPPED")
@@ -215,14 +216,14 @@ expect "STATUS READY run has open_step null (TEST run flagged)" "^READY None Tru
 $R create --mode "Quick Tip" >/dev/null; RUN2=run-$(date +%F)-2
 OUT=$($R status-export); expect "STATUS status-export writes the file" "farm-status.json written" "$OUT"
 OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RUN2'][0];print(r['state'],'|',r['open_step'],'|',r['owner'],'|',r['needs'])")
-expect "STATUS BLOCKED run shows owner + what it needs" "^BLOCKED \| 2 \| TikTok Scout \| no scout findings" "$OUT"
+expect "STATUS BLOCKED run shows owner + what it needs" "^BLOCKED \| 2 \| TikTok Scout \| TikTok Scout — needs: the farm.s TikTok browser" "$OUT"
 printf 'Findings: x\nStory: Your feet hurt and you deserve better.\n' > $HOME/workspace/farm-runs/$RUN2/steps/step2-scout/scout.md
 printf 'product: TEST Mug\n' > $HOME/workspace/farm-runs/$RUN2/steps/step3-pick/pick.md
 cp /tmp/fx_p.png $HOME/workspace/farm-runs/$RUN2/steps/step4-photo/p.png
 $R record-match $RUN2 --checker Mila --grabber Mila --verdict MATCH >/dev/null
 $R drive $RUN2 >/dev/null
 OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RUN2'][0];print(r['state'],'|',r['open_step'],'|',r['owner'])")
-expect "STATUS STOPPED run (self-signed match) names step 5 and the checker" "^STOPPED \| 5 \| A checker who did not grab" "$OUT"
+expect "STATUS STOPPED run (self-signed match) names step 5 and the checker" "^STOPPED \| 5 \| Photo Match checker" "$OUT"
 [ ! -f "$ROOT/farm-status.json" ] && ok "STATUS tests never wrote into the repo" "FARM_STATUS_OUT honored" || bad "STATUS wrote into repo" "$ROOT/farm-status.json"
 printf 'verdict: PASS\nchecker: Mila\n' >/dev/null
 grep -q "MAJOR — must fix" $H/HANDOFF.md && grep -q "PASS BAR" $H/HANDOFF.md && grep -q "Farm laws (farm-rules.json" $H/HANDOFF.md && ok "RULES Mila's HANDOFF.md carries the scorecard + laws from the JSON" "$(grep -m1 "Mila's scorecard" $H/HANDOFF.md)" || bad "RULES handoff scorecard" "$(head -3 $H/HANDOFF.md)"
@@ -255,4 +256,67 @@ OUT=$($R status $RUN3 2>&1)
 expect "INDIGO script rewritten to the rules passes the check" "Step 6 +Script +(WAITING|BLOCKED).*(passing the script check|earlier gate)" "$OUT"
 OUT=$($R approve-script $RUN3 2>&1)
 expect "rewritten script takes Glam's approval" "Recorded Glam's script approval" "$OUT"
+# ---------- FULL CHAIN TEST (Glam's order: Scout → Shop Agent → Story → Casting → Video → Mila → Glam; nothing posts)
+CH=$(mktemp -d)
+OUT=$($R create --mode "Get Ready With Me" 2>&1); RC=$(echo "$OUT" | sed -n 's/^Run ID: //p'); C=$HOME/workspace/farm-runs/$RC; CS=$C/steps
+expect "CHAIN create opens the Scout's job" "job opened for TikTok Scout|Chain: job opened for TikTok Scout" "$OUT"
+[ -f $CS/step2-scout/JOB.md ] && grep -q "Your job" $CS/step2-scout/JOB.md && ok "CHAIN Scout JOB.md written from farm-rules.json" "$(grep -m1 '^# JOB' $CS/step2-scout/JOB.md)" || bad "CHAIN Scout JOB.md" ""
+OUT=$($R jobs 2>&1); expect "CHAIN jobs lists the open Scout job" "TikTok Scout — $RC Step 2" "$OUT"
+python3 -c "import json,os;d=json.load(open(os.path.join(os.path.dirname('$FARM_STATUS_OUT'),'farm-jobs.json')));assert any(j['run_id']=='$RC' and j['agent']=='TikTok Scout' for j in d['jobs'])" && ok "CHAIN farm-jobs.json lists the Scout job" "farm-jobs.json" || bad "CHAIN farm-jobs.json" ""
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['open_job']['agent'],'|',r['state'],'|',r['owner'])"); expect "CHAIN status: open_job = TikTok Scout, BLOCKED until it submits" "^TikTok Scout \| BLOCKED \| TikTok Scout" "$OUT"
+printf 'Findings: TEST — slides trending in Shop best sellers (test data)\nStory: Your feet ache after a long shift and you deserve soft.\n' > $CH/scout.md
+OUT=$($R submit $RC --step 2 --by "Story Agent" --file $CH/scout.md; echo "exit $?"); expect "CHAIN wrong agent refused (--by must be the step's agent)" "SUBMIT REFUSED — Step 2 belongs to TikTok Scout.*exit 2|exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/scout.md; echo "exit $?"); expect "CHAIN out-of-order submit refused" "isn't the open job" "$OUT"
+OUT=$($R submit $RC --step 2 --by "TikTok Scout" --file $CH/scout.md); expect "CHAIN Scout → Shop Agent" "Handed to TikTok Shop Agent \(Step 3\)" "$OUT"
+grep -q "steps/step2-scout/scout.md" $CS/step3-pick/JOB.md && ok "CHAIN Shop job reads the Scout's file (with sha256)" "$(grep -m1 'scout.md' $CS/step3-pick/JOB.md)" || bad "CHAIN Shop job inputs" ""
+printf 'product: TEST Cloud Slides\nlisting: TEST-0001 (test data)\n' > $CH/pick.md
+OUT=$($R submit $RC --step 3 --by "TikTok Shop Agent" --file $CH/pick.md); expect "CHAIN pick → Shop Agent grabs the photo (Step 4)" "Handed to TikTok Shop Agent \(Step 4\)" "$OUT"
+cp /tmp/fx_p.png $CH/listing.png
+OUT=$($R submit $RC --step 4 --by "TikTok Shop Agent" --file $CH/listing.png); expect "CHAIN photo → Photo Match checker" "Handed to Photo Match checker \(Step 5\)" "$OUT"
+OUT=$($R submit $RC --step 5 --by "Mila" --file $CH/pick.md; echo "exit $?"); expect "CHAIN Step 5 only via record-match" "record-match" "$OUT"
+$R record-match $RC --checker Mila --grabber "TikTok Shop Agent" --verdict MATCH >/dev/null
+[ -f $CS/step6-script/JOB.md ] && grep -q "scout.md" $CS/step6-script/JOB.md && grep -q "step4-photo/listing.png" $CS/step6-script/JOB.md && ok "CHAIN Story job opened with the story sentence + listing photo as inputs" "$(grep -c sha256 $CS/step6-script/JOB.md) inputs with sha256" || bad "CHAIN Story job inputs" "$(cat $CS/step6-script/JOB.md 2>/dev/null | head -5)"
+printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift."\nShe holds the bottle up to the camera.\nLINE 2: "Tap the orange cart."\n' > $CH/script-bad.md
+OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script-bad.md; echo "exit $?"); expect "CHAIN held-bottle script SENT BACK to the Story Agent" "SENT BACK to Story Agent" "$OUT"
+grep -q "SENT BACK" $CS/step6-script/JOB.md && grep -q "stages the product" $CS/step6-script/JOB.md && ok "CHAIN findings written at the top of the Story Agent's JOB.md" "$(sed -n 3p $CS/step6-script/JOB.md | cut -c1-100)" || bad "CHAIN sent-back JOB.md" ""
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['state'],'|',r['open_job']['agent'],'|',len(r['open_job']['sent_back']))"); expect "CHAIN status shows STOPPED, sent back to Story Agent" "^STOPPED \| Story Agent \| [1-9]" "$OUT"
+printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift."\nThe slides sit on the counter, no hands on them.\nLINE 2: "Tap the orange cart."\n' > $CH/script.md
+OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script.md); expect "CHAIN corrected script passes → waiting on Glam" "Handed to Glam \(Step 6\)" "$OUT"
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['open_job'],'|',r['owner'],'|',r['needs'])"); expect "CHAIN Glam gate: open_job null, owner Glam" "^None \| Glam \| Glam — approve the exact script" "$OUT"
+OUT=$($R approve-script $RC); expect "CHAIN Glam's script approval → Casting / Image Agent" "next is Casting / Image Agent \(Step 7\)" "$OUT"
+cp /tmp/fx_p.png $CH/model-uploaded.png
+OUT=$($R submit $RC --step 7 --by "Casting / Image Agent" --file $CH/model-uploaded.png); expect "CHAIN model photo → waiting on Glam" "Handed to Glam \(Step 7\)" "$OUT"
+OUT=$($R approve-image $RC); expect "CHAIN Glam's image approval → package job" "next is Story Agent \+ Video Agent \(Step 8\)" "$OUT"
+printf 'References: approved model photo + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\n' > $CH/package-nocap.md
+OUT=$($R submit $RC --step 8 --by "Story Agent" --file $CH/package-nocap.md; echo "exit $?"); expect "CHAIN package without a caption SENT BACK" "SENT BACK to Story Agent \+ Video Agent" "$OUT"
+printf 'References: approved model photo + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\nCaption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n' > $CH/package.md
+OUT=$($R submit $RC --step 8 --by "Video Agent" --file $CH/package.md); expect "CHAIN package with caption passes → Video Agent" "Handed to Video Agent \(Step 9\)" "$OUT"
+echo "TEST build 1" > $CH/build-1.mp4
+OUT=$($R submit $RC --step 9 --by "Indigo" --file $CH/build-1.mp4); expect "CHAIN build → Mila" "Handed to Mila \(Step 10\)" "$OUT"
+[ -f $HOME/workspace/farm-qc-handoff/$RC/build-1.mp4 ] && [ -f $CS/step10-qc/JOB.md ] && ok "CHAIN build handed to Mila's QC folder + her JOB.md" "farm-qc-handoff/$RC/build-1.mp4" || bad "CHAIN Mila handoff" ""
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['open_job']['agent'],'|',r['owner'])"); expect "CHAIN status open_job = Mila" "^Mila \| Mila" "$OUT"
+printf 'verdict: PASS\nchecker: Mila\nscore: TEST — minors 4/4/5\n' > $CH/verdict.md
+OUT=$($R submit $RC --step 10 --by "Mila" --file $CH/verdict.md); expect "CHAIN Mila's PASS → Glam's final review" "Handed to Glam: final review" "$OUT"
+OUT=$($R status $RC); expect "CHAIN ends at Ready for Glam — freeze on" "HEADLINE: Ready for Glam — freeze on\." "$OUT"
+OUT=$($R post $RC 2>&1; echo "exit $?"); expect "CHAIN there is no post command (nothing posts)" "invalid choice.*exit 2|exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+python3 - $C/handoffs.jsonl <<'PY' && ok "CHAIN handoffs.jsonl has every hop in order, with inputs + sha256" "hops ok" || bad "CHAIN handoffs order" "see above"
+import json,sys
+H=[json.loads(l) for l in open(sys.argv[1])]
+want=[("Start a Run","TikTok Scout","handed off"),("TikTok Scout","TikTok Shop Agent","handed off"),
+("TikTok Shop Agent","TikTok Shop Agent","handed off"),("TikTok Shop Agent","Photo Match checker","handed off"),
+("Mila","Story Agent","handed off"),("Story Agent","Story Agent","sent back"),("Story Agent","Glam","waiting on Glam"),
+("Glam","Casting / Image Agent","handed off"),("Casting / Image Agent","Glam","waiting on Glam"),
+("Glam","Story Agent + Video Agent","handed off"),("Story Agent","Story Agent + Video Agent","sent back"),
+("Video Agent","Video Agent","handed off"),("Indigo","Mila","waiting on Mila"),("Mila","Glam","waiting on Glam")]
+got=[(h["from"],h["to"],h["result"]) for h in H]
+assert got==want, "\n".join(map(str,got))
+for h in H:
+    assert set(h)=={"at","from","to","step","what","inputs","output","result"}, h
+for h in H[1:]:
+    assert h["inputs"] and all(len(i["sha256"])==64 for i in h["inputs"]), h
+PY
+python3 -c "
+import json;[print(f\"  {i:2}. {h['from']} → {h['to']} (Step {h['step'] or 'review'}) — {h['result']}\") for i,h in enumerate((json.loads(l) for l in open('$C/handoffs.jsonl')),1)]" > /tmp/fx_hops.txt
+rm -rf $CH
+echo; echo "CHAIN HOPS (test data):"; cat /tmp/fx_hops.txt
 echo; echo "SUMMARY: $P passed, $F failed"

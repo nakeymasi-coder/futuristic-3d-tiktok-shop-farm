@@ -36,6 +36,32 @@ Numbers live once, in `"numbers"`. A law that says `{max_spoken_words_per_line}`
 8. Mila (Quality Control)
 9. TikTok Live Game Agent (A-09, LIVE ONLY): builds live games only from the real people engaging on Glam's live.
 
+## How the chain runs
+
+One agent does its step and hands it to the next, in Glam's order. Nobody passes work along by chat.
+
+TikTok Scout → TikTok Shop Agent (pick, then the real listing photo) → Photo Match checker (not the grabber) → Story Agent (script) → **Glam approves the script** → Casting / Image Agent (her uploaded model photo) → **Glam approves the photo** → Story Agent + Video Agent ("Next" package with caption) → Video Agent / Indigo (build) → Mila (QC) → **Glam's final review**. Step 11 stays frozen; nothing posts.
+
+- **Jobs:** when a step clears, the runner opens the next agent's job as `steps/<step>/JOB.md`. The job text, the laws that agent follows and what it needs all come from `farm-rules.json → agents`. JOB.md also lists the exact input files with their sha256.
+- **Finding your work:** `python3 farm-runner/runner.py jobs` lists every open job and writes `farm-jobs.json` next to `farm-status.json`.
+- **Handing in:** `python3 farm-runner/runner.py submit <run> --step N --by "<agent>" --file <your file>`. Step 5 uses `record-match` instead. The step's checks run at once (story check, script check, lint and caption).
+  - If they pass, the next agent's job opens, or Glam's or Mila's gate.
+  - If they fail, the work is **sent back** to the same agent with the findings at the top of its JOB.md.
+  - `--by` must be that step's agent, and a step out of order is refused.
+- **Glam's gates:** `approve-script` and `approve-image`. Each approval is tied to the exact file she saw.
+- **Every hop is logged** in the run folder's `handoffs.jsonl` (who, when, what, the inputs used with sha256, the output, and the result). It also appears in `farm-status.json`, so the page's Live Run Board shows every handoff and the open job.
+- **Who does each job.** The runner opens each job and checks the work; the agents do it. A run shows the agent as up next until it hands in its work:
+  - **TikTok Scout:** the farm's TikTok browser (Glam keeps it signed in) for the Shop showcase, best sellers and trends, plus an AI agent to write.
+  - **TikTok Shop Agent:** the farm's TikTok Shop seller view, to see what's selling and what's sold out, and to save the real listing photo.
+  - **Photo Match checker:** someone who did not grab the photo, comparing it to the live listing.
+  - **Story Agent and the package:** an AI agent to write. The runner never writes.
+  - **Casting / Image Agent:** Glam's uploaded model photos.
+  - **Video Agent:** Video Express in the farm's browser.
+  - **Mila:** watches the video frame by frame and hears the audio.
+- **Safety net:** if a sign-in screen ever appears, the agent stops and reports BLOCKED: sign-in needed. It never works around it.
+
+The runner never writes an agent's work, never calls an AI or a website, and never posts.
+
 ## Operating the runner, step by step
 
 The two laws: **the posting freeze is ON** (Step 11 is locked in code; the runner has no posting action, and only Glam lifts the freeze, outside the runner), and **no product plan** (the runner and the 2-hourly driver job never name a product; they only work the run folders that exist).

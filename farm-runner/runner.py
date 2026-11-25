@@ -96,7 +96,7 @@ REQUIRED_RULE_KEYS = {
                "product_description_patterns", "staging_patterns",
                "handling_nouns", "handling_verbs", "guard_patterns"],
     "laws": [], "run_order": [], "mila_scorecard": [], "form": [],
-    "version": [],
+    "version": [], "agents": [],
 }
 
 
@@ -290,6 +290,15 @@ def sha256_file(path):
 def build_set(folder):
     """{name: sha256} for the video files in a folder."""
     return {v.name: sha256_file(v) for v in files_with_ext(folder, VIDEO_EXTS)}
+
+
+def image_set_sha(folder):
+    """One fingerprint for the image(s) in a folder (Glam's image approval
+    covers exactly these files)."""
+    h = hashlib.sha256()
+    for f in files_with_ext(folder, IMAGE_EXTS):
+        h.update(f.name.encode() + b"\0" + sha256_file(f).encode() + b"\n")
+    return h.hexdigest()
 
 
 def pick_from_record(run, cfg):
@@ -827,9 +836,20 @@ def eval_step(run, cfg, n):
                            "human gate: Glam's script approval")
     if n == 7:
         imgs = files_with_ext(steps / STEP_DIRS[7], IMAGE_EXTS)
-        if imgs:
-            return ("CLEARED", f"styled image on file: {imgs[0].name}")
-        return ("WAITING", "no styled image on file (steps/step7-styled/)")
+        if not imgs:
+            return ("WAITING", "no model photo on file (steps/step7-styled/) — "
+                               "the Casting / Image Agent submits Glam's "
+                               "uploaded model photo")
+        approval = parse_kv(steps / STEP_DIRS[7] / "glam-image-approval.md")
+        if approval.get("approved_by", "").lower() != "glam":
+            return ("WAITING", f"model photo on file ({imgs[0].name}) — human "
+                               "gate: Glam's model photo approval")
+        if approval.get("image_sha256") != image_set_sha(steps / STEP_DIRS[7]):
+            return ("WAITING", "model photo changed after Glam's approval — "
+                               "needs her approval again (her approval covers "
+                               "the exact photo she saw)")
+        return ("CLEARED", f"model photo on file ({imgs[0].name}) and Glam's "
+                           "approval recorded")
     if n == 8:
         pkg = steps / STEP_DIRS[8] / "package.md"
         if not pkg.exists():
@@ -1005,6 +1025,10 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
           "record at steps/step3-pick/pick.md, then attach the listing photo "
           "with attach-photo. Or just run `drive` — it advances what's ready "
           "and stops at the first gate that needs a human or missing evidence.")
+    info = sync_chain(run, actor="Start a Run")
+    print(f"Chain: job opened for {info.get('agent') or info.get('to')} "
+          f"(Step {info.get('step')}).")
+    write_status_file()
     return 0
 
 
@@ -1064,6 +1088,8 @@ def cmd_attach_photo(args):
     (dest_dir / "GRABBED-BY.txt").write_text(args.by + "\n", encoding="utf-8")
     sheet_log(run, f"Step 4: listing photo attached ({src.name}), grabbed by {args.by}.")
     print(f"Attached {src.name} to {run.name}/steps/step4-photo/ (grabber of record: {args.by})")
+    sync_chain(run, actor=args.by, submitted=dest)
+    write_status_file()
     return 0
 
 
@@ -1086,6 +1112,9 @@ def cmd_record_match(args):
     if args.checker.strip().lower() == args.grabber.strip().lower():
         print("WARNING: checker == grabber. The derivation will REFUSE to "
               "count this verdict — a self-check is not a check.")
+    sync_chain(run, actor=args.checker,
+               submitted=run / "steps" / STEP_DIRS[5] / "match-verdict.md")
+    write_status_file()
     return 0
 
 
@@ -1111,6 +1140,35 @@ def cmd_approve_script(args):
                    f"(entered by {args.recorded_by}).")
     print(f"Recorded Glam's script approval for {run.name}. "
           "Only run this after Glam has actually approved the script.")
+    info = sync_chain(run, actor="Glam")
+    print(f"Chain: next is {info.get('agent') or info.get('to')} "
+          f"(Step {info.get('step')}).")
+    write_status_file()
+    return 0
+
+
+def cmd_approve_image(args):
+    run = resolve_run(args.run)
+    folder = run / "steps" / STEP_DIRS[7]
+    imgs = files_with_ext(folder, IMAGE_EXTS)
+    if not imgs:
+        print("APPROVAL REFUSED — no model photo on file in "
+              "steps/step7-styled/; the Casting / Image Agent submits it first.")
+        return 2
+    body = (f"approved_by: Glam\n"
+            f"image_sha256: {image_set_sha(folder)}\n"
+            f"images: {', '.join(i.name for i in imgs)}\n"
+            f"recorded_by: {args.recorded_by}\n"
+            f"recorded_at: {now_stamp()}\n")
+    (folder / "glam-image-approval.md").write_text(body, encoding="utf-8")
+    sheet_log(run, "Step 7: Glam's model photo approval recorded "
+                   f"(entered by {args.recorded_by}).")
+    print(f"Recorded Glam's model photo approval for {run.name}. "
+          "Only run this after Glam has actually approved the photo.")
+    info = sync_chain(run, actor="Glam")
+    print(f"Chain: next is {info.get('agent') or info.get('to')} "
+          f"(Step {info.get('step')}).")
+    write_status_file()
     return 0
 
 
@@ -1220,6 +1278,7 @@ def cmd_collect_verdict(args):
                    f"{kv.get('verdict', '?')} (checker: {kv.get('checker', '?')}).")
     print(f"Collected Mila's verdict for {cfg['run_id']}: "
           f"{kv.get('verdict', '?')} — now on file at steps/step10-qc/mila-verdict.md")
+    sync_chain(run, actor="Mila", submitted=dest)
     return 0
 
 
@@ -1308,6 +1367,11 @@ def drive_run(run):
         # it is an agent/human step, not something the driver can fabricate.
         note(f"STOP at Step {first_open} — {reason}")
         break
+    info = sync_chain(run)
+    if info.get("kind") in ("agent", "mila"):
+        a = AGENTS.get(info["step"], {})
+        log.append(f"Job open: {info['agent']} (Step {info['step']}) — "
+                   f"needs: {'; '.join(a.get('needs', []))}")
     write_derived_block(run)
     return log
 
@@ -1527,6 +1591,8 @@ def rule_texts(data):
         for i, x in enumerate(v if isinstance(v, list) else [v]):
             out.append((f"mila_scorecard.{k}[{i}]" if isinstance(v, list)
                         else f"mila_scorecard.{k}", x))
+    for a in data.get("agents", []):
+        out.append((f"agents.{a.get('step')}.job", a.get("job", "")))
     return out
 
 
@@ -1611,6 +1677,20 @@ def cmd_check_rules(args):
           f"(version {RULES['version']}, every key the runner needs present)")
     for b in missing_placeholders(RULES):
         drift.append(b)
+    # The chain: one agent per step 2–10, each naming its laws (that exist),
+    # its output file and what it needs.
+    law_ids = {l.get("id") for l in RULES.get("laws", [])}
+    steps_have = {int(a.get("step", 0)) for a in RULES.get("agents", [])}
+    for n in range(2, 11):
+        if n not in steps_have:
+            drift.append(f"agents: no agent for Step {n} — the chain has a gap")
+    for a in RULES.get("agents", []):
+        for k in ("agent", "job", "output_file", "needs", "hands_to", "laws"):
+            if not a.get(k):
+                drift.append(f"agents.{a.get('step')}: missing '{k}'")
+        for lid in a.get("laws", []):
+            if lid not in law_ids:
+                drift.append(f"agents.{a.get('step')}: law '{lid}' is not in laws")
     runner = Path(args.runner) if getattr(args, "runner", None) else \
         Path(__file__).resolve()
     explicit_page = bool(getattr(args, "page", None))
@@ -1650,6 +1730,367 @@ def cmd_check_rules(args):
 # can see it (Glam, Nov 24: "Nothing should be hidden where no one can see
 # what's going on"). The farm page's Live Run Board reads this file.
 # ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# THE AGENT CHAIN (Glam, Nov 24: "one agent does something and hands it to
+# the other agent"). Every agent's job comes from farm-rules.json → agents.
+# When a step clears, the runner opens the NEXT agent's job (JOB.md in that
+# step's folder) and logs the handoff in handoffs.jsonl. An agent submits its
+# work with `submit`; the step's checks run at once — pass hands off, fail
+# sends it straight back to the same agent with the findings on its JOB.md.
+# The runner never writes an agent's work, never calls an AI or a website,
+# and never posts.
+# ----------------------------------------------------------------------------
+
+AGENTS = {int(a["step"]): a for a in RULES.get("agents", [])}
+CHAIN_SKIP_NAMES = {"JOB.md", "GRABBED-BY.txt", "links.md",
+                    "verdict-covers.json", "staging-proof.md"}
+
+
+def agent_name(step):
+    return AGENTS.get(step, {}).get("agent", f"Step {step} agent")
+
+
+def by_allowed(step, by):
+    a = AGENTS.get(step, {})
+    allowed = [x.lower() for x in a.get("by", [a.get("agent", "")])]
+    return by.strip().lower() in allowed
+
+
+def chain_input_files(run, step):
+    out = []
+    for pat in AGENTS.get(step, {}).get("input_files", []):
+        for f in sorted(run.glob(pat)):
+            if (not f.is_file() or f.name in CHAIN_SKIP_NAMES
+                    or f.name.startswith("glam-") or f.suffix == ".tmp"):
+                continue
+            out.append({"file": str(f.relative_to(run)),
+                        "sha256": sha256_file(f)})
+    return out
+
+
+def handoffs_path(run):
+    return run / "handoffs.jsonl"
+
+
+def read_handoffs(run):
+    p = handoffs_path(run)
+    if not p.exists():
+        return []
+    out = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        try:
+            out.append(json.loads(line))
+        except ValueError:
+            continue
+    return out
+
+
+def append_handoff(run, rec):
+    with handoffs_path(run).open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
+def chain_state(run):
+    try:
+        return json.loads((run / "chain-state.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def save_chain_state(run, st):
+    (run / "chain-state.json").write_text(json.dumps(st, indent=2) + "\n",
+                                          encoding="utf-8")
+
+
+def step_findings(run, n, reason):
+    if n == 6:
+        f = [m for _, m in script_findings(run)]
+        return f or [reason]
+    if n == 8:
+        f = []
+        for cat, no, text in lint_package(run):
+            where = f"line {no}" if no else "package"
+            f.append(f"[{cat}] {where}: {text}")
+        return f or [reason]
+    return [reason]
+
+
+def open_job_info(run):
+    """Who acts next on this run, from the evidence: an agent's job, Mila,
+    Glam's approval gate, or Glam's final review ('done')."""
+    cfg, results = derive(run)
+    steps = run / "steps"
+    for n, name, st, reason in results:
+        if n == 11:
+            break
+        if st == "CLEARED":
+            continue
+        if n == 1:
+            continue
+        if n == 6 and nonempty_file(steps / STEP_DIRS[6] / "script.md") \
+                and st != "INVALID" and st != "BLOCKED":
+            return {"kind": "glam", "step": 6, "agent": "", "to": "Glam",
+                    "what": "approve the exact script (steps/step6-script/script.md)",
+                    "reason": reason, "findings": []}
+        if n == 7 and files_with_ext(steps / STEP_DIRS[7], IMAGE_EXTS) \
+                and st != "BLOCKED":
+            return {"kind": "glam", "step": 7, "agent": "", "to": "Glam",
+                    "what": "approve the model photo (steps/step7-styled/)",
+                    "reason": reason, "findings": []}
+        if n == 10:
+            kv = parse_kv(steps / STEP_DIRS[10] / "mila-verdict.md")
+            if st == "INVALID" and kv.get("verdict", "").upper() != "PASS":
+                return {"kind": "agent", "step": 9, "agent": agent_name(9),
+                        "to": agent_name(9), "reason": reason,
+                        "what": "rebuild — Mila sent the build back",
+                        "findings": [reason]}
+            return {"kind": "mila", "step": 10, "agent": agent_name(10),
+                    "to": agent_name(10), "reason": reason,
+                    "what": "QC check of every build in the handoff folder",
+                    "findings": [reason] if st == "INVALID" else []}
+        sent_back = (st == "INVALID"
+                     or (n == 2 and nonempty_file(steps / STEP_DIRS[2] / "scout.md")))
+        return {"kind": "agent", "step": n, "agent": agent_name(n),
+                "to": agent_name(n), "reason": reason,
+                "what": AGENTS.get(n, {}).get("output", ""),
+                "findings": step_findings(run, n, reason) if sent_back else []}
+    return {"kind": "done", "step": None, "agent": "", "to": "Glam",
+            "what": "final review — Ready for Glam, freeze on",
+            "reason": "complete through Step 10", "findings": []}
+
+
+def job_md(run, info):
+    n = info["step"]
+    a = AGENTS.get(n, {})
+    cfg = load_config(run)
+    laws = {l["id"]: l for l in RULES.get("laws", [])}
+    out = []
+    if info.get("findings"):
+        out.append("## ⚠ SENT BACK — fix these, then submit again\n")
+        out += [f"- {f}" for f in info["findings"]]
+        out.append("")
+    out.append(f"# JOB — Step {n}: {a.get('agent', '')}")
+    out.append(f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
+               f"opened {now_stamp()} · posting freeze ON\n")
+    out.append("## Your job")
+    out.append(fill(a.get("job", "")) + "\n")
+    out.append("## Read these (exact files)")
+    ins = chain_input_files(run, n)
+    out += ([f"- {i['file']}  (sha256 {i['sha256'][:16]}…)" for i in ins]
+            or ["- " + "; ".join(a.get("inputs", []))])
+    out.append("\n## Farm laws you follow (from farm-rules.json)")
+    for lid in a.get("laws", []):
+        if lid in laws:
+            out.append(f"- {fill(laws[lid]['title'])}: {fill(laws[lid]['text'])}")
+    out.append("\n## Hand in")
+    out.append(f"- Output: {a.get('output', '')} → {a.get('output_file', '')}")
+    if n == 5:
+        out.append("- Submit with: runner.py record-match "
+                   f"{cfg['run_id']} --checker <you> --grabber <grabber> "
+                   "--verdict MATCH|NO-MATCH")
+    else:
+        out.append(f"- Submit with: runner.py submit {cfg['run_id']} --step {n} "
+                   f"--by \"{a.get('agent', '').split(' + ')[0]}\" --file <your file>")
+    out.append(f"- Hands to: {a.get('hands_to', '')}")
+    out.append("\n## What this job needs that the runner can't do by itself")
+    out += [f"- {x}" for x in a.get("needs", [])]
+    if n == 10:
+        out.append(f"\nBuilds are in ~/workspace/farm-qc-handoff/{cfg['run_id']}/ "
+                   "(HANDOFF.md there carries your full scorecard).")
+    return "\n".join(out) + "\n"
+
+
+def sync_chain(run, actor=None, submitted=None):
+    """Open the next job (or gate) if it changed, and log the handoff."""
+    info = open_job_info(run)
+    sub_sig = sha256_file(submitted) if submitted and Path(submitted).is_file() else ""
+    sig = json.dumps([info["kind"], info["step"], info["agent"],
+                      info["findings"], sub_sig], ensure_ascii=False)
+    st = chain_state(run)
+    if st.get("sig") == sig:
+        return info
+    cfg = load_config(run)
+    if info["kind"] in ("agent", "mila"):
+        if info["kind"] == "mila":
+            builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
+            dest = handoff_dir_for(cfg["run_id"])
+            handed = bool(builds) and dest.is_dir() and all(
+                (dest / b.name).exists()
+                and sha256_file(dest / b.name) == sha256_file(b) for b in builds)
+            if builds and not handed:
+                import contextlib, io
+                with contextlib.redirect_stdout(io.StringIO()):
+                    cmd_handoff(argparse.Namespace(run=str(run)))
+        (run / "steps" / STEP_DIRS[info["step"]] / "JOB.md").write_text(
+            job_md(run, info), encoding="utf-8")
+    if info["kind"] == "agent":
+        result = "sent back" if info["findings"] else "handed off"
+    elif info["kind"] == "mila":
+        result = "waiting on Mila"
+    else:
+        result = "waiting on Glam"
+    frm = actor or st.get("last_actor") or "Start a Run"
+    if info["findings"] and info["kind"] == "agent":
+        what = (f"{actor} submitted; " if actor else "") + \
+               f"SENT BACK to {info['agent']}: {info['findings'][0]}"
+    elif info["kind"] in ("agent", "mila"):
+        what = f"job opened for {info['agent']}: {info['what']}"
+    else:
+        what = info["what"]
+    if info["kind"] in ("agent", "mila"):
+        inputs = chain_input_files(run, info["step"])
+    elif info["kind"] == "glam":
+        inputs = [{"file": str(f.relative_to(run)), "sha256": sha256_file(f)}
+                  for f in (files_with_ext(run / "steps" / STEP_DIRS[7], IMAGE_EXTS)
+                            if info["step"] == 7
+                            else [run / "steps" / STEP_DIRS[6] / "script.md"])]
+    else:
+        inputs = [{"file": str(f.relative_to(run)), "sha256": sha256_file(f)}
+                  for f in files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)]
+    output = ""
+    if submitted:
+        sp = Path(submitted)
+        output = (f"{sp.relative_to(run)} (sha256 {sha256_file(sp)[:16]}…)"
+                  if sp.is_file() and run in sp.parents else str(sp))
+    elif info["kind"] in ("agent", "mila"):
+        output = "expected: " + AGENTS.get(info["step"], {}).get("output_file", "")
+    rec = {"at": now_stamp(), "from": frm, "to": info["to"],
+           "step": info["step"], "what": what, "inputs": inputs,
+           "output": output, "result": result}
+    append_handoff(run, rec)
+    sheet_log(run, f"CHAIN: {frm} → {info['to']} (Step {info['step']}) — {result}")
+    save_chain_state(run, {"sig": sig, "opened_at": now_stamp(),
+                           "last_actor": actor or st.get("last_actor", ""),
+                           "open": {k: info[k] for k in ("kind", "step", "agent", "to")}})
+    return info
+
+
+def open_job_entry(run, info=None):
+    info = info or open_job_info(run)
+    if info["kind"] not in ("agent", "mila"):
+        return None
+    a = AGENTS.get(info["step"], {})
+    return {"step": info["step"], "agent": info["agent"],
+            "job_file": f"steps/{STEP_DIRS[info['step']]}/JOB.md",
+            "job": fill(a.get("job", "")), "needs": a.get("needs", []),
+            "since": chain_state(run).get("opened_at", ""),
+            "sent_back": info["findings"]}
+
+
+def cmd_submit(args):
+    run = resolve_run(args.run)
+    n = args.step
+    info = open_job_info(run)
+    if n == 5:
+        print("SUBMIT REFUSED — Step 5 is recorded with record-match "
+              "(the checker must not be the grabber).")
+        return 2
+    if info["kind"] not in ("agent", "mila") or info["step"] != n:
+        now = (f"Step {info['step']} — {info['to']}" if info["step"]
+               else "Glam's final review")
+        print(f"SUBMIT REFUSED — Step {n} isn't the open job. The chain is at "
+              f"{now}. Agents hand off in order.")
+        return 2
+    if not by_allowed(n, args.by):
+        a = AGENTS.get(n, {})
+        print(f"SUBMIT REFUSED — Step {n} belongs to {a.get('agent')} "
+              f"(accepted: {', '.join(a.get('by', []))}); '{args.by}' can't "
+              "submit it.")
+        return 2
+    src = Path(args.file).expanduser()
+    if not src.is_file():
+        print(f"SUBMIT REFUSED — file not found: {src}")
+        return 2
+    folder = run / "steps" / STEP_DIRS[n]
+    if n == 10:
+        cfg = load_config(run)
+        dest_dir = handoff_dir_for(cfg["run_id"])
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest_dir / "verdict.md")
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()):
+            cmd_collect_verdict(argparse.Namespace(run=str(run)))
+        dest = folder / "mila-verdict.md"
+    else:
+        exts = {4: IMAGE_EXTS, 7: IMAGE_EXTS, 9: VIDEO_EXTS}.get(n)
+        if exts and src.suffix.lower() not in exts:
+            print(f"SUBMIT REFUSED — Step {n} takes "
+                  f"{'an image' if exts is IMAGE_EXTS else 'a video'} file "
+                  f"({', '.join(sorted(exts))}); got {src.suffix}.")
+            return 2
+        out_file = AGENTS.get(n, {}).get("output_file", "")
+        dest = (folder / src.name) if out_file.endswith("/") \
+            else run / out_file
+        shutil.copy2(src, dest)
+        if n == 4:
+            (folder / "GRABBED-BY.txt").write_text(args.by + "\n", encoding="utf-8")
+    sheet_log(run, f"SUBMIT: Step {n} by {args.by} — {dest.name}")
+    after = sync_chain(run, actor=args.by, submitted=dest)
+    write_status_file()
+    if after["kind"] == "agent" and after["step"] == n and after["findings"]:
+        print(f"SENT BACK to {after['agent']} — the Step {n} checks failed:")
+        for f in after["findings"]:
+            print(f"  - {f}")
+        print(f"The findings are at the top of steps/{STEP_DIRS[n]}/JOB.md.")
+        return 2
+    print(f"Submitted Step {n} ({dest.name}) by {args.by} — checks passed. "
+          f"Handed to {after['to']}"
+          + (f" (Step {after['step']})" if after["step"] else "")
+          + (f": {after['what']}" if after["kind"] in ("glam", "done") else "")
+          + ".")
+    return 0
+
+
+def jobs_out_path():
+    import os
+    if os.environ.get("FARM_JOBS_OUT"):
+        return Path(os.environ["FARM_JOBS_OUT"]).expanduser()
+    return status_out_path().with_name("farm-jobs.json")
+
+
+def collect_jobs():
+    jobs = []
+    if RUNS_DIR.is_dir():
+        for run in sorted(d for d in RUNS_DIR.iterdir()
+                          if d.is_dir() and (d / "config.json").exists()):
+            e = open_job_entry(run)
+            if e:
+                e = dict(e)
+                e["run_id"] = load_config(run)["run_id"]
+                jobs.append(e)
+    return jobs
+
+
+def write_jobs_file(jobs=None):
+    import os
+    jobs = collect_jobs() if jobs is None else jobs
+    out = jobs_out_path()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_name(out.name + ".tmp")
+    tmp.write_text(json.dumps({"generated_at": now_stamp(),
+                               "rules_version": RULES.get("version"),
+                               "jobs": jobs}, indent=2, ensure_ascii=False) + "\n",
+                   encoding="utf-8")
+    os.replace(tmp, out)
+    return out, jobs
+
+
+def cmd_jobs(args):
+    if RUNS_DIR.is_dir():
+        for run in sorted(d for d in RUNS_DIR.iterdir()
+                          if d.is_dir() and (d / "config.json").exists()):
+            sync_chain(run)
+    out, jobs = write_jobs_file()
+    print(f"farm-jobs.json written: {out} ({len(jobs)} open job(s))")
+    for j in jobs:
+        print(f"  {j['agent']} — {j['run_id']} Step {j['step']} — since "
+              f"{j['since']} — needs: {'; '.join(j['needs'])}"
+              + (f" — SENT BACK: {j['sent_back'][0]}" if j['sent_back'] else ""))
+    if not jobs:
+        print("  (no open agent jobs)")
+    return 0
+
 
 def status_out_path():
     import os
@@ -1696,12 +2137,25 @@ def run_status_entry(run):
     review = review_entry(run)
     links = watch_links(run)
     builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
+    info = open_job_info(run)
     if open_n is None:
         owner = "Glam (final review; she lifts the freeze)"
         needs = ("Glam's final review — " + (review["review_status"]
                  if review else "waiting for Glam") + ". Freeze on.")
     else:
         owner = step_owner(run, open_n, results[open_n - 1][2])
+        if info["kind"] in ("agent", "mila"):
+            a = AGENTS.get(info["step"], {})
+            owner = info["agent"]
+            if info["findings"]:
+                state = "STOPPED"
+                needs = f"sent back to {info['agent']}: {info['findings'][0]}"
+            else:
+                state = "BLOCKED"
+                needs = f"{info['agent']} — needs: " + "; ".join(a.get("needs", []))
+        elif info["kind"] == "glam":
+            owner = "Glam"
+            needs = f"Glam — {info['what']}"
     return {
         "run_id": cfg["run_id"],
         "pick": pick,
@@ -1720,6 +2174,8 @@ def run_status_entry(run):
         "watch_links": [{"file": b.name, "url": links.get(b.name, "")}
                         for b in builds],
         "is_test": bool(re.search(r"TEST|MOCK", pick.upper())),
+        "handoffs": read_handoffs(run),
+        "open_job": open_job_entry(run, info),
     }
 
 
@@ -1738,6 +2194,8 @@ def write_status_file():
     tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n",
                    encoding="utf-8")
     os.replace(tmp, out)
+    write_jobs_file([dict(r["open_job"], run_id=r["run_id"])
+                     for r in runs if r.get("open_job")])
     return out, data
 
 
@@ -1801,6 +2259,21 @@ def main():
     p.add_argument("run")
     p.add_argument("--recorded-by", default="Indigo")
     p.set_defaults(fn=cmd_approve_script)
+
+    p = sub.add_parser("approve-image", help="record Glam's Step 7 model photo approval (only after she approves)")
+    p.add_argument("run")
+    p.add_argument("--recorded-by", default="Indigo")
+    p.set_defaults(fn=cmd_approve_image)
+
+    p = sub.add_parser("submit", help="an agent hands in its step's work; the step's checks run at once and the chain hands off or sends it back")
+    p.add_argument("run")
+    p.add_argument("--step", type=int, required=True)
+    p.add_argument("--by", required=True, help="the agent handing it in (must be that step's agent)")
+    p.add_argument("--file", required=True)
+    p.set_defaults(fn=cmd_submit)
+
+    p = sub.add_parser("jobs", help="list every open agent job across runs and write farm-jobs.json")
+    p.set_defaults(fn=cmd_jobs)
 
     p = sub.add_parser("lint", help="lint the run's Step 8 package (references-only + staging bar)")
     p.add_argument("run")

@@ -490,6 +490,25 @@
       .lreasons li{padding:3px 0;border-top:1px solid var(--line)}
       .lreasons li b{color:var(--ink)}
       .lwatch a{color:var(--cyan)}
+      /* Agent chain: handoffs, open job, jobs waiting (from farm-status.json / farm-jobs.json) */
+      .ljobs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+      .ljobs .ljob{border:1px solid rgba(255,176,32,.6);background:rgba(255,176,32,.1);border-radius:12px;padding:8px 12px;font-size:14px;min-width:0;overflow-wrap:anywhere}
+      .ljobs .ljob b{color:var(--ink)}
+      .ljobs .ljobs-none{color:var(--muted);font-size:14px}
+      .lhand{margin:14px 0 0}
+      .lhand h4,.ljobbox h4{margin:0 0 6px;font-size:14px;color:var(--ink)}
+      .lhand ol{margin:0;padding:0;list-style:none}
+      .lhand li{border-left:4px solid var(--line);padding:6px 10px;margin:0 0 6px;font-size:14px;line-height:1.45;overflow-wrap:anywhere;border-radius:0 8px 8px 0;background:rgba(255,255,255,.03)}
+      .lhand li.hop-ok{border-left-color:rgba(37,244,238,.8)}
+      .lhand li.hop-back{border-left-color:#fe2c55;background:var(--pink-dim)}
+      .lhand li.hop-wait{border-left-color:#ffb020;background:rgba(255,176,32,.1)}
+      .lhand .hin{display:block;color:var(--muted);font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+      .ljobbox{margin-top:12px;border:1px solid rgba(255,176,32,.65);background:rgba(255,176,32,.08);border-radius:12px;padding:12px 14px;font-size:15px;overflow-wrap:anywhere}
+      .ljobbox ul{margin:8px 0 0 18px;padding:0;color:#ff8fa5;font-size:14px}
+      .ajson-missing{border:1px dashed var(--line);border-radius:12px;padding:12px;color:var(--muted)}
+      #rfChain{margin:0;padding-left:20px}
+      #rfChain li{margin:0 0 8px}
+      #rfChain .need{display:block;color:var(--muted);font-size:13.5px}
       @media(max-width:700px){.lsteps{grid-template-columns:repeat(6,minmax(0,1fr))}}
       .rf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
       .rf-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:rgba(255,255,255,.03)}
@@ -644,6 +663,7 @@
       <section id="live">
         <div class="sec-head"><span class="idx">LIVE</span><h2>Live Run Board</h2></div>
         <p class="sec-sub">Every real run and exactly where it stands, step by step — straight from the farm runner&rsquo;s evidence (farm-status.json), never typed by hand. If a run is stopped, it says which step and what it needs.</p>
+        <div class="ljobs" id="liveJobs" aria-live="polite"></div>
         <p class="live-meta" id="liveMeta"></p>
         <div id="liveRuns" aria-live="polite"></div>
       </section>
@@ -872,6 +892,7 @@
           <div class="rf-card"><h3>The 11-step run order</h3><ol id="rfRunOrder"></ol></div>
           <div class="rf-card"><h3>Mila&rsquo;s scorecard</h3><div id="rfScore"></div></div>
           <div class="rf-card"><h3>Form lists</h3><div id="rfForm"></div></div>
+          <div class="rf-card"><h3>The agent chain — who hands to whom</h3><ol id="rfChain"></ol></div>
         </div>
         <details class="rf-words"><summary>Word lists the checks use</summary><div id="rfChecks"></div></details>
       </section>
@@ -935,49 +956,31 @@
       var AGENTS = [
         { icon:"🔭", tone:"c", name:"TikTok Scout", role:"Trend Scout", clearRole:{acts:"the trend scout", owns:"finding what is rising on TikTok today (sounds, hashtags, Shop best sellers, top videos in the category), putting real, named findings on the run, AND the one story sentence (Run Order step 2)", hands:"the Shop Agent — only with the story sentence on the run", never:"hands off without the story sentence, picks the product, writes the script"},
           short:"Watches what&rsquo;s popping on TikTok first — trending sounds, hashtags, Shop best sellers and top videos in the category — reports back what&rsquo;s rising, with Pinterest as backup only, and brings the one story sentence (Run Order step 2) before anybody commits to a build.",
-          mission:"Find the angles that are already winning, so the farm never guesses — and put the person first, in one real sentence in Glam&rsquo;s voice.",
-          takes:["Trending sounds and hashtags on TikTok","TikTok Shop best sellers and top videos in the category","Glam&rsquo;s own best-performing posts","Pinterest trends — backup only"],
-          makes:["A ranked trend report","The one story sentence — who this is for and why they&rsquo;d care, in Glam&rsquo;s brand voice","The adapted angle for each pick","The evidence behind every call"] },
+          mission:"Find the angles that are already winning, so the farm never guesses — and put the person first, in one real sentence in Glam&rsquo;s voice." },
         { icon:"🛍️", tone:"p", name:"TikTok Shop Agent", role:"Product Picker", clearRole:{acts:"the product picker", owns:"working the showcase, picking the product at step 3 by the Farm Laws on repeats, and pulling the product’s REAL listing photo in at step 4 as THE reference image for every later step", hands:"the Photo Match Check, then the Story Agent, after Mila’s QC", never:"invents a product or a look-alike photo, never writes the script"},
           short:"Works the showcase — all 269 products — and picks what should go on camera next, based on what&rsquo;s actually been selling.",
-          mission:"Put the right product in the next slot — " + (N.shop_posts_per_day || "—") + " posts a day on the Shop account.",
-          takes:["The full showcase, paged end to end","Real sold counts from the listings","What the audience already buys"],
-          makes:["The pick for the next slot, with its real photo","The listing link, exactly as shown","Why this one, in plain words"] },
+          mission:"Put the right product in the next slot — " + (N.shop_posts_per_day || "—") + " posts a day on the Shop account." },
         { icon:"✍️", tone:"c", name:"Story Agent", role:"Scriptwriter", clearRole:{acts:"the scriptwriter", owns:"the real-UGC pain-point script for the picked product, built from the Scout’s story sentence, camera-sees-only words, written to the Farm Laws (words, hook, CTA, claims)", hands:"Glam for script approval, then Casting", never:"writes a scene or script before the step 4 listing photo is in hand and the step 5 Photo Match Check has passed, never writes from listing facts when the Scout’s story sentence is missing — it sends the handoff back naming what’s missing instead, never picks the product"},
           short:"Turns the pick into a story a real woman would stop for — a problem she knows, in words she&rsquo;d use herself. It takes the Scout&rsquo;s story sentence as a required input: if that sentence is missing, it sends the handoff back naming what&rsquo;s missing instead of writing a script from listing facts.",
-          mission:"Every video opens on a moment the viewer has lived.",
-          takes:["The Scout&rsquo;s story sentence — required input; no sentence, no script","The Scout&rsquo;s winning angle","The product and who it&rsquo;s for","The mode picked from the barn"],
-          makes:["The opening hook, word for word","The story beats, scene by scene","A closer that lands on the benefit"] },
+          mission:"Every video opens on a moment the viewer has lived." },
         { icon:"🎭", tone:"c", name:"Casting / Image Agent", role:"Casting Director", clearRole:{acts:"the casting director", owns:"the model photo for the run, picked by the casting law in the Farm Laws; the real listing photo stays the product reference", hands:"Glam for approve/edit, then the Video Agent", never:"starts before the script is approved, never swaps the product out of frame, never breaks the exact-product law"},
           short:"Owns one job only: the model photo for the run, picked by the casting law in the Farm Laws. The picked product&rsquo;s real listing photo stays the product reference.",
-          mission:"One approved model photo that locks the model and the real product before any build.",
-          takes:["The Glam-approved script","The picked product and its real listing photo","Glam’s uploaded models"],
-          makes:["The model photo for the run","The fit check — right model for the product and its buyer","The approved model photo for the Video Agent"] },
+          mission:"One approved model photo that locks the model and the real product before any build." },
         { icon:"🎬", tone:"p", name:"Video Agent (Video Express)", role:"Video Builder", clearRole:{acts:"the builder", owns:"building the video in Video Express, Realistic Consistent Character workflow, with the approved model photo and the real listing photo as the references, to the Farm Laws (clips, words, close-up, staging)", hands:"Mila — in charge of quality control, for the frame-by-frame check and the pass/fail call", never:"checks its own work, never builds without the real listing photo on the run, never breaks the exact-product law in a Step 8 clip prompt"},
           short:"Builds the video in Video Express with the Realistic Consistent Character workflow — the approved model photo and the real listing photo as the references, the exact product on camera, directed like a real performance.",
-          mission:"A shop video built to the Farm Laws that feels like a friend showing you something.",
-          takes:["The story beats","The approved model photo — one of the build's references","The listing&rsquo;s real product photo"],
-          makes:["The finished vertical video, made in Video Express","Natural movement and blinking","Tight edits — no dead air"] },
+          mission:"A shop video built to the Farm Laws that feels like a friend showing you something." },
         { icon:"🔨", tone:"c", name:"Indigo", role:"Builder & Handoff", clearRole:{acts:"the builder and handoff only", owns:"building the video and handing it to Mila for quality control", hands:"Mila — in charge of quality control, for the frame-by-frame check and the pass/fail call", never:"quality-checks her own builds, never marks a QC pass on her own work"},
           short:"Builds the video and hands it to Mila — and that is where her part ends. She does not quality-check her own builds and never marks a QC pass on her own work; Mila checks, Mila calls pass or fail.",
-          mission:"Build it, hand it to Mila, and let Mila check it — never check her own work.",
-          takes:["The approved script and model photo","The real listing photo as the reference","The Video Express build to finish"],
-          makes:["The built video, handed to Mila for quality control","A clean handoff — no QC pass marked by Indigo","A rebuild when Mila sends it back with what&rsquo;s wrong written down"] },
+          mission:"Build it, hand it to Mila, and let Mila check it — never check her own work." },
         { icon:"📣", tone:"p", name:"Caption & Post Agent", role:"Publisher", clearRole:{acts:"the publisher", owns:"the caption, written to the Farm Laws, attaching the real product, and posting only after Glam lifts the freeze and gives the final verdict", hands:"the day’s schedule — only after Mila’s QC pass and Glam’s verdict", never:"posts while the freeze is ON, never posts a run that has not passed QC and checks"},
           short:"Writes the caption, attaches the product, turns the labels on, and drops the video into its slot in the day&rsquo;s " + (N.shop_posts_per_day || "—") + "-post schedule on @glamorousgrammyglowup. Nothing goes out while the posting freeze is on.",
-          mission:"The right video, in the right slot, with everything attached.",
-          takes:["The QC-approved cut","The product link","The day&rsquo;s schedule — " + (N.shop_posts_per_day || "—") + " posts a day"],
-          makes:["A caption that passes the Farm Laws","The post, product attached, labels on","A verified live post"] },
+          mission:"The right video, in the right slot, with everything attached." },
         { icon:"🔍", tone:"c", name:"Mila", role:"Quality Control — In Charge", clearRole:{acts:"quality control", owns:"the frame-by-frame check, Mila's scorecard (farm-rules.json) and the pass/fail call — product first through every on-screen moment and the closing close-up, then the lines word for word with no guard or direction text spoken, no burned-in captions, same model throughout", hands:"Glam — the final verdict; her eye is the last gate after Mila", never:"builds the video she is checking, never posts, never replaces Glam’s verdict"},
           short:"In charge of quality control. Runs the frame-by-frame check and Mila&rsquo;s scorecard, and owns the pass/fail call. Nothing is marked checked until her actual PASS reply exists. Then it goes to Glam — her eye is the final gate.",
-          mission:"Mila&rsquo;s actual PASS — or a send-back with exactly what failed — before Glam gives the final verdict.",
-          takes:["The finished video Indigo built and handed off","The real listing photo to match against","The approved script, word for word"],
-          makes:["Mila’s actual frame-by-frame check reply — PASS or FAIL, with her scorecard","A pass — or the exact frame and line that failed, and why"] },
+          mission:"Mila&rsquo;s actual PASS — or a send-back with exactly what failed — before Glam gives the final verdict." },
         { icon:"🎡", tone:"c", name:"TikTok Live Game Agent", role:"Live Games · Live Only", clearRole:{acts:"the live games builder — LIVE ONLY", owns:"building one game from the real people actually engaging on Glam’s live, in the window she picks", hands:"Glam, to play on the live", never:"invents a name or a number, never touches video runs, never sends a prize message without Glam’s approval of the exact text"},
           short:"Wakes up only when Glam is live. Watches the chat, pulls the real people engaging, and builds a game from them for her to play right there on the live.",
           mission:"Turn the people actually in the live into a game they can win.",
-          takes:["The live chat, for the window Glam picks — the last 20 minutes is standard","Recent commenters and the Top 10 Engagers","Shares, taps, likes and gifts — only the counts TikTok actually shows"],
-          makes:["An engager report — real names only, anything unseen marked NOT VISIBLE, partial pulls labeled PARTIAL with their times","A ready-to-play game built from those real people","The winner call for Glam to read out loud on the live"],
           law:["Only people actually seen on the live get into a game — no invented names or numbers","Prizes are only the prizes Glam listed — nothing added, nothing swapped","Winners and prize messages wait for Glam&rsquo;s approval of the exact text before anything is sent"],
           games:["Names Wheel","Number Wheel 1 to 200","Top 10 Engagers Wheel","Top Engager Showdown","Trivia Pop","Last One Standing","Mystery Pumpkin Pick","Secret Word Drop","Closest Guess","Head-to-Head"],
           prizes:["🎃 THE GOLDEN PUMPKIN — a free $27 product","A free $7 product","25% off","20% off","$5 off","25 Glow Points"],
@@ -1071,6 +1074,14 @@
         var fm = el("rfForm");
         if (fm) fm.innerHTML = [["How the product is shown", FORM.product_shown], ["Product types", FORM.product_types], ["Video modes", FORM.modes]].map(function(x){
           return "<p><b>" + esc(x[0]) + "</b></p><ul>" + li(x[1]) + "</ul>"; }).join("");
+        var ch = el("rfChain");
+        if (ch){
+          var AG = Array.isArray(R.agents) ? R.agents.slice().sort(function(a, b){ return (a.step || 0) - (b.step || 0); }) : [];
+          ch.innerHTML = AG.length ? AG.map(function(a){
+            return "<li><b>Step " + esc(a.step) + " " + esc(a.agent) + "</b> → hands to " + esc(a.hands_to || "—") +
+              ((a.needs && a.needs.length) ? '<span class="need">Needs: ' + esc(a.needs.join("; ")) + "</span>" : "") + "</li>"; }).join("")
+            : "<li>The agent chain is not in the rules file yet.</li>";
+        }
         var ck = el("rfChecks");
         if (ck){
           var C = R.checks || {};
@@ -1125,10 +1136,60 @@
               var p = mk("div", "lwatch"); var a = mk("a", null, "▶ Watch " + (w.file || "video"));
               a.href = w.url; a.target = "_blank"; a.rel = "noopener"; p.appendChild(a); card.appendChild(p);
             });
+            var hops = Array.isArray(r.handoffs) ? r.handoffs : [];
+            if (hops.length){
+              var hw = mk("div", "lhand"); hw.appendChild(mk("h4", null, "Handoffs — who passed what to whom"));
+              var ol = document.createElement("ol");
+              hops.forEach(function(h){
+                var res = String(h.result || "").toLowerCase();
+                var cls = /back|fail|refus|invalid/.test(res) ? "hop-back" : /wait|pending|open|blocked/.test(res) ? "hop-wait" : "hop-ok";
+                var li = mk("li", cls, [h.at || "—", (h.from || "?") + " → " + (h.to || "?"), "Step " + (h.step != null ? h.step : "?"), h.what || "", h.result || ""].filter(function(x){ return x !== ""; }).join(" · "));
+                var ins = (Array.isArray(h.inputs) ? h.inputs : []).map(function(x){ return (x && x.file ? x.file : "?") + (x && x.sha256 ? " (" + String(x.sha256).slice(0, 8) + ")" : ""); });
+                if (h.output) ins.push("output: " + h.output);
+                if (ins.length) li.appendChild(mk("span", "hin", "inputs: " + ins.join(", ")));
+                ol.appendChild(li);
+              });
+              hw.appendChild(ol); card.appendChild(hw);
+            }
+            var oj = r.open_job;
+            if (oj && typeof oj === "object"){
+              var jb = mk("div", "ljobbox");
+              jb.appendChild(mk("h4", null, "Open job"));
+              jb.appendChild(mk("div", null, "Step " + (oj.step != null ? oj.step : "?") + " — " + (oj.agent || "?") + " is up. Job: " + fillN(oj.job || "—") + ". Needs: " + ((oj.needs || []).join("; ") || "—") + ". Waiting since " + (oj.since || "—") + "."));
+              if (oj.job_file) jb.appendChild(mk("div", "hin", "Job file: " + oj.job_file));
+              var sb = Array.isArray(oj.sent_back) ? oj.sent_back : [];
+              if (sb.length){
+                jb.appendChild(mk("div", null, "Sent back — what to fix:"));
+                var ul = document.createElement("ul");
+                sb.forEach(function(x){ ul.appendChild(mk("li", null, typeof x === "string" ? x : JSON.stringify(x))); });
+                jb.appendChild(ul);
+              }
+              card.appendChild(jb);
+            }
             card.appendChild(reasons);
             box.appendChild(card);
           });
         }
+        var jobsBox = document.getElementById("liveJobs");
+        function noJobs(){ if (jobsBox){ jobsBox.innerHTML = ""; jobsBox.appendChild(mk("span", "ljobs-none", "No open jobs listed yet")); } }
+        function showJobs(J){
+          if (!jobsBox) return;
+          if (!J || !Array.isArray(J.jobs) || !J.jobs.length){ noJobs(); return; }
+          jobsBox.innerHTML = "";
+          var head = mk("span", "ljobs-none", "Jobs waiting" + (J.generated_at ? " (" + J.generated_at + ")" : "") + ":");
+          jobsBox.appendChild(head);
+          J.jobs.forEach(function(j){
+            var d = mk("div", "ljob");
+            d.appendChild(mk("b", null, (j.agent || "?") + " "));
+            d.appendChild(document.createTextNode("· " + (j.run_id || "run") + " · Step " + (j.step != null ? j.step : "?") + " · needs " + ((j.needs || []).join("; ") || "—") + (j.since ? " · since " + j.since : "") + ((j.sent_back && j.sent_back.length) ? " · sent back " + j.sent_back.length + "x" : "")));
+            jobsBox.appendChild(d);
+          });
+        }
+        try {
+          fetch("farm-jobs.json", { cache:"no-cache" })
+            .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+            .then(showJobs, noJobs);
+        } catch (e) { noJobs(); }
         try {
           fetch("farm-status.json", { cache:"no-cache" })
             .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
@@ -1608,6 +1669,16 @@
       var grid = document.getElementById("agentGrid");
       var detail = document.getElementById("agentDetail");
       var agentJobs = AGENTS.map(function(){ return { acct:"@glamorousgrammyglowup", job:"" }; });
+      /* Each agent's job, inputs, output, laws, needs and "hands to" come from farm-rules.json "agents" — no copies here. */
+      function normName(x){ return String(x || "").toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, " ").trim(); }
+      function jsonAgents(a){
+        if (!Array.isArray(R.agents)) return [];
+        var n = normName(a.name);
+        var hits = R.agents.filter(function(x){ return normName(x.agent) === n; });
+        if (!hits.length) hits = R.agents.filter(function(x){ var m = normName(x.agent); return m && (n.indexOf(m) === 0 || m.indexOf(n) === 0); });
+        return hits.slice().sort(function(x, y){ return (x.step || 0) - (y.step || 0); });
+      }
+      function lawTexts(J){ return (J && J.laws || []).map(lawById).filter(Boolean); }
 
       function agentJobText(i){
         var a = AGENTS[i], j = agentJobs[i];
@@ -1616,14 +1687,41 @@
           "Account: " + j.acct,
           "Job: " + (j.job ? j.job : "[describe the job for this agent]"),
           "Mission: " + a.mission,
-          "Clear role: " + roleLine(a),
-          "Takes in: " + a.takes.map(plain).join(" · "),
-          "Hands off: " + a.makes.map(plain).join(" · "),
-          LAWS_LINE
+          "Clear role: " + roleLine(a)
         ];
+        var JS = jsonAgents(a);
+        if (JS.length){
+          JS.forEach(function(J){
+            lines.push("Step " + J.step + " job (farm-rules.json): " + fillN(J.job || ""));
+            if (J.inputs && J.inputs.length) lines.push("Inputs: " + J.inputs.map(fillN).join(" · "));
+            lines.push("Output: " + fillN(J.output || "") + (J.output_file ? " → " + J.output_file : ""));
+            if (J.needs && J.needs.length) lines.push("Needs: " + J.needs.join(" · "));
+            lines.push("Hands to: " + (J.hands_to || "—"));
+            var lt = lawTexts(J);
+            if (lt.length) lines.push("Laws for this job: " + lt.map(function(l){ return fillN(l.title) + " — " + fillN(l.text); }).join(" · "));
+          });
+        } else {
+          lines.push("Job not in the rules file yet.");
+        }
+        lines.push(LAWS_LINE);
         if (a.promptExtra) a.promptExtra.forEach(function(x){ lines.push(plain(x)); });
         lines.push("Report back in plain words, step by step, in Glam’s voice — before anything posts.");
         return lines.join("\n");
+      }
+
+      function jsonJobHtml(a, lawItems){
+        var JS = jsonAgents(a);
+        if (!JS.length) return '<div class="ajson-missing"><h4>The job</h4><p>Job not in the rules file yet.</p></div>' +
+          (a.law ? "<div><h4>The law it lives by</h4><ul>" + lawItems.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" : "");
+        function ul(arr){ return "<ul>" + (arr || []).map(function(x){ return "<li>" + esc(fillN(x)) + "</li>"; }).join("") + "</ul>"; }
+        return JS.map(function(J){
+          var lt = lawTexts(J);
+          return "<div><h4>The job (Step " + esc(J.step) + ", from farm-rules.json)</h4><p>" + esc(fillN(J.job || "")) + "</p></div>" +
+            "<div><h4>Takes in</h4>" + ul(J.inputs) + "</div>" +
+            "<div><h4>Hands off</h4><ul><li>" + esc(fillN(J.output || "")) + (J.output_file ? " → <code>" + esc(J.output_file) + "</code>" : "") + "</li><li>Hands to: " + esc(J.hands_to || "—") + "</li></ul></div>" +
+            ((J.needs && J.needs.length) ? "<div><h4>Needs</h4>" + ul(J.needs) + "</div>" : "") +
+            "<div><h4>The law it lives by</h4><ul>" + (lt.length ? lt.map(function(l){ return "<li>" + esc(fillN(l.title)) + " — " + esc(fillN(l.text)) + "</li>"; }).join("") : "<li>See the Farm Laws</li>") + "</ul></div>";
+        }).join("");
       }
 
       function renderDetail(i){
@@ -1641,9 +1739,7 @@
         detail.innerHTML =
           '<div class="d-title"><h3>' + a.icon + " " + a.name + '</h3><span>' + a.mission + "</span></div>" +
           (a.clearRole ? '<div class="rolebox"><h4>Clear role — one job</h4><p><b>ACTS AS</b> ' + a.clearRole.acts + ' <b>\u00b7 OWNS</b> ' + a.clearRole.owns + ' <b>\u00b7 HANDS TO</b> ' + a.clearRole.hands + ' <b>\u00b7 NEVER</b> ' + a.clearRole.never + "</p></div>" : "") +
-          "<div><h4>Takes in</h4><ul>" + a.takes.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
-          "<div><h4>Hands off</h4><ul>" + a.makes.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
-          "<div><h4>The law it lives by</h4><ul>" + lawItems.map(function(x){return "<li>"+x+"</li>";}).join("") + "</ul></div>" +
+          jsonJobHtml(a, lawItems) +
           extra +
           '<div class="jobbox">' +
             '<div class="form-grid">' +

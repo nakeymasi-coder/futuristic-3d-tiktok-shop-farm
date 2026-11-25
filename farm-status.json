@@ -193,6 +193,33 @@
           ],
           "output": "steps/step5-match/match-verdict.md (sha256 b8e1652de44088ed…)",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 14:44",
+          "from": "Photo Match Checker",
+          "to": "Story Agent",
+          "step": 6,
+          "what": "job opened for Story Agent: script.md",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
+            },
+            {
+              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
+              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
+            },
+            {
+              "file": "steps/step4-photo/photo-source.md",
+              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
+            }
+          ],
+          "output": "steps/step5-match/match-verdict.md (sha256 2a5b65f864e42f17…)",
+          "result": "handed off"
         }
       ],
       "open_job": {

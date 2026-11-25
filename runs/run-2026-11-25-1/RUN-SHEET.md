@@ -50,3 +50,5 @@ HEADLINE: BLOCKED at Step 5 (Photo Match Check) — no match verdict recorded �
 - [2026-11-25 14:42] CHAIN: TikTok Shop Agent → Photo Match checker (Step 5) — handed off
 - [2026-11-25 14:44] Step 5: match verdict recorded — MATCH by Photo Match Checker (grabber: TikTok Shop Agent).
 - [2026-11-25 14:44] CHAIN: Photo Match Checker → Story Agent (Step 6) — handed off
+- [2026-11-25 14:44] Step 5: match verdict recorded — MATCH by Photo Match Checker (grabber: TikTok Shop Agent).
+- [2026-11-25 14:44] CHAIN: Photo Match Checker → Story Agent (Step 6) — handed off

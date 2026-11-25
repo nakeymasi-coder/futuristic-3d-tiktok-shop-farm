@@ -121,7 +121,7 @@
       "steps": [],
       "prompt": "prompts/photo-finisher.md",
       "mode": "Muse job, not a run step; 10 minutes per run",
-      "what": "saves the weekly lineup's blocked real listing photos a few at a time, turmeric staples first",
+      "what": "saves the weekly lineup's blocked real listing photos a few at a time, turmeric staples first; photos ONLY from TikTok Shop Streamer Desktop / LIVE Manager, never a regular tiktok.com page; a bot or security check is BLOCKED at once",
       "trigger_id": ""
     },
     {
@@ -139,7 +139,7 @@
       "prompt": "",
       "mode": "Muse job (Indigo created it in Muse), not a run step; 10 minutes per run",
       "schedule": "every Monday",
-      "what": "picks the week's products into farm-data/weekly-lineup.json from the saved list; turmeric products always included; ranking: scorecard sales first, then past farm runs, then Scout trends",
+      "what": "picks the week's products into farm-data/weekly-lineup.json from the saved list; turmeric products always included; ranking: scorecard sales first, then past farm runs, then Scout trends; any product photo ONLY from TikTok Shop Streamer Desktop / LIVE Manager, never a regular tiktok.com page; a bot or security check is BLOCKED at once",
       "trigger_id": ""
     }
   ]

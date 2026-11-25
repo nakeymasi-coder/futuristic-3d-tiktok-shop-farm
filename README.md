@@ -123,4 +123,6 @@ By Glam Hustle Hub.
 10. **Scorecard:** track which videos worked and which didn't (views, watch time, sales where visible) and each one's formula (hook, angle, format), so winners get repeated. It starts from existing @glamorousgrammyglowup stats, read only. The posting freeze stays ON. File: `farm-data/scorecard.json`.
 11. **Agents are the Muse jobs** (`muse_farm-agent-*`). Mila stays out of Muse and is started by the coordinator when a gate opens (the free stopgap). No Mila automation.
 
+12. **HARD RULE, products only from Streamer Desktop** (rules version 2026-11-25i): anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself. It's the first law in `farm-rules.json`, at the top of every JOB.md and at the top of every agent prompt.
+
 Where it lives: each rule is a law in `farm-rules.json`, so every JOB.md prints it. The Scout, Shop and Story job texts, the agent prompts and `farm-data/README.md` all carry it too.

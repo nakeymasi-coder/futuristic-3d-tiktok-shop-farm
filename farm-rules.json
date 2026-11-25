@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25d",
+  "version": "2026-11-25e",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -79,6 +79,11 @@
       "id": "exact-product",
       "title": "Exact products only",
       "text": "Every scene uses the listing's real product photo as the reference. Prompts never describe the product in words or carry label wording. If the render doesn't match the real product, it fails."
+    },
+    {
+      "id": "no-health-claims",
+      "title": "No health or beauty claims",
+      "text": "Glam's rule (Nov 25): this lives in the farm rules so no agent has to remember it. Never say, show or caption a health, beauty or results claim: clears acne, anti-aging, heals, treats, cures, FDA approved, hair growth or regrowth, stops hair loss, any medical or weight loss claim, or any promised result. Even if the listing says it. The script check fails a script or caption that carries one before any video is made, and Mila fails any video that shows one."
     },
     {
       "id": "words",
@@ -562,7 +567,47 @@
       "linked"
     ],
     "_note_caption": "Step 8 lint reads the package's Caption: block: first line names the product (keyword) and points below (soft CTA); numbers.hashtags_min..hashtags_max hashtags; none from generic_hashtags.",
-    "_note_login": "The farm's browser stays signed in (Glam, Nov 24). If a sign-in screen ever appears, the agent stops and reports BLOCKED: sign-in needed — it never works around it."
+    "_note_login": "The farm's browser stays signed in (Glam, Nov 24). If a sign-in screen ever appears, the agent stops and reports BLOCKED: sign-in needed — it never works around it.",
+    "health_claim_patterns": [
+      "\\bacne\\b",
+      "\\bbreakouts?\\b",
+      "\\bblemish(?:es)?\\b",
+      "\\beczema\\b",
+      "\\bpsoriasis\\b",
+      "\\bdandruff\\b",
+      "\\banti[- ]?aging\\b",
+      "\\banti[- ]?ageing\\b",
+      "\\banti[- ]?wrinkle\\b",
+      "\\b(?:reduces?|erases?|removes?|smooths? out|gets? rid of) (?:fine lines|wrinkles)\\b",
+      "\\bheal(?:s|ed|ing)?\\b",
+      "(?<!\\ba )(?<!\\blittle )(?<!\\bsweet )\\btreat(?:s|ed|ing|ment|ments)?\\b(?!\\s+(?:yourself|yourselves|you|her|him|them|myself|ourselves)\\b)",
+      "\\bcur(?:e|es|ed|ing)\\b",
+      "\\bfda\\b",
+      "\\bmedical(?:ly)?\\b",
+      "\\bmedicated\\b",
+      "\\bclinical(?:ly)?\\b",
+      "\\bdermatologist[- ](?:approved|recommended|tested)\\b",
+      "\\bweight[- ]?loss\\b",
+      "\\blose (?:the )?weight\\b",
+      "\\bburns? (?:belly )?fat\\b",
+      "\\bfat[- ]burn(?:er|ing)\\b",
+      "\\bslim(?:s|ming)? (?:you )?down\\b",
+      "\\bappetite\\b",
+      "\\bhair (?:re)?growth\\b",
+      "\\bre-?grow(?:s|th|ing|n)?\\b",
+      "\\bgrows? (?:back )?(?:your |my |her |their )?(?:hair|edges|lashes|brows)\\b",
+      "\\b(?:longer|thicker|fuller) (?:hair|edges|lashes|brows)\\b",
+      "\\bhair (?:loss|thinning)\\b",
+      "\\bstops? (?:hair loss|shedding|breakage|breakouts)\\b",
+      "\\bfades? (?:dark spots|scars|stretch marks|hyperpigmentation)\\b",
+      "\\bdark spots?\\b",
+      "\\bstretch marks?\\b",
+      "\\bcellulite\\b",
+      "\\bguaranteed? results?\\b",
+      "\\bproven (?:to|results)\\b",
+      "\\bresults? (?:in|after) (?:one|two|three|a|\\d+)\\b"
+    ],
+    "_note_health_claims": "Glam, Nov 25: banned health and beauty claims are law, not memory. The script check fails any spoken line, CTA line or caption line that matches one of health_claim_patterns, before a video is made. 'treat yourself' and 'a little treat' pass; 'treats acne' fails."
   },
   "agents": [
     {
@@ -689,6 +734,7 @@
       "output_file": "steps/step6-script/script.md",
       "laws": [
         "own-step-handoff",
+        "no-health-claims",
         "words",
         "hook",
         "cta",
@@ -756,6 +802,7 @@
       "output_file": "steps/step8-package/package.md",
       "laws": [
         "own-step-handoff",
+        "no-health-claims",
         "exact-product",
         "words",
         "hook",
@@ -794,6 +841,7 @@
       "output_file": "steps/step9-builds/",
       "laws": [
         "own-step-handoff",
+        "no-health-claims",
         "exact-product",
         "words",
         "staging",
@@ -827,6 +875,7 @@
       "output_file": "steps/step10-qc/mila-verdict.md",
       "laws": [
         "own-step-handoff",
+        "no-health-claims",
         "qc",
         "exact-product",
         "labels"

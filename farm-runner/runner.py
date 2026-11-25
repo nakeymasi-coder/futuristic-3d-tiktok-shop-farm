@@ -92,6 +92,7 @@ REQUIRED_RULE_KEYS = {
                 "clips_per_video", "closeup_seconds", "video_seconds_about"],
     "checks": ["spec_words", "spec_exempt_phrases", "person_words",
                "first_person_words", "mode_names", "use_claim_patterns",
+               "health_claim_patterns",
                "spoken_cta_patterns", "banned_spoken_phrases",
                "banned_spoken_patterns", "price_patterns",
                "urgency_patterns", "sold_count_patterns",
@@ -408,6 +409,21 @@ BANNED_SPOKEN_PATTERNS = tuple(CHK["banned_spoken_patterns"])
 PRICE_PATTERNS = tuple(CHK["price_patterns"])
 URGENCY_PATTERNS = tuple(CHK["urgency_patterns"])
 SOLD_COUNT_PATTERNS = tuple(CHK["sold_count_patterns"])
+# Glam, Nov 25: banned health and beauty claims are LAW in farm-rules.json,
+# not something an agent has to remember. Spoken lines, the CTA: line and
+# any caption line in the script fail here, before a video is made.
+HEALTH_CLAIM_PATTERNS = tuple(CHK["health_claim_patterns"])
+
+
+def health_claim_hit(text):
+    """The first banned health/beauty/results claim in text, or None.
+    Hashtags are skipped (the caption check holds them to the product)."""
+    low = re.sub(r"#\w+", " ", text.lower())
+    for pat in HEALTH_CLAIM_PATTERNS:
+        m = re.search(pat, low)
+        if m:
+            return m.group(0).strip()
+    return None
 # Mode names (the Mode Barn) — a first line that is ONLY the mode name is a
 # label, not a hook (Claude, Nov 24).
 # Use claims the AI model can never make (the hook speaks to the VIEWER's
@@ -493,6 +509,11 @@ def script_findings(run):
         elif any(re.search(p, low) for p in SOLD_COUNT_PATTERNS):
             findings.append(("sold-count", f"LINE {i} carries a sold "
                              "count — never in a script"))
+        hit = health_claim_hit(line)
+        if hit:
+            findings.append(("health-claim", f"LINE {i} makes a banned "
+                             f"health/beauty claim ('{hit}') — never "
+                             "spoken, even if the listing says it"))
         claimed = False
         for pat in USE_CLAIM_PATTERNS:
             if re.search(pat, low):
@@ -554,6 +575,16 @@ def script_findings(run):
     cta_ok = any(l.strip().lower().startswith(soft["starts_with"])
                  and soft["must_mention"] in l.lower()
                  for l in text.splitlines())
+    for no, raw in enumerate(text.splitlines(), 1):
+        head = raw.strip().lstrip("*-# ").lower()
+        if head.startswith("cta:") or head.startswith("caption"):
+            hit = health_claim_hit(raw.split(":", 1)[-1])
+            if hit:
+                findings.append(("health-claim", f"script line {no} (CTA/"
+                                 f"caption) makes a banned health/beauty "
+                                 f"claim ('{hit}') — never on screen or "
+                                 "in the caption, even if the listing "
+                                 "says it"))
     if not cta_ok:
         findings.append(("no-cta", "no soft CTA up top on file — script.md "
                          "needs a 'CTA:' line pointing below (on screen + "
@@ -733,6 +764,12 @@ def caption_findings(run, lines):
     if not (lo <= len(tags) <= hi):
         out.append(("CAPTION", start + 1, f"{len(tags)} hashtags — every "
                     f"caption carries {lo} to {hi} tied to the product"))
+    for k, b in enumerate(block):
+        hit = health_claim_hit(b)
+        if hit:
+            out.append(("CAPTION", start + 1 + k, f"the caption makes a "
+                        f"banned health/beauty claim ('{hit}') — never in "
+                        "the caption, even if the listing says it"))
     generic = set(t.lower() for t in CHK.get("generic_hashtags", []))
     bad = [t for t in tags if t in generic]
     if bad:

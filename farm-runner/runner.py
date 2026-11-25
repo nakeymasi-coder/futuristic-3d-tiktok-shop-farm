@@ -17,9 +17,12 @@ This runner fixes that mechanically:
   doesn't hold.
 - `drive` advances a run automatically through every step that does not
   need a human, and stops cold at the human gates:
-    * Step 6  — Glam's script approval
+    * Step 6  — Mila's script approval
+    * Step 7  — Mila's model photo approval
     * Step 10 — Mila's QC verdict (Mila is QC owner; Glam is final gate)
-    * Review  — Glam's final review of the finished video
+    * Review  — Glam's final review of the finished video (Approve or Redo)
+  Glam, Nov 25: "Don't wait for my approval to make the video." Nothing
+  before the video waits on Glam; she rules once, on the finished video.
 - Step 11 (Caption & Post) is FREEZE-LOCKED in code. The runner has no
   posting action of any kind. A finished run ends at
   "Ready for Glam — freeze on." Automation NEVER posts.
@@ -44,7 +47,7 @@ Evidence map (what clears each step):
                    Step 6 script check (script_findings: farm-rules.json word cap a line,
                    person-first hook not just the mode name, soft CTA on
                    file, no specs/prices/sold counts/use claims) AND
-                   steps/step6-script/glam-approval.md (approved_by: Glam)
+                   steps/step6-script/mila-script-approval.md (approved_by: Mila)
                    whose script_sha256 matches the script on file — an edit
                    after her approval needs her approval again
   7 Styled Image   an image file in steps/step7-styled/
@@ -818,37 +821,40 @@ def eval_step(run, cfg, n):
             return ("INVALID", f"script FAILS the Step 6 script check "
                                f"({cats}) — {bad[0][1]}; fix the script — "
                                "Glam is not the first filter")
-        approval = parse_kv(steps / STEP_DIRS[6] / "glam-approval.md")
-        approved = approval.get("approved_by", "").lower() == "glam"
-        if approved and not approval.get("script_sha256"):
-            return ("WAITING", "Glam's approval on file was recorded before "
-                               "approvals were tied to the exact script — "
-                               "re-record it with approve-script once she "
-                               "confirms this script")
+        back = parse_kv(steps / STEP_DIRS[6] / "mila-script-sendback.md")
+        if back.get("script_sha256") == sha256_file(script):
+            return ("INVALID", "Mila sent the script back: "
+                               f"{back.get('notes', '(no notes)')}")
+        approval = parse_kv(steps / STEP_DIRS[6] / "mila-script-approval.md")
+        approved = approval.get("approved_by", "").lower() == "mila"
         if approved and approval.get("script_sha256") != sha256_file(script):
-            return ("WAITING", "script changed after Glam's approval — "
+            return ("WAITING", "script changed after Mila's approval — "
                                "needs her approval again (her approval "
                                "covers the exact script she saw)")
         if approved:
             return ("CLEARED", "script on file, passing the script check, "
-                               "and Glam's approval recorded")
+                               "and Mila's approval recorded")
         return ("WAITING", "script on file and passing the script check — "
-                           "human gate: Glam's script approval")
+                           "waiting on Mila's script approval")
     if n == 7:
         imgs = files_with_ext(steps / STEP_DIRS[7], IMAGE_EXTS)
         if not imgs:
             return ("WAITING", "no model photo on file (steps/step7-styled/) — "
                                "the Casting / Image Agent submits Glam's "
                                "uploaded model photo")
-        approval = parse_kv(steps / STEP_DIRS[7] / "glam-image-approval.md")
-        if approval.get("approved_by", "").lower() != "glam":
-            return ("WAITING", f"model photo on file ({imgs[0].name}) — human "
-                               "gate: Glam's model photo approval")
+        back = parse_kv(steps / STEP_DIRS[7] / "mila-image-sendback.md")
+        if back.get("image_sha256") == image_set_sha(steps / STEP_DIRS[7]):
+            return ("INVALID", "Mila sent the model photo back: "
+                               f"{back.get('notes', '(no notes)')}")
+        approval = parse_kv(steps / STEP_DIRS[7] / "mila-image-approval.md")
+        if approval.get("approved_by", "").lower() != "mila":
+            return ("WAITING", f"model photo on file ({imgs[0].name}) — "
+                               "waiting on Mila's model photo approval")
         if approval.get("image_sha256") != image_set_sha(steps / STEP_DIRS[7]):
-            return ("WAITING", "model photo changed after Glam's approval — "
+            return ("WAITING", "model photo changed after Mila's approval — "
                                "needs her approval again (her approval covers "
                                "the exact photo she saw)")
-        return ("CLEARED", f"model photo on file ({imgs[0].name}) and Glam's "
+        return ("CLEARED", f"model photo on file ({imgs[0].name}) and Mila's "
                            "approval recorded")
     if n == 8:
         pkg = steps / STEP_DIRS[8] / "package.md"
@@ -1118,29 +1124,49 @@ def cmd_record_match(args):
     return 0
 
 
+def _mila_only(args, what):
+    who = (getattr(args, "by", "") or "").strip()
+    if who.lower() != "mila":
+        print(f"REFUSED — only Mila approves the {what} (Glam, Nov 25: the "
+              "chain goes ahead after Mila approves; Glam rules once, on the "
+              f"finished video). Got --by \"{who}\".")
+        return False
+    return True
+
+
 def cmd_approve_script(args):
+    """Mila's Step 6 gate: approve the exact script, or send it back."""
     run = resolve_run(args.run)
-    bad = script_findings(run)
-    if bad:
-        print("APPROVAL REFUSED — the script FAILS the Step 6 script check; "
-              "Glam's approval is not recorded on a failing script:")
-        for cat, msg in bad:
-            print(f"  [{cat}] {msg}")
-        sheet_log(run, "Step 6: script approval REFUSED — script fails the "
-                       f"script check ({len(bad)} finding(s)).")
+    if not _mila_only(args, "script"):
         return 2
-    dest = run / "steps" / STEP_DIRS[6] / "glam-approval.md"
-    script = run / "steps" / STEP_DIRS[6] / "script.md"
-    body = (f"approved_by: Glam\n"
-            f"script_sha256: {sha256_file(script)}\n"
-            f"recorded_by: {args.recorded_by}\n"
-            f"recorded_at: {now_stamp()}\n")
-    dest.write_text(body, encoding="utf-8")
-    sheet_log(run, "Step 6: Glam's script approval recorded "
-                   f"(entered by {args.recorded_by}).")
-    print(f"Recorded Glam's script approval for {run.name}. "
-          "Only run this after Glam has actually approved the script.")
-    info = sync_chain(run, actor="Glam")
+    folder = run / "steps" / STEP_DIRS[6]
+    script = folder / "script.md"
+    if not nonempty_file(script):
+        print("REFUSED — no script on file yet; the Story Agent submits it first.")
+        return 2
+    if args.send_back:
+        (folder / "mila-script-sendback.md").write_text(
+            f"sent_back_by: Mila\nscript_sha256: {sha256_file(script)}\n"
+            f"notes: {args.send_back.strip()}\nrecorded_at: {now_stamp()}\n",
+            encoding="utf-8")
+        sheet_log(run, f"Step 6: Mila sent the script back — {args.send_back.strip()}")
+        print(f"Mila sent the script back to the Story Agent: {args.send_back.strip()}")
+    else:
+        bad = script_findings(run)
+        if bad:
+            print("APPROVAL REFUSED — the script FAILS the Step 6 script check; "
+                  "an approval is not recorded on a failing script:")
+            for cat, msg in bad:
+                print(f"  [{cat}] {msg}")
+            sheet_log(run, "Step 6: script approval REFUSED — script fails the "
+                           f"script check ({len(bad)} finding(s)).")
+            return 2
+        (folder / "mila-script-approval.md").write_text(
+            f"approved_by: Mila\nscript_sha256: {sha256_file(script)}\n"
+            f"recorded_at: {now_stamp()}\n", encoding="utf-8")
+        sheet_log(run, "Step 6: Mila's script approval recorded.")
+        print(f"Recorded Mila's script approval for {run.name}.")
+    info = sync_chain(run, actor="Mila")
     print(f"Chain: next is {info.get('agent') or info.get('to')} "
           f"(Step {info.get('step')}).")
     write_status_file()
@@ -1148,24 +1174,31 @@ def cmd_approve_script(args):
 
 
 def cmd_approve_image(args):
+    """Mila's Step 7 gate: approve the exact model photo, or send it back."""
     run = resolve_run(args.run)
+    if not _mila_only(args, "model photo"):
+        return 2
     folder = run / "steps" / STEP_DIRS[7]
     imgs = files_with_ext(folder, IMAGE_EXTS)
     if not imgs:
-        print("APPROVAL REFUSED — no model photo on file in "
-              "steps/step7-styled/; the Casting / Image Agent submits it first.")
+        print("REFUSED — no model photo on file in steps/step7-styled/; the "
+              "Casting / Image Agent submits it first.")
         return 2
-    body = (f"approved_by: Glam\n"
-            f"image_sha256: {image_set_sha(folder)}\n"
+    if args.send_back:
+        (folder / "mila-image-sendback.md").write_text(
+            f"sent_back_by: Mila\nimage_sha256: {image_set_sha(folder)}\n"
+            f"notes: {args.send_back.strip()}\nrecorded_at: {now_stamp()}\n",
+            encoding="utf-8")
+        sheet_log(run, f"Step 7: Mila sent the model photo back — {args.send_back.strip()}")
+        print(f"Mila sent the model photo back to Casting: {args.send_back.strip()}")
+    else:
+        (folder / "mila-image-approval.md").write_text(
+            f"approved_by: Mila\nimage_sha256: {image_set_sha(folder)}\n"
             f"images: {', '.join(i.name for i in imgs)}\n"
-            f"recorded_by: {args.recorded_by}\n"
-            f"recorded_at: {now_stamp()}\n")
-    (folder / "glam-image-approval.md").write_text(body, encoding="utf-8")
-    sheet_log(run, "Step 7: Glam's model photo approval recorded "
-                   f"(entered by {args.recorded_by}).")
-    print(f"Recorded Glam's model photo approval for {run.name}. "
-          "Only run this after Glam has actually approved the photo.")
-    info = sync_chain(run, actor="Glam")
+            f"recorded_at: {now_stamp()}\n", encoding="utf-8")
+        sheet_log(run, "Step 7: Mila's model photo approval recorded.")
+        print(f"Recorded Mila's model photo approval for {run.name}.")
+    info = sync_chain(run, actor="Mila")
     print(f"Chain: next is {info.get('agent') or info.get('to')} "
           f"(Step {info.get('step')}).")
     write_status_file()
@@ -1321,18 +1354,18 @@ def drive_run(run):
             script_exists = nonempty_file(run / "steps" / STEP_DIRS[6] / "script.md")
             if script_exists and state == "INVALID":
                 note(f"STOP at Step 6 — the script FAILS the script check and "
-                     f"goes back to the Story Agent to fix ({reason}). Glam "
+                     f"goes back to the Story Agent to fix ({reason}). Mila "
                      "is not asked to approve a failing script.")
-            elif script_exists and "changed after Glam" in reason:
-                note("STOP at Step 6 — the script changed after Glam's "
-                     "approval; human gate: Glam's approval of the new text.")
+            elif script_exists and "changed after Mila" in reason:
+                note("STOP at Step 6 — the script changed after Mila's "
+                     "approval; waiting on Mila to approve the new text.")
             elif script_exists:
-                note("STOP at Step 6 — human gate: Glam's script approval. "
-                     "The script is written; the driver cannot approve it.")
+                note("STOP at Step 6 — waiting on Mila's script approval "
+                     "(job open for Mila). Glam is not asked before the video.")
             else:
                 note("STOP at Step 6 — no script on file yet. Writing the "
                      "script is an agent step; the driver resumes once the "
-                     "script and Glam's approval are on file.")
+                     "script and Mila's approval are on file.")
             break
         if first_open == 8 and state == "INVALID":
             note(f"STOP at Step 8 — {reason}")
@@ -1425,16 +1458,17 @@ def review_entry(run):
     cfg, results = derive(run)
     states = {n: state for n, name, state, reason in results}
     builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
-    if not builds:
+    redo = parse_kv(run / "steps" / STEP_DIRS[9] / "glam-redo-notes.md")
+    if not builds and not redo:
         return None
     verdict_kv = parse_kv(run / "steps" / STEP_DIRS[10] / "mila-verdict.md")
     mila_verdict = verdict_kv.get("verdict", "").upper() or "NONE"
     decision = parse_kv(run / "review-decision.md")
     decision_val = decision.get("decision", "").lower()
     if decision_val == "approved" and states.get(10) == "CLEARED":
-        status = "Approved"
-    elif decision_val == "sent-back" and states.get(10) == "CLEARED":
-        status = "Sent back"
+        status = "Approved — ready to post (freeze on)"
+    elif not builds:
+        status = "Redo — being rebuilt with Glam's notes"
     elif states.get(10) == "CLEARED":
         status = "Waiting for Glam"
     else:
@@ -1451,7 +1485,10 @@ def review_entry(run):
                    for v in builds],
         "watch_links": {v.name: links.get(v.name, "") for v in builds},
         "review_status": status,
-        "ready_for_review": states.get(10) == "CLEARED",
+        "ready_for_review": states.get(10) == "CLEARED" and decision_val != "approved",
+        "glam_notes": decision.get("notes", "") or redo.get("notes", ""),
+        "redo_count": len(list((run / "redo").glob("redo-*"))) if (run / "redo").is_dir() else 0,
+        "is_test": bool(re.search(r"TEST|MOCK", (pick_from_record(run, cfg) or "").upper())),
     }
 
 
@@ -1533,8 +1570,11 @@ def cmd_review_manifest(args):
     return 0
 
 
-def cmd_review_decision(args):
-    run = resolve_run(args.run)
+def apply_review_decision(run, decision, notes, recorded_by):
+    """Glam's one ruling on the finished video. approved = ready to post
+    (the freeze stays on; nothing posts). redo = the video goes back into
+    the chain to the Video Agent with her notes; Mila checks the rebuild."""
+    decision = {"sent-back": "redo"}.get(decision, decision)
     cfg, results = derive(run)
     states = {n: state for n, name, state, reason in results}
     if states.get(10) != "CLEARED":
@@ -1542,21 +1582,131 @@ def cmd_review_decision(args):
               "check (Step 10), so there is no finished video for Glam to "
               "rule on. A run cannot be approved or sent back before QC.")
         sheet_log(run, f"REVIEW DECISION refused — Step 10 not cleared; "
-                       f"attempted decision: {args.decision}.")
+                       f"attempted decision: {decision}.")
         return 2
-    body = (f"decision: {args.decision}\n"
-            f"decided_by: Glam\n"
-            f"recorded_by: {args.recorded_by}\n"
-            f"recorded_at: {now_stamp()}\n")
-    (run / "review-decision.md").write_text(body, encoding="utf-8")
-    sheet_log(run, f"REVIEW: Glam's decision recorded — {args.decision} "
-                   f"(entered by {args.recorded_by}). Freeze stays ON; "
-                   "approval here is a review verdict, never a post.")
+    if decision == "redo" and not notes.strip():
+        print("REDO REFUSED — a redo needs Glam's notes so the Video Agent "
+              "knows what to change.")
+        return 2
+    notes = " ".join(notes.split())
+    if decision == "approved":
+        (run / "review-decision.md").write_text(
+            f"decision: approved\ndecided_by: Glam\nnotes: {notes}\n"
+            f"recorded_by: {recorded_by}\nrecorded_at: {now_stamp()}\n",
+            encoding="utf-8")
+        sheet_log(run, "REVIEW: Glam APPROVED the finished video — ready to "
+                       "post. Freeze stays ON; nothing posts.")
+        append_handoff(run, {"at": now_stamp(), "from": "Glam", "to": "Posting (frozen)",
+                             "step": 11, "what": "Glam approved the finished video"
+                             + (f" — {notes}" if notes else ""),
+                             "inputs": [], "output": "review-decision.md",
+                             "result": "approved — freeze on"})
+        print(f"Recorded Glam's APPROVAL for {run.name}. Ready to post — the "
+              "freeze stays on, nothing posts.")
+    else:
+        redo_root = run / "redo"
+        n = len(list(redo_root.glob("redo-*"))) + 1 if redo_root.is_dir() else 1
+        dest = redo_root / f"redo-{n}"
+        for sub in ("builds", "qc", "qc-handoff"):
+            (dest / sub).mkdir(parents=True, exist_ok=True)
+        b_dir = run / "steps" / STEP_DIRS[9]
+        for f in list(b_dir.iterdir()):
+            if f.is_file() and f.name not in ("JOB.md", "glam-redo-notes.md"):
+                f.rename(dest / "builds" / f.name)
+        q_dir = run / "steps" / STEP_DIRS[10]
+        if q_dir.is_dir():
+            for f in list(q_dir.iterdir()):
+                if f.is_file() and f.name != "JOB.md":
+                    f.rename(dest / "qc" / f.name)
+        h_dir = handoff_dir_for(cfg["run_id"])
+        if h_dir.is_dir():
+            for f in list(h_dir.iterdir()):
+                if f.is_file():
+                    f.rename(dest / "qc-handoff" / f.name)
+        old = run / "review-decision.md"
+        if old.exists():
+            old.rename(dest / "review-decision.md")
+        body = (f"decision: redo\ndecided_by: Glam\nnotes: {notes}\n"
+                f"redo: {n}\nrecorded_by: {recorded_by}\nrecorded_at: {now_stamp()}\n")
+        (dest / "glam-notes.md").write_text(body, encoding="utf-8")
+        (b_dir / "glam-redo-notes.md").write_text(body, encoding="utf-8")
+        sheet_log(run, f"REVIEW: Glam asked for a REDO (#{n}) — {notes}. Old "
+                       f"builds and Mila's verdict kept in redo/redo-{n}/.")
+        print(f"Recorded Glam's REDO for {run.name}: back to the Video Agent "
+              f"with her notes. Old builds kept in redo/redo-{n}/.")
+        sync_chain(run, actor="Glam")
     build_review_manifest()
-    print(f"Recorded Glam's review decision for {run.name}: {args.decision}. "
-          "The freeze stays on — this records her verdict, it does not post.")
+    write_status_file()
     return 0
 
+
+def cmd_review_decision(args):
+    run = resolve_run(args.run)
+    return apply_review_decision(run, args.decision, args.notes or "",
+                                 args.recorded_by)
+
+
+def cmd_review_feed(args):
+    """Write review-feed.json: one row per finished video, in the shape the
+    Farm Video Review page reads (its 'videos' collection, keyed by run_id).
+    Whoever runs the farm copies these rows into the page's database; Glam's
+    taps come back through review-apply."""
+    manifest = build_review_manifest()
+    rows = []
+    for e in manifest["entries"]:
+        rows.append({
+            "run_id": e["run_id"], "product": e["product"], "mode": e["mode"],
+            "account": e["account"], "mila_verdict": e["mila_verdict"],
+            "review_status": e["review_status"], "is_test": bool(e.get("is_test")),
+            "glam_notes": e.get("glam_notes", ""), "redo_count": e.get("redo_count", 0),
+            "videos": [{"file": name, "url": url if url.startswith("https://") else ""}
+                       for name, url in e.get("watch_links", {}).items()],
+            "updated_at": now_stamp(),
+        })
+    out = RUNNER_DIR / "review-feed.json"
+    out.write_text(json.dumps({"videos": rows}, indent=2, ensure_ascii=False) + "\n",
+                   encoding="utf-8")
+    print(f"Review feed written: {out} ({len(rows)} video row(s))")
+    for r in rows:
+        print(f"  {r['run_id']} — {r['review_status']}")
+    return 0
+
+
+def cmd_review_apply(args):
+    """Apply Glam's taps from the Farm Video Review page. The file is a JSON
+    list exported from the page's saved decisions:
+    [{"run_id": ..., "decision": "approved"|"redo", "notes": ..., "at": ...}]
+    Each decision is applied once (its 'at' stamp is remembered)."""
+    try:
+        items = json.loads(Path(args.file).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"review-apply: can't read {args.file}: {e}")
+        return 2
+    if isinstance(items, dict):
+        items = items.get("decisions", [])
+    rc = 0
+    for it in items:
+        rid, dec = str(it.get("run_id", "")), str(it.get("decision", "")).lower()
+        if dec not in ("approved", "redo") or not rid:
+            print(f"  skip: {it!r} (needs run_id and decision approved|redo)")
+            continue
+        run = RUNS_DIR / rid
+        if not (run / "config.json").exists():
+            print(f"  skip: no run {rid}")
+            continue
+        seen = run / "review-applied.txt"
+        key = f"{dec}|{it.get('at', '')}"
+        if seen.exists() and key in seen.read_text(encoding="utf-8").splitlines():
+            print(f"  {rid}: already applied ({dec} at {it.get('at', '')})")
+            continue
+        print(f"  {rid}: {dec}")
+        r = apply_review_decision(run, dec, str(it.get("notes", "")),
+                                  "Farm Video Review page")
+        if r == 0:
+            with seen.open("a", encoding="utf-8") as fh:
+                fh.write(key + "\n")
+        rc = rc or r
+    return rc
 
 
 # ----------------------------------------------------------------------------
@@ -1791,7 +1941,8 @@ def chain_input_files(run, step):
     for pat in AGENTS.get(step, {}).get("input_files", []):
         for f in sorted(run.glob(pat)):
             if (not f.is_file() or f.name in CHAIN_SKIP_NAMES
-                    or f.name.startswith("glam-") or f.suffix == ".tmp"):
+                    or f.name.startswith(("glam-", "mila-script-", "mila-image-"))
+                    or f.suffix == ".tmp"):
                 continue
             out.append({"file": str(f.relative_to(run)),
                         "sha256": sha256_file(f)})
@@ -1832,7 +1983,23 @@ def save_chain_state(run, st):
                                           encoding="utf-8")
 
 
+# Mila's two gates before the video (Glam, Nov 25: "I want it to go ahead
+# after Mila approve it ... Don't wait for my approval to make the video.")
+MILA_GATES = {
+    6: {"what": "approve the exact script (steps/step6-script/script.md) or send it back with notes",
+        "job": "Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script <run> --by Mila. If not, send it back to the Story Agent: runner.py approve-script <run> --by Mila --send-back \"what to fix\". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "files": lambda run: [run / "steps" / STEP_DIRS[6] / "script.md"],
+        "needs": ["Mila (an AI agent) to read the script against the farm laws"]},
+    7: {"what": "approve the model photo (steps/step7-styled/) or send it back with notes",
+        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. If it is right, approve it: runner.py approve-image <run> --by Mila. If not: runner.py approve-image <run> --by Mila --send-back \"what to fix\". The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "files": lambda run: files_with_ext(run / "steps" / STEP_DIRS[7], IMAGE_EXTS),
+        "needs": ["Mila (an AI agent) to look at the photo"]},
+}
+
+
 def step_findings(run, n, reason):
+    if n == 6 and reason.startswith("Mila sent"):
+        return [reason]
     if n == 6:
         f = [m for _, m in script_findings(run)]
         return f or [reason]
@@ -1858,15 +2025,13 @@ def open_job_info(run):
         if n == 1:
             continue
         if n == 6 and nonempty_file(steps / STEP_DIRS[6] / "script.md") \
-                and st != "INVALID" and st != "BLOCKED":
-            return {"kind": "glam", "step": 6, "agent": "", "to": "Glam",
-                    "what": "approve the exact script (steps/step6-script/script.md)",
-                    "reason": reason, "findings": []}
+                and st not in ("INVALID", "BLOCKED"):
+            return {"kind": "mila", "step": 6, "agent": "Mila", "to": "Mila",
+                    "what": MILA_GATES[6]["what"], "reason": reason, "findings": []}
         if n == 7 and files_with_ext(steps / STEP_DIRS[7], IMAGE_EXTS) \
-                and st != "BLOCKED":
-            return {"kind": "glam", "step": 7, "agent": "", "to": "Glam",
-                    "what": "approve the model photo (steps/step7-styled/)",
-                    "reason": reason, "findings": []}
+                and st not in ("INVALID", "BLOCKED"):
+            return {"kind": "mila", "step": 7, "agent": "Mila", "to": "Mila",
+                    "what": MILA_GATES[7]["what"], "reason": reason, "findings": []}
         if n == 10:
             kv = parse_kv(steps / STEP_DIRS[10] / "mila-verdict.md")
             if st == "INVALID" and kv.get("verdict", "").upper() != "PASS":
@@ -1878,6 +2043,14 @@ def open_job_info(run):
                     "to": agent_name(10), "reason": reason,
                     "what": "QC check of every build in the handoff folder",
                     "findings": [reason] if st == "INVALID" else []}
+        if n == 9:
+            redo = parse_kv(steps / STEP_DIRS[9] / "glam-redo-notes.md")
+            if redo.get("notes"):
+                return {"kind": "agent", "step": 9, "agent": agent_name(9),
+                        "to": agent_name(9), "reason": reason,
+                        "what": "rebuild — Glam asked for a redo",
+                        "findings": [f"Glam asked for a redo (#{redo.get('redo', '?')}): "
+                                     f"{redo['notes']}"]}
         sent_back = (st == "INVALID"
                      or (n == 2 and nonempty_file(steps / STEP_DIRS[2] / "scout.md")))
         return {"kind": "agent", "step": n, "agent": agent_name(n),
@@ -1889,8 +2062,26 @@ def open_job_info(run):
             "reason": "complete through Step 10", "findings": []}
 
 
+def mila_gate_job_md(run, info):
+    n = info["step"]
+    g = MILA_GATES[n]
+    cfg = load_config(run)
+    out = [f"# JOB — Step {n}: Mila (approval gate)",
+           f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
+           f"opened {now_stamp()} · posting freeze ON\n",
+           "## Your job", g["job"].replace("<run>", cfg["run_id"]) + "\n",
+           "## Check these (exact files)"]
+    out += [f"- {f.relative_to(run)}  (sha256 {sha256_file(f)[:16]}…)"
+            for f in g["files"](run)]
+    out.append("\n## Farm laws (from farm-rules.json)")
+    out += [f"- {fill(l['title'])}: {fill(l['text'])}" for l in RULES.get("laws", [])]
+    return "\n".join(out) + "\n"
+
+
 def job_md(run, info):
     n = info["step"]
+    if info.get("kind") == "mila" and n in MILA_GATES:
+        return mila_gate_job_md(run, info)
     a = AGENTS.get(n, {})
     cfg = load_config(run)
     laws = {l["id"]: l for l in RULES.get("laws", [])}
@@ -1941,7 +2132,7 @@ def sync_chain(run, actor=None, submitted=None):
         return info
     cfg = load_config(run)
     if info["kind"] in ("agent", "mila"):
-        if info["kind"] == "mila":
+        if info["kind"] == "mila" and info["step"] == 10:
             builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
             dest = handoff_dir_for(cfg["run_id"])
             handed = bool(builds) and dest.is_dir() and all(
@@ -1967,7 +2158,10 @@ def sync_chain(run, actor=None, submitted=None):
         what = f"job opened for {info['agent']}: {info['what']}"
     else:
         what = info["what"]
-    if info["kind"] in ("agent", "mila"):
+    if info["kind"] == "mila" and info["step"] in MILA_GATES:
+        inputs = [{"file": str(f.relative_to(run)), "sha256": sha256_file(f)}
+                  for f in MILA_GATES[info["step"]]["files"](run)]
+    elif info["kind"] in ("agent", "mila"):
         inputs = chain_input_files(run, info["step"])
     elif info["kind"] == "glam":
         inputs = [{"file": str(f.relative_to(run)), "sha256": sha256_file(f)}
@@ -1982,6 +2176,8 @@ def sync_chain(run, actor=None, submitted=None):
         sp = Path(submitted)
         output = (f"{sp.relative_to(run)} (sha256 {sha256_file(sp)[:16]}…)"
                   if sp.is_file() and run in sp.parents else str(sp))
+    elif info["kind"] == "mila" and info["step"] in MILA_GATES:
+        output = "expected: Mila's approval or send-back"
     elif info["kind"] in ("agent", "mila"):
         output = "expected: " + AGENTS.get(info["step"], {}).get("output_file", "")
     rec = {"at": now_stamp(), "from": frm, "to": info["to"],
@@ -2000,6 +2196,8 @@ def open_job_entry(run, info=None):
     if info["kind"] not in ("agent", "mila"):
         return None
     a = AGENTS.get(info["step"], {})
+    if info["kind"] == "mila" and info["step"] in MILA_GATES:
+        a = MILA_GATES[info["step"]]
     return {"step": info["step"], "agent": info["agent"],
             "job_file": f"steps/{STEP_DIRS[info['step']]}/JOB.md",
             "job": fill(a.get("job", "")), "needs": a.get("needs", []),
@@ -2136,14 +2334,14 @@ def step_owner(run, n, state):
         script = run / "steps" / STEP_DIRS[6] / "script.md"
         if state == "INVALID" or not nonempty_file(script):
             return "Story Agent (writes or fixes the script)"
-        return "Glam (script approval)"
+        return "Mila (script approval)"
     return {
         1: "Indigo (creates the run)",
         2: "TikTok Scout",
         3: "TikTok Shop Agent",
         4: "TikTok Shop Agent (grabs the listing photo)",
         5: "A checker who did not grab the photo",
-        7: "Casting agent (Glam's uploaded model), then Glam approves",
+        7: "Casting agent (Glam's uploaded model), then Mila approves",
         8: "Story Agent + Video Agent (package)",
         9: "Indigo (build)",
         10: "Mila (QC)",
@@ -2284,14 +2482,16 @@ def main():
     p.add_argument("--notes", default="")
     p.set_defaults(fn=cmd_record_match)
 
-    p = sub.add_parser("approve-script", help="record Glam's Step 6 script approval (only after she approves)")
+    p = sub.add_parser("approve-script", help="Mila's Step 6 gate: approve the exact script (or --send-back \"notes\")")
     p.add_argument("run")
-    p.add_argument("--recorded-by", default="Indigo")
+    p.add_argument("--by", required=True, help="must be Mila")
+    p.add_argument("--send-back", default="", help="send the script back to the Story Agent with these notes")
     p.set_defaults(fn=cmd_approve_script)
 
-    p = sub.add_parser("approve-image", help="record Glam's Step 7 model photo approval (only after she approves)")
+    p = sub.add_parser("approve-image", help="Mila's Step 7 gate: approve the exact model photo (or --send-back \"notes\")")
     p.add_argument("run")
-    p.add_argument("--recorded-by", default="Indigo")
+    p.add_argument("--by", required=True, help="must be Mila")
+    p.add_argument("--send-back", default="", help="send the photo back to Casting with these notes")
     p.set_defaults(fn=cmd_approve_image)
 
     p = sub.add_parser("submit", help="an agent hands in its step's work; the step's checks run at once and the chain hands off or sends it back")
@@ -2328,9 +2528,17 @@ def main():
 
     p = sub.add_parser("review-decision", help="record Glam's review verdict on a finished video (never posts)")
     p.add_argument("run")
-    p.add_argument("--decision", required=True, choices=["approved", "sent-back"])
+    p.add_argument("--decision", required=True, choices=["approved", "redo", "sent-back"])
+    p.add_argument("--notes", default="", help="Glam's notes (required for redo)")
     p.add_argument("--recorded-by", default="Indigo")
     p.set_defaults(fn=cmd_review_decision)
+
+    p = sub.add_parser("review-feed", help="write review-feed.json: the rows for the Farm Video Review page")
+    p.set_defaults(fn=cmd_review_feed)
+
+    p = sub.add_parser("review-apply", help="apply Glam's Approve/Redo taps exported from the Farm Video Review page (JSON)")
+    p.add_argument("--file", required=True)
+    p.set_defaults(fn=cmd_review_apply)
 
     p = sub.add_parser("sync-rules", help="(retired) the old books are archived; rules live only in farm-rules.json")
     p.set_defaults(fn=cmd_sync_rules)

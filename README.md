@@ -40,7 +40,9 @@ Numbers live once, in `"numbers"`. A law that says `{max_spoken_words_per_line}`
 
 One agent does its step and hands it to the next, in Glam's order. Nobody passes work along by chat.
 
-TikTok Scout → TikTok Shop Agent (pick, then the real listing photo) → Photo Match checker (not the grabber) → Story Agent (script) → **Glam approves the script** → Casting / Image Agent (her uploaded model photo) → **Glam approves the photo** → Story Agent + Video Agent ("Next" package with caption) → Video Agent / Indigo (build) → Mila (QC) → **Glam's final review**. Step 11 stays frozen; nothing posts.
+TikTok Scout → TikTok Shop Agent (pick, then the real listing photo) → Photo Match checker (not the grabber) → Story Agent (script) → **Mila approves the script** → Casting / Image Agent (her uploaded model photo) → **Mila approves the photo** → Story Agent + Video Agent ("Next" package with caption) → Video Agent / Indigo (build) → Mila (QC) → **Glam's final review: Approve or Redo with notes**. Step 11 stays frozen; nothing posts.
+
+Glam, Nov 25: "Don't wait for my approval to make the video." Nothing before the video waits on Glam. She rules once, on the finished video, on the [Farm Video Review page](https://claude.ai/artifact/9oFBb5aLg1rrm23B96Rt3w).
 
 - **Jobs:** when a step clears, the runner opens the next agent's job as `steps/<step>/JOB.md`. The job text, the laws that agent follows and what it needs all come from `farm-rules.json → agents`. JOB.md also lists the exact input files with their sha256.
 - **Finding your work:** `python3 farm-runner/runner.py jobs` lists every open job and writes `farm-jobs.json` next to `farm-status.json`.
@@ -48,7 +50,9 @@ TikTok Scout → TikTok Shop Agent (pick, then the real listing photo) → Photo
   - If they pass, the next agent's job opens, or Glam's or Mila's gate.
   - If they fail, the work is **sent back** to the same agent with the findings at the top of its JOB.md.
   - `--by` must be that step's agent, and a step out of order is refused.
-- **Glam's gates:** `approve-script` and `approve-image`. Each approval is tied to the exact file she saw.
+- **Mila's gates before the video:** `approve-script <run> --by Mila` and `approve-image <run> --by Mila` (add `--send-back "notes"` to send it back). Each approval is tied to the exact file she saw. Anyone else is refused.
+- **Glam's one gate, the finished video:** `review-decision <run> --decision approved` or `--decision redo --notes "..."`. A redo keeps the old build and Mila's verdict in `redo/redo-N/` and reopens the Video Agent's job with her notes at the top; Mila checks the rebuild.
+- **The review page:** `review-feed` writes `review-feed.json`, the rows the Farm Video Review page shows (copy them into its `videos` list). Her taps are saved on the page; export them as JSON and run `review-apply --file <taps.json>` (each tap applies once).
 - **Every hop is logged** in the run folder's `handoffs.jsonl` (who, when, what, the inputs used with sha256, the output, and the result). It also appears in `farm-status.json`, so the page's Live Run Board shows every handoff and the open job.
 - **Who does each job.** The runner opens each job and checks the work; the agents do it. A run shows the agent as up next until it hands in its work:
   - **TikTok Scout:** the farm's TikTok browser (Glam keeps it signed in) for the Shop showcase, best sellers and trends, plus an AI agent to write.
@@ -75,13 +79,13 @@ Commands below are shown as `runner.py`; the live copy is `python3 ~/workspace/f
 3. **Pick (Step 3):** `steps/step3-pick/pick.md` with a `product:` line. This file is the pick.
 4. **Listing photo (Step 4):** `runner.py attach-photo <run> <photo-file> --by <who grabbed it>`. It must be the real listing photo.
 5. **Photo match (Step 5):** `runner.py record-match <run> --checker <name> --grabber <name> --verdict MATCH` (or `NO-MATCH`). The checker can't be the person who grabbed the photo.
-6. **Script (Step 6):** `steps/step6-script/script.md` with spoken lines on `LINE n:` rows (a `Hook:` row is checked too) and a `CTA:` line pointing below. The script check runs the laws from `farm-rules.json`. Show Glam the script, and only after she approves it run `runner.py approve-script <run>`. Her approval is tied to the exact script; any edit after that needs her approval again.
+6. **Script (Step 6):** `steps/step6-script/script.md` with spoken lines on `LINE n:` rows (a `Hook:` row is checked too) and a `CTA:` line pointing below. The script check runs the laws from `farm-rules.json`. Mila approves it with `runner.py approve-script <run> --by Mila` (or sends it back with `--send-back "notes"`). Her approval is tied to the exact script; any edit after that needs her approval again.
 7. **Model photo (Step 7):** Glam's best-fitting uploaded model photo, used as-is, goes in `steps/step7-styled/`.
 8. **Package (Step 8):** `steps/step8-package/package.md` with a `References:` line naming the approved model photo and the real listing photo. Check it with `runner.py lint <run>`.
 9. **Build (Step 9):** every Video Express build goes in `steps/step9-builds/`, good and bad. Put each video's Google Drive link in `steps/step9-builds/links.md` (`build-1.mp4: https://drive.google.com/...`) so it can be watched from the page.
 10. **Hand off to Mila (Step 10):** `runner.py handoff <run>` copies every build, the approved script and the listing photo to `~/workspace/farm-qc-handoff/<run-id>/`, with a `HANDOFF.md` that carries Mila's full scorecard and the farm laws from `farm-rules.json`. Mila writes `verdict.md` there.
 11. **Collect the verdict:** `runner.py collect-verdict <run>` collects it once, records exactly which builds it covers, and moves it to `verdict-collected-<time>.md`. A new or changed build waits on Mila again.
-12. **Review:** `runner.py review-manifest` rebuilds the review list. Glam's verdict is recorded with `runner.py review-decision <run> --decision approved` (or `sent-back`). Approval never posts.
+12. **Review:** `runner.py review-manifest` rebuilds the review list. Glam's verdict is recorded with `runner.py review-decision <run> --decision approved` or `--decision redo --notes "..."`, or from her taps on the review page with `review-apply`. Approval never posts.
 
 Anytime:
 

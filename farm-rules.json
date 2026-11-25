@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25b",
+  "version": "2026-11-25c",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -46,12 +46,12 @@
     {
       "n": 6,
       "name": "Story Agent script",
-      "text": "Real-UGC pain-point script built from the story sentence; passes the script check; Glam approves the exact script."
+      "text": "Real-UGC pain-point script built from the story sentence; passes the script check; Mila approves the exact script."
     },
     {
       "n": 7,
       "name": "Model photo — Glam's uploaded model",
-      "text": "The best-fitting uploaded model, photo used as-is, never generated. Glam approves."
+      "text": "The best-fitting uploaded model, photo used as-is, never generated. Mila approves."
     },
     {
       "n": 8,
@@ -665,7 +665,7 @@
       "by": [
         "Story Agent"
       ],
-      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Glam approves the exact script.",
+      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves the exact script (or sends it back with notes).",
       "inputs": [
         "the Scout's story sentence",
         "the pick record",
@@ -692,7 +692,7 @@
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
       ],
-      "hands_to": "Glam (script approval), then Casting / Image Agent"
+      "hands_to": "Mila (script approval), then Casting / Image Agent"
     },
     {
       "step": 7,
@@ -701,7 +701,7 @@
         "Casting / Image Agent",
         "Casting Agent"
       ],
-      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Glam approves it.",
+      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves it (or sends it back with notes).",
       "inputs": [
         "the approved script",
         "the pick record",
@@ -721,7 +721,7 @@
       "needs": [
         "access to Glam's uploaded model photos"
       ],
-      "hands_to": "Glam (model photo approval), then Story Agent + Video Agent"
+      "hands_to": "Mila (model photo approval), then Story Agent + Video Agent"
     },
     {
       "step": 8,
@@ -820,7 +820,8 @@
       "needs": [
         "Mila (an AI agent that can watch the video frame by frame and hear the audio)"
       ],
-      "hands_to": "Glam (final review; freeze stays on)"
+      "hands_to": "Glam (final review on the Farm Video Review page: Approve or Redo with notes; freeze stays on)"
     }
-  ]
+  ],
+  "_note_flow": "Glam, Nov 25: \"I want it to go ahead after Mila approve it. I want it to go ahead and make the damn video, and then I'll approve it. Don't wait for me ... to make the video.\" Mila approves the script and the model photo; the video is built at once; Mila frame-checks it; Glam rules once on the finished video (Approve or Redo with notes). The posting freeze stays on."
 }

@@ -74,19 +74,19 @@ sc "(l) 'my go-to' fails" 'CTA: linked below\nLINE 1: "You need my go-to for win
 # ---------- #24 drive msg on failing script
 printf 'CTA: linked below\nLINE 1: "I am obsessed with how soft my skin feels."\n' > $S
 OUT=$($R drive $RUN); expect "#24 drive on failing script names the failure" "FAILS the script check and goes back to the Story Agent" "$OUT"
-OUT=$($R approve-script $RUN; echo "exit $?"); expect "(j) approve refused on failing script" "APPROVAL REFUSED" "$OUT"
+OUT=$($R approve-script $RUN --by Mila; echo "exit $?"); expect "(j) approve refused on failing script" "APPROVAL REFUSED" "$OUT"
 # ---------- #3 approval tied to script
 printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift."\nLINE 2: "Tap the orange cart."\n' > $S
-OUT=$($R drive $RUN); expect "(g) drive stops at Glam's approval" "human gate: Glam's script approval" "$OUT"
-$R approve-script $RUN >/dev/null
+OUT=$($R drive $RUN); expect "(g) drive stops at Mila's script approval, not Glam's" "waiting on Mila's script approval" "$OUT"
+$R approve-script $RUN --by Mila >/dev/null
 OUT=$($R status $RUN); expect "#3 approved script clears" "Step 6 +Script +CLEARED" "$OUT"
 printf 'CTA: linked below\nLINE 1: "Your mornings are chaos and you need a win."\nLINE 2: "Tap the orange cart."\n' > $S
-OUT=$($R status $RUN); expect "#3 edited script loses approval" "Step 6 +Script +WAITING +script changed after Glam's approval" "$OUT"
-OUT=$($R drive $RUN); expect "#3 drive asks Glam again" "changed after Glam's approval" "$OUT"
-$R approve-script $RUN >/dev/null
+OUT=$($R status $RUN); expect "#3 edited script loses approval" "Step 6 +Script +WAITING +script changed after Mila's approval" "$OUT"
+OUT=$($R drive $RUN); expect "#3 drive asks Mila again" "changed after Mila's approval" "$OUT"
+$R approve-script $RUN --by Mila >/dev/null
 # ---------- Step 7/8 lint
 cp /tmp/fx_p.png $D/step7-styled/model.png
-$R approve-image $RUN >/dev/null  # chain: Glam approves the model photo (Step 7 gate)
+$R approve-image $RUN --by Mila >/dev/null  # chain: Mila approves the model photo (Step 7 gate)
 K=$D/step8-package/package.md
 CAP='Caption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n'
 lint(){ printf "%b" "$2$CAP" > $K; OUT=$($R lint $RUN 2>&1); expect "$1" "$3" "$OUT"; }
@@ -152,7 +152,7 @@ grep -q '▶ Watch' $HOME/workspace/farm-runner/review-section.html && ok "#29 W
 grep -q 'No watch link yet' $HOME/workspace/farm-runner/review-section.html && ok "#29 missing link says so" "No watch link yet — add it to links.md" || bad "#29 missing link msg" ""
 grep -q '"watch_links"' $HOME/workspace/farm-runner/review-manifest.json && ok "#29 links in manifest JSON" "$(grep -m1 'drive.google' $HOME/workspace/farm-runner/review-manifest.json | sed 's/^ *//')" || bad "#29 json" ""
 OUT=$($R handoff $RUN); echo "$OUT" | grep -q "links.md" && bad "#29 links.md not handed as a build" "$OUT" || ok "#29 links.md not handed as a build" "$(echo "$OUT"|head -1)"
-OUT=$($R review-decision $RUN --decision approved; echo "exit $?"); expect "(f) review decision works after PASS (never posts)" "does not post" "$OUT"
+OUT=$($R review-decision $RUN --decision approved; echo "exit $?"); expect "(f) review decision works after PASS (never posts)" "nothing posts" "$OUT"
 # ---------- (e) freeze, #32
 OUT=$($R check $RUN --to 11; echo "exit $?"); expect "(e) check --to 11 refused, freeze" "FREEZE-LOCKED" "$OUT"
 OUT=$($R check $RUN --to 0); expect "#32 check --to 0 sane message" "not a step that can be checked" "$OUT"
@@ -169,7 +169,7 @@ d=json.load(open(sys.argv[1])); d["checks"]["person_words"].append("nana"); json
 PY
 printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long double shift at work, girl."\nLINE 2: "Tap the orange cart."\n' > $S
 OUT=$($R status $RUN); expect "RULES 11-word line passes under the real file (cap from JSON)" "Step 6 .*(WAITING|CLEARED)" "$OUT"
-OUT=$(FARM_RULES=$TMPR/ten.json $R approve-script $RUN); expect "RULES cap edited to 10 in the JSON -> same 11-word line fails, message says 10" "LINE 1 is 11 spoken words \(bar: 10 max\)" "$OUT"
+OUT=$(FARM_RULES=$TMPR/ten.json $R approve-script $RUN --by Mila); expect "RULES cap edited to 10 in the JSON -> same 11-word line fails, message says 10" "LINE 1 is 11 spoken words \(bar: 10 max\)" "$OUT"
 printf 'Findings: x\nStory: For the nana who hosts every single Sunday dinner.\n' > $D/step2-scout/scout.md
 OUT=$($R status $RUN); expect "RULES 'nana' not a person word in the real file -> fails" "Step 2 .*WAITING" "$OUT"
 OUT=$(FARM_RULES=$TMPR/nana.json $R status $RUN); expect "RULES 'nana' added to person_words in the JSON -> passes" "Step 2 .*CLEARED" "$OUT"
@@ -197,7 +197,7 @@ PY
 OUT=$(FARM_RULES=$TMPR/nope.json $R check-rules --page "$ROOT/index.html"; echo "exit $?"); expect "PLACEHOLDER a {nope} with no number is caught" "\{nope\} has no number.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
 grep -q '{' $H/HANDOFF.md && bad "PLACEHOLDER HANDOFF.md fully filled (no { left)" "$(grep -m1 '{' $H/HANDOFF.md)" || ok "PLACEHOLDER HANDOFF.md fully filled (no { left)" "$(grep -m1 'spoken words' $H/HANDOFF.md | cut -c1-110)"
 # ---------- LIVE STATUS FILE farm-status.json
-$R approve-script $RUN >/dev/null  # the RULES tests edited the script; re-record Glam's approval
+$R approve-script $RUN --by Mila >/dev/null  # the RULES tests edited the script; re-record Mila's approval
 rm -f $FARM_STATUS_OUT; $R status $RUN >/dev/null
 python3 - $FARM_STATUS_OUT "$RUN" <<'PY' && ok "STATUS farm-status.json written with the exact schema" "keys ok" || bad "STATUS schema" "see above"
 import json,sys
@@ -234,7 +234,7 @@ RUN3=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
 D3=$HOME/workspace/farm-runs/$RUN3/steps
 printf 'product: Turmeric + Honey Body Oil (Elowen Lab)\n' > $D3/step3-pick/pick.md
 printf 'Clip 1: "Your skin has been dry all winter, sis."\nClip 2: "Turmeric and honey body oil right here on my vanity."\nShe holds the bottle and a drop lands on her hand.\nClip 3: "Tap the orange cart."\n' > $D3/step6-script/script.md
-OUT=$($R approve-script $RUN3 2>&1)
+OUT=$($R approve-script $RUN3 --by Mila 2>&1)
 expect "INDIGO script: approval refused" "APPROVAL REFUSED" "$OUT"
 expect "INDIGO 'right here on my vanity' caught as a use/ownership claim" "\[use-claim\] LINE 2" "$OUT"
 expect "INDIGO held bottle + drop on her hand caught as staging" "\[staging\] script line 3" "$OUT"
@@ -254,8 +254,8 @@ expect "fixed caption passes" "package passes" "$OUT"
 printf 'CTA: it is linked below for you\nClip 1: "Your skin has been dry all winter, sis."\nClip 2: "This one sits right there on the counter."\nThe bottle stays on the counter, no hands on it.\nClip 3: "Tap the orange cart."\n' > $D3/step6-script/script.md
 OUT=$($R status $RUN3 2>&1)
 expect "INDIGO script rewritten to the rules passes the check" "Step 6 +Script +(WAITING|BLOCKED).*(passing the script check|earlier gate)" "$OUT"
-OUT=$($R approve-script $RUN3 2>&1)
-expect "rewritten script takes Glam's approval" "Recorded Glam's script approval" "$OUT"
+OUT=$($R approve-script $RUN3 --by Mila 2>&1)
+expect "rewritten script takes Mila's approval" "Recorded Mila's script approval" "$OUT"
 # ---------- FULL CHAIN TEST (Glam's order: Scout → Shop Agent → Story → Casting → Video → Mila → Glam; nothing posts)
 CH=$(mktemp -d)
 OUT=$($R create --mode "Get Ready With Me" 2>&1); RC=$(echo "$OUT" | sed -n 's/^Run ID: //p'); C=$HOME/workspace/farm-runs/$RC; CS=$C/steps
@@ -281,12 +281,17 @@ OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script-bad.md; echo "
 grep -q "SENT BACK" $CS/step6-script/JOB.md && grep -q "stages the product" $CS/step6-script/JOB.md && ok "CHAIN findings written at the top of the Story Agent's JOB.md" "$(sed -n 3p $CS/step6-script/JOB.md | cut -c1-100)" || bad "CHAIN sent-back JOB.md" ""
 OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['state'],'|',r['open_job']['agent'],'|',len(r['open_job']['sent_back']))"); expect "CHAIN status shows STOPPED, sent back to Story Agent" "^STOPPED \| Story Agent \| [1-9]" "$OUT"
 printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift."\nThe slides sit on the counter, no hands on them.\nLINE 2: "Tap the orange cart."\n' > $CH/script.md
-OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script.md); expect "CHAIN corrected script passes → waiting on Glam" "Handed to Glam \(Step 6\)" "$OUT"
-OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['open_job'],'|',r['owner'],'|',r['needs'])"); expect "CHAIN Glam gate: open_job null, owner Glam" "^None \| Glam \| Glam — approve the exact script" "$OUT"
-OUT=$($R approve-script $RC); expect "CHAIN Glam's script approval → Casting / Image Agent" "next is Casting / Image Agent \(Step 7\)" "$OUT"
+OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script.md); expect "CHAIN corrected script passes → Mila (not Glam)" "Handed to Mila \(Step 6\)" "$OUT"
+OUT=$($R approve-script $RC --by Glam 2>&1; echo "exit $?"); expect "FLOW Glam is not asked before the video: approve-script --by Glam refused" "only Mila approves the script.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R approve-script $RC --by Mila --send-back "Line 1 needs to name who it is for"); expect "FLOW Mila sends the script back → Story Agent" "next is Story Agent \(Step 6\)" "$OUT"
+grep -q "Mila sent the script back: Line 1 needs to name who it is for" $CS/step6-script/JOB.md && ok "FLOW Mila's notes at the top of the Story Agent's JOB.md" "$(sed -n 2p $CS/step6-script/JOB.md)" || bad "FLOW Mila notes in JOB.md" ""
+printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift, nurses."\nThe slides sit on the counter, no hands on them.\nLINE 2: "Tap the orange cart."\n' > $CH/script.md
+OUT=$($R submit $RC --step 6 --by "Story Agent" --file $CH/script.md); expect "FLOW fixed script → back to Mila" "Handed to Mila \(Step 6\)" "$OUT"
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RC'][0];print(r['open_job'],'|',r['owner'],'|',r['needs'])"); expect "CHAIN Mila gate: open job is Mila's, not Glam's" "'agent': 'Mila'.*\| Mila" "$OUT"
+OUT=$($R approve-script $RC --by Mila); expect "CHAIN Mila's script approval → Casting / Image Agent" "next is Casting / Image Agent \(Step 7\)" "$OUT"
 cp /tmp/fx_p.png $CH/model-uploaded.png
-OUT=$($R submit $RC --step 7 --by "Casting / Image Agent" --file $CH/model-uploaded.png); expect "CHAIN model photo → waiting on Glam" "Handed to Glam \(Step 7\)" "$OUT"
-OUT=$($R approve-image $RC); expect "CHAIN Glam's image approval → package job" "next is Story Agent \+ Video Agent \(Step 8\)" "$OUT"
+OUT=$($R submit $RC --step 7 --by "Casting / Image Agent" --file $CH/model-uploaded.png); expect "CHAIN model photo → Mila (not Glam)" "Handed to Mila \(Step 7\)" "$OUT"
+OUT=$($R approve-image $RC --by Mila); expect "CHAIN Mila's image approval → package job, video next with no Glam stop" "next is Story Agent \+ Video Agent \(Step 8\)" "$OUT"
 printf 'References: approved model photo + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\n' > $CH/package-nocap.md
 OUT=$($R submit $RC --step 8 --by "Story Agent" --file $CH/package-nocap.md; echo "exit $?"); expect "CHAIN package without a caption SENT BACK" "SENT BACK to Story Agent \+ Video Agent" "$OUT"
 printf 'References: approved model photo + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\nCaption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n' > $CH/package.md
@@ -304,9 +309,9 @@ import json,sys
 H=[json.loads(l) for l in open(sys.argv[1])]
 want=[("Start a Run","TikTok Scout","handed off"),("TikTok Scout","TikTok Shop Agent","handed off"),
 ("TikTok Shop Agent","TikTok Shop Agent","handed off"),("TikTok Shop Agent","Photo Match checker","handed off"),
-("Mila","Story Agent","handed off"),("Story Agent","Story Agent","sent back"),("Story Agent","Glam","waiting on Glam"),
-("Glam","Casting / Image Agent","handed off"),("Casting / Image Agent","Glam","waiting on Glam"),
-("Glam","Story Agent + Video Agent","handed off"),("Story Agent","Story Agent + Video Agent","sent back"),
+("Mila","Story Agent","handed off"),("Story Agent","Story Agent","sent back"),("Story Agent","Mila","waiting on Mila"),("Mila","Story Agent","sent back"),("Story Agent","Mila","waiting on Mila"),
+("Mila","Casting / Image Agent","handed off"),("Casting / Image Agent","Mila","waiting on Mila"),
+("Mila","Story Agent + Video Agent","handed off"),("Story Agent","Story Agent + Video Agent","sent back"),
 ("Video Agent","Video Agent","handed off"),("Indigo","Mila","waiting on Mila"),("Mila","Glam","waiting on Glam")]
 got=[(h["from"],h["to"],h["result"]) for h in H]
 assert got==want, "\n".join(map(str,got))
@@ -317,6 +322,21 @@ for h in H[1:]:
 PY
 python3 -c "
 import json;[print(f\"  {i:2}. {h['from']} → {h['to']} (Step {h['step'] or 'review'}) — {h['result']}\") for i,h in enumerate((json.loads(l) for l in open('$C/handoffs.jsonl')),1)]" > /tmp/fx_hops.txt
+# ---------- Glam's one ruling, on the finished video: Redo with notes, or Approve (freeze stays on)
+OUT=$($R review-decision $RC --decision redo 2>&1; echo "exit $?"); expect "REVIEW redo without notes refused" "REDO REFUSED.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R review-decision $RC --decision redo --notes "Make her smile more in clip 2 and slow the last line" 2>&1); expect "REVIEW Redo sends the video back to the Video Agent" "back to the Video Agent" "$OUT"
+[ ! -f $CS/step9-builds/build-1.mp4 ] && [ -f $C/redo/redo-1/builds/build-1.mp4 ] && [ -f $C/redo/redo-1/qc/mila-verdict.md ] && ok "REVIEW old build + Mila's verdict kept in redo/redo-1" "redo/redo-1/" || bad "REVIEW redo archive" "$(ls -R $C/redo 2>&1|head)"
+grep -q "Glam asked for a redo (#1): Make her smile more in clip 2" $CS/step9-builds/JOB.md && ok "REVIEW Glam's notes at the top of the Video Agent's JOB.md" "$(sed -n 2p $CS/step9-builds/JOB.md)" || bad "REVIEW notes in JOB.md" "$(head -3 $CS/step9-builds/JOB.md)"
+OUT=$(python3 -c "import json;d=json.load(open('$HOME/workspace/farm-runner/review-manifest.json'));e=[x for x in d['entries'] if x['run_id']=='$RC'][0];print(e['review_status'],'|',e['glam_notes'])"); expect "REVIEW page list shows the redo with her notes" "^Redo — being rebuilt with Glam's notes \| Make her smile" "$OUT"
+echo "TEST build 2" > $CH/build-2.mp4
+OUT=$($R submit $RC --step 9 --by "Indigo" --file $CH/build-2.mp4); expect "REVIEW rebuild → Mila checks again" "Handed to Mila \(Step 10\)" "$OUT"
+printf 'verdict: PASS\nchecker: Mila\nscore: TEST — rebuild\n' > $CH/verdict2.md
+OUT=$($R submit $RC --step 10 --by "Mila" --file $CH/verdict2.md); expect "REVIEW Mila's PASS on the rebuild → Glam's final review" "Handed to Glam: final review" "$OUT"
+printf '[{"run_id":"%s","decision":"approved","notes":"Love it","at":"2026-11-25T01:00:00Z"}]' $RC > $CH/taps.json
+OUT=$($R review-apply --file $CH/taps.json 2>&1); expect "REVIEW Approve tap from the review page is applied" "APPROVAL.*nothing posts" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R review-apply --file $CH/taps.json 2>&1); expect "REVIEW the same tap is applied only once" "already applied" "$OUT"
+OUT=$(python3 -c "import json;d=json.load(open('$HOME/workspace/farm-runner/review-manifest.json'));e=[x for x in d['entries'] if x['run_id']=='$RC'][0];print(e['review_status'])"); expect "REVIEW status: Approved — ready to post, freeze on" "^Approved — ready to post \(freeze on\)" "$OUT"
+OUT=$($R status $RC); expect "REVIEW freeze still on after approval" "Step 11 +Caption & Post +FROZEN" "$OUT"
 rm -rf $CH
 echo; echo "CHAIN HOPS (test data):"; cat /tmp/fx_hops.txt
 # ---------- Glam's Nov 24 calls: retire the 4 first-person modes; the retired agent stays off the farm

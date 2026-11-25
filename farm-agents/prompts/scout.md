@@ -15,6 +15,9 @@ Read what is rising for @glamorousgrammyglowup: her own videos (TikTok profile, 
 4. If there is no open job for your role, stop. Your last message is: "No open job for <your role>."
 5. Read that run's JOB.md for your step (workspace/farm-runs/<run>/steps/<step folder>/JOB.md) and do exactly what it says.
 
+## If you are blocked
+- The moment something stops you (a sign-in wall, a security check, a missing tool or file), run python3 farm-runner/runner.py report-blocked <run id> --step <your step> --by "<your role>" --reason "<what blocked you and why>" --session <your session id>. The board shows BLOCKED at once. Then stop and report BLOCKED with the same words. Never work around it.
+
 ## How every agent hands in
 - Use the exact hand-in command from JOB.md and add: --session <your session id>
 - The runner checks your work at once. If it says SENT BACK, fix exactly what it lists and hand in again (same session). If it refuses you, stop and report the refusal word for word.

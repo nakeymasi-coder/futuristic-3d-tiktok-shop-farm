@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 16:57",
+  "generated_at": "2026-11-25 16:59",
   "rules_version": "2026-11-25h",
   "jobs": [
     {
@@ -31,17 +31,14 @@
     },
     {
       "step": 6,
-      "agent": "Story Agent",
+      "agent": "Mila",
       "job_file": "steps/step6-script/JOB.md",
-      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence and the product's approved selling points (farm-data/products/<listing id>/selling-points.md). Check the angle log (farm-data/angle-log.json) so this product's angle and hook don't repeat, and record this video's angle and hook there. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
+      "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
       "needs": [
-        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+        "Mila (an AI agent) to read the script against the farm laws"
       ],
-      "since": "2026-11-25 16:29",
-      "sent_back": [
-        "script line 5 sets up a before-and-after ('before/after') — never, for any product",
-        "script line 11 (CTA/caption) makes a banned health/beauty claim ('hair growth') — never on screen or in the caption, even if the listing says it"
-      ],
+      "since": "2026-11-25 16:59",
+      "sent_back": [],
       "run_id": "run-2026-11-25-2"
     },
     {

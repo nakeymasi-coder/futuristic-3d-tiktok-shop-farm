@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 14:40",
+  "generated_at": "2026-11-25 14:42",
   "rules_version": "2026-11-25f",
   "freeze": "ON",
   "runs": [
@@ -9,12 +9,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 4 (Product Photo) — no product photo attached — no photo in hand, no scene, no script, full stop",
+      "headline": "BLOCKED at Step 5 (Photo Match Check) — no match verdict recorded — the grabbed photo has not been checked against the listing's own image",
       "state": "BLOCKED",
-      "open_step": 4,
-      "open_step_name": "Product Photo",
-      "needs": "TikTok Shop Agent — needs: the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo",
-      "owner": "TikTok Shop Agent",
+      "open_step": 5,
+      "open_step_name": "Photo Match Check",
+      "needs": "Photo Match checker — needs: someone other than the grabber who can open the live listing to compare",
+      "owner": "Photo Match checker",
       "steps": [
         {
           "n": 1,
@@ -40,8 +40,8 @@
         {
           "n": 4,
           "name": "Product Photo",
-          "state": "WAITING",
-          "reason": "no product photo attached — no photo in hand, no scene, no script, full stop",
+          "state": "CLEARED",
+          "reason": "listing photo attached: bask-lather-scalp-stimulator-listing-1729385609961706380.png",
           "agent": "TikTok Shop Agent (grabs the listing photo)"
         },
         {
@@ -147,17 +147,36 @@
           ],
           "output": "steps/step3-pick/pick.md (sha256 08917f41a00e4a34…)",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 14:42",
+          "from": "TikTok Shop Agent",
+          "to": "Photo Match checker",
+          "step": 5,
+          "what": "job opened for Photo Match checker: match-verdict.md (written by record-match)",
+          "inputs": [
+            {
+              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
+              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
+            }
+          ],
+          "output": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png (sha256 f4560cb38c7d133a…)",
+          "result": "handed off"
         }
       ],
       "open_job": {
-        "step": 4,
-        "agent": "TikTok Shop Agent",
-        "job_file": "steps/step4-photo/JOB.md",
-        "job": "Pull the ACTUAL listing photo for the picked product from the listing itself and submit it. It becomes the only product description for every later step. No photo in hand = full stop.",
+        "step": 5,
+        "agent": "Photo Match checker",
+        "job_file": "steps/step5-match/JOB.md",
+        "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
         "needs": [
-          "the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo"
+          "someone other than the grabber who can open the live listing to compare"
         ],
-        "since": "2026-11-25 14:40",
+        "since": "2026-11-25 14:42",
         "sent_back": []
       }
     }

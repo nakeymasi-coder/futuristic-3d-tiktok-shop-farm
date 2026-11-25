@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-11-25 14:40",
+  "generated_at": "2026-11-25 14:42",
   "rules_version": "2026-11-25f",
   "jobs": [
     {
-      "step": 4,
-      "agent": "TikTok Shop Agent",
-      "job_file": "steps/step4-photo/JOB.md",
-      "job": "Pull the ACTUAL listing photo for the picked product from the listing itself and submit it. It becomes the only product description for every later step. No photo in hand = full stop.",
+      "step": 5,
+      "agent": "Photo Match checker",
+      "job_file": "steps/step5-match/JOB.md",
+      "job": "Compare the grabbed photo against the listing's own product image and the picked product's name. Record MATCH or NO-MATCH with record-match. You must not be the person who grabbed the photo. A mismatch blocks the run.",
       "needs": [
-        "the farm's TikTok Shop view of the listing (kept signed in) to save its real product photo"
+        "someone other than the grabber who can open the live listing to compare"
       ],
-      "since": "2026-11-25 14:40",
+      "since": "2026-11-25 14:42",
       "sent_back": [],
       "run_id": "run-2026-11-25-1"
     }

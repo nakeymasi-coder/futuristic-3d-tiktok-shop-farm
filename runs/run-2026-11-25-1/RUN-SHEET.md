@@ -46,3 +46,5 @@ HEADLINE: BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/
 - [2026-11-25 14:13] CHAIN: TikTok Scout → TikTok Shop Agent (Step 3) — handed off
 - [2026-11-25 14:40] SUBMIT: Step 3 by TikTok Shop Agent — pick.md
 - [2026-11-25 14:40] CHAIN: TikTok Shop Agent → TikTok Shop Agent (Step 4) — handed off
+- [2026-11-25 14:42] Step 4: listing photo attached (bask-lather-scalp-stimulator-listing-1729385609961706380.png), grabbed by TikTok Shop Agent.
+- [2026-11-25 14:42] CHAIN: TikTok Shop Agent → Photo Match checker (Step 5) — handed off

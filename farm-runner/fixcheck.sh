@@ -439,6 +439,7 @@ git clone -q $PB/origin.git $PB/farm2 2>/dev/null; cp -r "$ROOTF/farm-runner" "$
 OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home2 python3 $PB/farm2/farm-runner/runner.py status $RID 2>&1)
 expect "SHARED a second agent's computer pulls the run down first" "Step 2" "$OUT"
 [ -f $PB/home2/workspace/farm-runs/$RID/config.json ] && ok "SHARED run folder arrived on the second computer" "$RID" || bad "SHARED run folder missing on the second computer" ""
+[ -d $PB/home2/workspace/farm-runs/$RID/steps/step3-pick ] && [ -d $PB/home2/workspace/farm-runs/$RID/steps/step10-qc ] && ok "SHARED empty step folders come back after a sync" "step3-pick" || bad "SHARED empty step folders missing after sync" "$(ls $PB/home2/workspace/farm-runs/$RID/steps)"
 echo "scout notes from computer 2" > $PB/home2/workspace/farm-runs/$RID/steps/step2-scout/note2.txt
 OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home2 python3 $PB/farm2/farm-runner/runner.py status-export 2>&1)
 OUT=$(cd $PB && env -u FARM_NO_PUBLISH HOME=$PB/home python3 $PB/farm/farm-runner/runner.py status-export 2>&1)

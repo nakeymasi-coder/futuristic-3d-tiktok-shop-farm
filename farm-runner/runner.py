@@ -1129,7 +1129,10 @@ def sync_runs():
                 for m in tf.getmembers():
                     if m.name.startswith("/") or ".." in Path(m.name).parts:
                         raise RuntimeError(f"unsafe path in shared run {name}")
-                tf.extractall(tmpd)
+                tf.extractall(tmpd, filter="data")
+            # git keeps no empty folders: put every step folder back.
+            for d in STEP_DIRS.values():
+                (tmpd / "steps" / d).mkdir(parents=True, exist_ok=True)
             (tmpd / SYNC_MARK).write_text(rtree + "\n", encoding="utf-8")
             if local.exists():
                 shutil.rmtree(local)
@@ -2715,8 +2718,9 @@ def sync_chain(run, actor=None, submitted=None):
                 import contextlib, io
                 with contextlib.redirect_stdout(io.StringIO()):
                     cmd_handoff(argparse.Namespace(run=str(run)))
-        (run / "steps" / STEP_DIRS[info["step"]] / "JOB.md").write_text(
-            job_md(run, info), encoding="utf-8")
+        jd = run / "steps" / STEP_DIRS[info["step"]]
+        jd.mkdir(parents=True, exist_ok=True)
+        (jd / "JOB.md").write_text(job_md(run, info), encoding="utf-8")
     if info["kind"] == "agent":
         result = "sent back" if info["findings"] else "handed off"
     elif info["kind"] == "mila":

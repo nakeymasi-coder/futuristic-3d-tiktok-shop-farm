@@ -1841,6 +1841,9 @@ def cmd_check_rules(args):
         for lid in a.get("laws", []):
             if lid not in law_ids:
                 drift.append(f"agents.{a.get('step')}: law '{lid}' is not in laws")
+        if "own-step-handoff" not in a.get("laws", []):
+            drift.append(f"agents.{a.get('step')}: missing Glam's locked rule "
+                         "'own-step-handoff' (your step only, hand off, or BLOCKED)")
     runner = Path(args.runner) if getattr(args, "runner", None) else \
         Path(__file__).resolve()
     explicit_page = bool(getattr(args, "page", None))
@@ -2062,6 +2065,14 @@ def open_job_info(run):
             "reason": "complete through Step 10", "findings": []}
 
 
+def locked_rule_line():
+    """Glam's locked rule (Nov 25), printed at the top of EVERY job."""
+    law = next((l for l in RULES.get("laws", []) if l.get("id") == "own-step-handoff"), None)
+    if not law:
+        return ""
+    return f"## 🔒 LOCKED: {fill(law['title'])}\n{fill(law['text'])}\n"
+
+
 def mila_gate_job_md(run, info):
     n = info["step"]
     g = MILA_GATES[n]
@@ -2069,6 +2080,7 @@ def mila_gate_job_md(run, info):
     out = [f"# JOB — Step {n}: Mila (approval gate)",
            f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
            f"opened {now_stamp()} · posting freeze ON\n",
+           locked_rule_line(),
            "## Your job", g["job"].replace("<run>", cfg["run_id"]) + "\n",
            "## Check these (exact files)"]
     out += [f"- {f.relative_to(run)}  (sha256 {sha256_file(f)[:16]}…)"
@@ -2093,6 +2105,7 @@ def job_md(run, info):
     out.append(f"# JOB — Step {n}: {a.get('agent', '')}")
     out.append(f"Run: {cfg['run_id']} · rules version {RULES.get('version')} · "
                f"opened {now_stamp()} · posting freeze ON\n")
+    out.append(locked_rule_line())
     out.append("## Your job")
     out.append(fill(a.get("job", "")) + "\n")
     out.append("## Read these (exact files)")

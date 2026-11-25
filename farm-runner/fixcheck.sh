@@ -349,4 +349,14 @@ OUT=$(python3 "$TMPN/farm-runner/runner.py" check-rules 2>&1; echo "exit $?"); e
 echo "Ask $NM to help" >> "$TMPN/index.html"
 OUT=$(python3 "$TMPN/farm-runner/runner.py" check-rules 2>&1; echo "exit $?"); expect "a planted mention of the retired agent is caught" "index.html mentions $NM" "$OUT"
 rm -rf "$TMPN"
+# ---------- Glam's locked rule (Nov 25): your step only, hand off automatically, or BLOCKED
+RL=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p'); JL=$HOME/workspace/farm-runs/$RL/steps/step2-scout/JOB.md
+grep -q "LOCKED: Locked to your own step, then hand off" $JL && grep -q "report BLOCKED" $JL && ok "LOCKED rule at the top of the Scout's JOB.md" "$(grep -m1 LOCKED $JL)" || bad "LOCKED rule in JOB.md" "$(head -5 $JL)"
+OUT=$(python3 -c "import json;d=json.load(open('$ROOT2/farm-rules.json'));print(all('own-step-handoff' in a['laws'] for a in d['agents']), len(d['agents']))"); expect "LOCKED rule is on every agent" "^True 9" "$OUT"
+TMPL=$(mktemp -d); cp -r "$ROOT2/farm-runner" "$ROOT2/index.html" "$ROOT2/farm-rules.json" "$TMPL/"; rm -rf "$TMPL/farm-runner/__pycache__"
+python3 - "$TMPL/farm-rules.json" <<'PY2'
+import json,sys;p=sys.argv[1];d=json.load(open(p));d['agents'][0]['laws'].remove('own-step-handoff');json.dump(d,open(p,'w'))
+PY2
+OUT=$(python3 "$TMPL/farm-runner/runner.py" check-rules 2>&1; echo "exit $?"); expect "check-rules fails if an agent loses the locked rule" "missing Glam's locked rule" "$OUT"
+rm -rf "$TMPL"
 echo; echo "SUMMARY: $P passed, $F failed"

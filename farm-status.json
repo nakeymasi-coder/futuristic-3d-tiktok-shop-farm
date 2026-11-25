@@ -1,15 +1,145 @@
 {
-  "generated_at": "2026-11-25 16:26",
+  "generated_at": "2026-11-25 16:29",
   "rules_version": "2026-11-25g",
   "freeze": "ON",
   "runs": [
     {
-      "run_id": "run-2026-11-25-1",
-      "pick": "BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth",
-      "model": "",
-      "mode": "",
+      "run_id": "run-2026-11-24-1",
+      "pick": "MOCK — TEST Product (Test Brand). Listing ID 0000000000000000000. Picked from the mock showcase for runner verification only.",
+      "model": "Mock Model (TEST)",
+      "mode": "Get Ready With Me",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 6 (Script) — an approval is on file but it is not Mila's signed verdict (no valid signature) — a typed 'checker: Mila' never counts — waiting on Mila's signed script approval",
+      "headline": "BLOCKED at Step 2 (Scout) — scout findings on file but the story sentence does not pass — no 'Story:' line in scout.md. The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
+      "state": "STOPPED",
+      "open_step": 2,
+      "open_step_name": "Scout",
+      "needs": "sent back to TikTok Scout: scout findings on file but the story sentence does not pass — no 'Story:' line in scout.md. The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
+      "owner": "TikTok Scout",
+      "steps": [
+        {
+          "n": 1,
+          "name": "Start Run",
+          "state": "CLEARED",
+          "reason": "run created; config recorded from operator input",
+          "agent": "Indigo (creates the run)"
+        },
+        {
+          "n": 2,
+          "name": "Scout",
+          "state": "WAITING",
+          "reason": "scout findings on file but the story sentence does not pass — no 'Story:' line in scout.md. The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
+          "agent": "TikTok Scout"
+        },
+        {
+          "n": 3,
+          "name": "Pick",
+          "state": "BLOCKED",
+          "reason": "evidence exists, but an earlier gate has not cleared: pick recorded: MOCK — TEST Product (Test Brand). Listing ID 0000000000000000000. Picked from the mock showcase for runner verification only.",
+          "agent": "TikTok Shop Agent"
+        },
+        {
+          "n": 4,
+          "name": "Product Photo",
+          "state": "BLOCKED",
+          "reason": "evidence exists, but an earlier gate has not cleared: listing photo attached: listing-photo.webp",
+          "agent": "TikTok Shop Agent (grabs the listing photo)"
+        },
+        {
+          "n": 5,
+          "name": "Photo Match Check",
+          "state": "BLOCKED",
+          "reason": "evidence exists, but an earlier gate has not cleared: photo MATCH recorded by Mila (grabber: Indigo) against the listing's own image",
+          "agent": "A checker who did not grab the photo"
+        },
+        {
+          "n": 6,
+          "name": "Script",
+          "state": "INVALID",
+          "reason": "script FAILS the Step 6 script check (no-spoken-lines) — script.md carries no LINE rows with quoted spoken lines — there is nothing the script check can read; fix the script — Glam is not the first filter",
+          "agent": "Story Agent (writes or fixes the script)"
+        },
+        {
+          "n": 7,
+          "name": "Styled Image",
+          "state": "WAITING",
+          "reason": "model photo on file (styled-image.jpg) — waiting on Mila's model photo approval",
+          "agent": "Casting agent (Glam's uploaded model), then Mila approves"
+        },
+        {
+          "n": 8,
+          "name": "Package",
+          "state": "INVALID",
+          "reason": "package FAILS lint (CAPTION, DRAWN PRODUCT) — 2 blocking finding(s); run `lint` for detail",
+          "agent": "Story Agent + Video Agent (package)"
+        },
+        {
+          "n": 9,
+          "name": "Build",
+          "state": "INVALID",
+          "reason": "clip length check FAILS before Mila — MOCK-build-1.mp4: can't read its length — submit the build as an .mp4 straight from Video Express; MOCK-build-2.mp4: can't read its length — submit the build as an .mp4 straight from Video Express",
+          "agent": "Indigo (build)"
+        },
+        {
+          "n": 10,
+          "name": "Checks — Mila (QC owner)",
+          "state": "WAITING",
+          "reason": "the verdict on file was collected before verdicts were tied to the exact builds — Mila's check needs to be collected again for these builds",
+          "agent": "Mila (QC)"
+        },
+        {
+          "n": 11,
+          "name": "Caption & Post",
+          "state": "FROZEN",
+          "reason": "posting freeze is ON — the runner has no posting action; Step 11 never clears here",
+          "agent": "Glam (lifts the freeze)"
+        }
+      ],
+      "review_status": "Not ready — waiting on Mila's check",
+      "watch_links": [
+        {
+          "file": "MOCK-build-1.mp4",
+          "url": ""
+        },
+        {
+          "file": "MOCK-build-2.mp4",
+          "url": ""
+        }
+      ],
+      "is_test": true,
+      "handoffs": [
+        {
+          "at": "2026-11-25 01:20",
+          "from": "Start a Run",
+          "to": "TikTok Scout",
+          "step": 2,
+          "what": "SENT BACK to TikTok Scout: scout findings on file but the story sentence does not pass — no 'Story:' line in scout.md. The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
+          "inputs": [],
+          "output": "expected: steps/step2-scout/scout.md",
+          "result": "sent back"
+        }
+      ],
+      "open_job": {
+        "step": 2,
+        "agent": "TikTok Scout",
+        "job_file": "steps/step2-scout/JOB.md",
+        "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "needs": [
+          "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+        ],
+        "since": "2026-11-25 01:20",
+        "sent_back": [
+          "scout findings on file but the story sentence does not pass — no 'Story:' line in scout.md. The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)"
+        ]
+      }
+    },
+    {
+      "run_id": "run-2026-11-25-1",
+      "pick": "Turmeric + Honey Body Oil (Elowen Lab)",
+      "model": "Tuesday Blue Bob",
+      "mode": "Get Ready With Me",
+      "account": "@glamorousgrammyglowup",
+      "headline": "BLOCKED at Step 6 (Script) — script on file and passing the script check — waiting on Mila's script approval",
       "state": "BLOCKED",
       "open_step": 6,
       "open_step_name": "Script",
@@ -34,49 +164,49 @@
           "n": 3,
           "name": "Pick",
           "state": "CLEARED",
-          "reason": "pick recorded: BASK AND LATHER Scalp Stimulator Hair Growth Oil - Lightweight Rosemary & Mint Blend for Thicker, Fuller Hair, Alopecia Support & Hair Regrowth",
+          "reason": "pick recorded: Turmeric + Honey Body Oil (Elowen Lab)",
           "agent": "TikTok Shop Agent"
         },
         {
           "n": 4,
           "name": "Product Photo",
           "state": "CLEARED",
-          "reason": "listing photo attached: bask-lather-scalp-stimulator-listing-1729385609961706380.png",
+          "reason": "listing photo attached: turmeric-listing-photo-run-2026-11-25-1.webp",
           "agent": "TikTok Shop Agent (grabs the listing photo)"
         },
         {
           "n": 5,
           "name": "Photo Match Check",
           "state": "CLEARED",
-          "reason": "photo MATCH recorded by Photo Match Checker (grabber: TikTok Shop Agent) against the listing's own image",
+          "reason": "photo MATCH recorded by Independent Photo Match Checker (did not grab the photo) (grabber: TikTok Scout (Glam signed in, her Chrome)) against the listing's own image",
           "agent": "A checker who did not grab the photo"
         },
         {
           "n": 6,
           "name": "Script",
           "state": "WAITING",
-          "reason": "an approval is on file but it is not Mila's signed verdict (no valid signature) — a typed 'checker: Mila' never counts — waiting on Mila's signed script approval",
+          "reason": "script on file and passing the script check — waiting on Mila's script approval",
           "agent": "Mila (script approval)"
         },
         {
           "n": 7,
           "name": "Styled Image",
           "state": "WAITING",
-          "reason": "no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
+          "reason": "model photo on file (model-tuesday-blue-bob.jpg) — waiting on Mila's model photo approval",
           "agent": "Casting agent (Glam's uploaded model), then Mila approves"
         },
         {
           "n": 8,
           "name": "Package",
-          "state": "WAITING",
-          "reason": "no package on file (steps/step8-package/package.md)",
+          "state": "INVALID",
+          "reason": "package FAILS lint (CAPTION, DRAWN PRODUCT) — 5 blocking finding(s); run `lint` for detail",
           "agent": "Story Agent + Video Agent (package)"
         },
         {
           "n": 9,
           "name": "Build",
-          "state": "WAITING",
-          "reason": "no build files on file (steps/step9-builds/)",
+          "state": "INVALID",
+          "reason": "clip length check FAILS before Mila — FINAL-run-2026-11-25-1.mp4 runs 20.2 seconds — every clip is 8 seconds flat and the finished video is 4 clips plus the 1 to 2 second close-up (about 33.5 seconds)",
           "agent": "Indigo (build)"
         },
         {
@@ -94,300 +224,37 @@
           "agent": "Glam (lifts the freeze)"
         }
       ],
-      "review_status": "No build yet",
-      "watch_links": [],
+      "review_status": "Not ready — waiting on Mila's check",
+      "watch_links": [
+        {
+          "file": "FINAL-run-2026-11-25-1.mp4",
+          "url": ""
+        }
+      ],
       "is_test": false,
       "handoffs": [
         {
-          "at": "2026-11-25 13:56",
+          "at": "2026-11-25 01:20",
           "from": "Start a Run",
-          "to": "TikTok Scout",
-          "step": 2,
-          "what": "job opened for TikTok Scout: scout.md with real findings and a Story: line",
-          "inputs": [],
-          "output": "expected: steps/step2-scout/scout.md",
-          "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 14:12",
-          "from": "TikTok Scout",
-          "to": "TikTok Scout",
-          "step": 2,
-          "what": "TikTok Scout submitted; SENT BACK to TikTok Scout: scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
-          "inputs": [],
-          "output": "steps/step2-scout/scout.md (sha256 db8248191d7f02ed…)",
-          "result": "sent back"
-        },
-        {
-          "at": "2026-11-25 14:13",
-          "from": "TikTok Scout",
-          "to": "TikTok Shop Agent",
-          "step": 3,
-          "what": "job opened for TikTok Shop Agent: pick.md with a product: line and the listing ID/link",
-          "inputs": [
-            {
-              "file": "steps/step2-scout/scout.md",
-              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
-            }
-          ],
-          "output": "steps/step2-scout/scout.md (sha256 6432c62f850e75ae…)",
-          "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 14:40",
-          "from": "TikTok Shop Agent",
-          "to": "TikTok Shop Agent",
-          "step": 4,
-          "what": "job opened for TikTok Shop Agent: the real listing photo (an image file)",
-          "inputs": [
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
-            }
-          ],
-          "output": "steps/step3-pick/pick.md (sha256 08917f41a00e4a34…)",
-          "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 14:42",
-          "from": "TikTok Shop Agent",
-          "to": "Photo Match checker",
-          "step": 5,
-          "what": "job opened for Photo Match checker: match-verdict.md (written by record-match)",
-          "inputs": [
-            {
-              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
-            }
-          ],
-          "output": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png (sha256 f4560cb38c7d133a…)",
-          "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 14:44",
-          "from": "Photo Match Checker",
           "to": "Story Agent",
           "step": 6,
-          "what": "job opened for Story Agent: script.md",
+          "what": "SENT BACK to Story Agent: script line 5 stages the product in hands or motion — the product stays put with no hands on it; only the one declared show-it shot is allowed",
           "inputs": [
             {
               "file": "steps/step2-scout/scout.md",
-              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
+              "sha256": "368fe44c7bfed81cc6e5db7ad7d7f13a38c8b6d9dc874d940e8112b450d154ff"
             },
             {
               "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
+              "sha256": "65cf0de25c5172030a10711a919220c3e6b6811d4402e20a8bad77e6e2b8eb45"
             },
             {
-              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step4-photo/photo-source.md",
-              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
-            }
-          ],
-          "output": "steps/step5-match/match-verdict.md (sha256 b8e1652de44088ed…)",
-          "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 14:44",
-          "from": "Photo Match Checker",
-          "to": "Story Agent",
-          "step": 6,
-          "what": "job opened for Story Agent: script.md",
-          "inputs": [
-            {
-              "file": "steps/step2-scout/scout.md",
-              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
-            },
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
-            },
-            {
-              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step4-photo/photo-source.md",
-              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
-            }
-          ],
-          "output": "steps/step5-match/match-verdict.md (sha256 2a5b65f864e42f17…)",
-          "result": "handed off"
-        },
-        {
-          "at": "2026-11-25 14:45",
-          "from": "Story Agent",
-          "to": "Story Agent",
-          "step": 6,
-          "what": "Story Agent submitted; SENT BACK to Story Agent: script line 19 sets up a before-and-after ('hair flip') — never, for any product",
-          "inputs": [
-            {
-              "file": "steps/step2-scout/scout.md",
-              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
-            },
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
-            },
-            {
-              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step4-photo/photo-source.md",
-              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
-            }
-          ],
-          "output": "steps/step6-script/script.md (sha256 24403877021661a4…)",
-          "result": "sent back"
-        },
-        {
-          "at": "2026-11-25 14:46",
-          "from": "Story Agent",
-          "to": "Mila",
-          "step": 6,
-          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
-          "inputs": [
-            {
-              "file": "steps/step6-script/script.md",
-              "sha256": "e5b493d4c604d8b2957f827d574ea520525731a383d60fa1a3776aea0ff9ad5e"
-            }
-          ],
-          "output": "steps/step6-script/script.md (sha256 e5b493d4c604d8b2…)",
-          "result": "waiting on Mila"
-        },
-        {
-          "at": "2026-11-25 14:47",
-          "from": "Story Agent",
-          "to": "Mila",
-          "step": 6,
-          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
-          "inputs": [
-            {
-              "file": "steps/step6-script/script.md",
-              "sha256": "a2555d2e1d9dfc460ce65f04ecdeef433ef0a085466da18aac2c2d85ed317c73"
-            }
-          ],
-          "output": "steps/step6-script/script.md (sha256 a2555d2e1d9dfc46…)",
-          "result": "waiting on Mila"
-        },
-        {
-          "at": "2026-11-25 14:48",
-          "from": "Mila",
-          "to": "Story Agent",
-          "step": 6,
-          "what": "Mila submitted; SENT BACK to Story Agent: Mila sent the script back: LINE 3 'don't feel weighed down' promises a result the listing doesn't state; use 'It's lightweight, a quick little massage between your braids and twists.' Clips 1 and 4: add 'no bottles or products anywhere in frame' to the bathroom shots. Keep the opener's on-screen text off the label. Swap #selfcarenight for #scalpoil.",
-          "inputs": [
-            {
-              "file": "steps/step2-scout/scout.md",
-              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
-            },
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
-            },
-            {
-              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step4-photo/photo-source.md",
-              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
+              "file": "steps/step4-photo/turmeric-listing-photo-run-2026-11-25-1.webp",
+              "sha256": "adcc5df93ef091172ac5ce4aa690d81869df3c4325738577c334b043bf824396"
             }
           ],
           "output": "expected: steps/step6-script/script.md",
           "result": "sent back"
-        },
-        {
-          "at": "2026-11-25 14:48",
-          "from": "Story Agent",
-          "to": "Mila",
-          "step": 6,
-          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
-          "inputs": [
-            {
-              "file": "steps/step6-script/script.md",
-              "sha256": "8d3055d57341565d38461c7740316dec794697042f7a6b107433fbcd3a1c90bd"
-            }
-          ],
-          "output": "steps/step6-script/script.md (sha256 8d3055d57341565d…)",
-          "result": "waiting on Mila"
-        },
-        {
-          "at": "2026-11-25 14:49",
-          "from": "Mila",
-          "to": "Story Agent",
-          "step": 6,
-          "what": "Mila submitted; SENT BACK to Story Agent: Mila sent the script back: Earlier notes all fixed. New: add 'no bottles or products anywhere in frame' to clips 2 and 3; keep the on-screen 'linked below' CTA off the label; line 2 'a few drops straight on the parts' gives a dose the listing doesn't state, use 'Rosemary and mint, pressed right along the parts.'",
-          "inputs": [
-            {
-              "file": "steps/step2-scout/scout.md",
-              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
-            },
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
-            },
-            {
-              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step4-photo/photo-source.md",
-              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
-            }
-          ],
-          "output": "expected: steps/step6-script/script.md",
-          "result": "sent back"
-        },
-        {
-          "at": "2026-11-25 14:49",
-          "from": "Story Agent",
-          "to": "Mila",
-          "step": 6,
-          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
-          "inputs": [
-            {
-              "file": "steps/step6-script/script.md",
-              "sha256": "dcb15a000aeb5c21440c45e34ae3a2a64ba26c945f4b57348c5291a798f4f11f"
-            }
-          ],
-          "output": "steps/step6-script/script.md (sha256 dcb15a000aeb5c21…)",
-          "result": "waiting on Mila"
-        },
-        {
-          "at": "2026-11-25 14:50",
-          "from": "Mila",
-          "to": "Casting / Image Agent",
-          "step": 7,
-          "what": "job opened for Casting / Image Agent: the uploaded model photo (an image file)",
-          "inputs": [
-            {
-              "file": "steps/step6-script/script.md",
-              "sha256": "dcb15a000aeb5c21440c45e34ae3a2a64ba26c945f4b57348c5291a798f4f11f"
-            },
-            {
-              "file": "steps/step3-pick/pick.md",
-              "sha256": "08917f41a00e4a342ecf59c98507ff3ca9c26c392932386f4525d4c3e213aaf3"
-            },
-            {
-              "file": "steps/step4-photo/bask-lather-scalp-stimulator-listing-1729385609961706380.png",
-              "sha256": "f4560cb38c7d133a1be0735fdbda158181ba785eb9f00eae544b8f5ffb0bc98d"
-            },
-            {
-              "file": "steps/step4-photo/photo-source.md",
-              "sha256": "4e15ec6d5db89ef5ebf9eecd03d9d229e170fffec62bbba7c09d730b8483f70c"
-            }
-          ],
-          "output": "expected: steps/step7-styled/",
-          "result": "handed off"
         }
       ],
       "open_job": {
@@ -398,22 +265,22 @@
         "needs": [
           "Mila (an AI agent) to read the script against the farm laws"
         ],
-        "since": "2026-11-25 14:50",
+        "since": "2026-11-25 01:20",
         "sent_back": []
       }
     },
     {
       "run_id": "run-2026-11-25-2",
-      "pick": "Bask and Lather Scalp Stimulator Oil, Rosemary & Mint (listing 1729385609961706380)",
-      "model": "",
-      "mode": "",
+      "pick": "BASK AND LATHER Scalp Stimulator Hair Growth Oil (Bask and Lather Co)",
+      "model": "Amara",
+      "mode": "Get Ready With Me",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 2 (Scout) — no scout findings on file (steps/step2-scout/scout.md)",
-      "state": "BLOCKED",
-      "open_step": 2,
-      "open_step_name": "Scout",
-      "needs": "TikTok Scout — needs: the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends; an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
-      "owner": "TikTok Scout",
+      "headline": "STOPPED at Step 6 (Script) — script FAILS the Step 6 script check (before-after, health-claim) — script line 5 sets up a before-and-after ('before/after') — never, for any product; fix the script — Glam is not the first filter",
+      "state": "STOPPED",
+      "open_step": 6,
+      "open_step_name": "Script",
+      "needs": "sent back to Story Agent: script line 5 sets up a before-and-after ('before/after') — never, for any product",
+      "owner": "Story Agent",
       "steps": [
         {
           "n": 1,
@@ -425,64 +292,64 @@
         {
           "n": 2,
           "name": "Scout",
-          "state": "WAITING",
-          "reason": "no scout findings on file (steps/step2-scout/scout.md)",
+          "state": "CLEARED",
+          "reason": "scout findings + story sentence on file (smart story check passed)",
           "agent": "TikTok Scout"
         },
         {
           "n": 3,
           "name": "Pick",
-          "state": "WAITING",
-          "reason": "no pick record on file (steps/step3-pick/pick.md)",
+          "state": "CLEARED",
+          "reason": "pick recorded: BASK AND LATHER Scalp Stimulator Hair Growth Oil (Bask and Lather Co)",
           "agent": "TikTok Shop Agent"
         },
         {
           "n": 4,
           "name": "Product Photo",
-          "state": "WAITING",
-          "reason": "no product photo attached — no photo in hand, no scene, no script, full stop",
+          "state": "CLEARED",
+          "reason": "listing photo attached: bask-lather-listing-photo.png",
           "agent": "TikTok Shop Agent (grabs the listing photo)"
         },
         {
           "n": 5,
           "name": "Photo Match Check",
-          "state": "WAITING",
-          "reason": "no match verdict recorded — the grabbed photo has not been checked against the listing's own image",
+          "state": "CLEARED",
+          "reason": "photo MATCH recorded by Independent Photo Match Checker (did not grab the photo) (grabber: TikTok Scout (Glam signed in, her Chrome)) against the listing's own image",
           "agent": "A checker who did not grab the photo"
         },
         {
           "n": 6,
           "name": "Script",
-          "state": "WAITING",
-          "reason": "no script on file (steps/step6-script/script.md)",
+          "state": "INVALID",
+          "reason": "script FAILS the Step 6 script check (before-after, health-claim) — script line 5 sets up a before-and-after ('before/after') — never, for any product; fix the script — Glam is not the first filter",
           "agent": "Story Agent (writes or fixes the script)"
         },
         {
           "n": 7,
           "name": "Styled Image",
           "state": "WAITING",
-          "reason": "no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
+          "reason": "model photo on file (model-amara.jpg) — waiting on Mila's model photo approval",
           "agent": "Casting agent (Glam's uploaded model), then Mila approves"
         },
         {
           "n": 8,
           "name": "Package",
-          "state": "WAITING",
-          "reason": "no package on file (steps/step8-package/package.md)",
+          "state": "INVALID",
+          "reason": "package FAILS lint (BEFORE-AFTER, CAPTION, DRAWN PRODUCT) — 5 blocking finding(s); run `lint` for detail",
           "agent": "Story Agent + Video Agent (package)"
         },
         {
           "n": 9,
           "name": "Build",
-          "state": "WAITING",
-          "reason": "no build files on file (steps/step9-builds/)",
+          "state": "INVALID",
+          "reason": "clip length check FAILS before Mila — FINAL-run-2026-11-25-2.mp4 runs 22.7 seconds — every clip is 8 seconds flat and the finished video is 4 clips plus the 1 to 2 second close-up (about 33.5 seconds)",
           "agent": "Indigo (build)"
         },
         {
           "n": 10,
           "name": "Checks — Mila (QC owner)",
           "state": "WAITING",
-          "reason": "no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build",
+          "reason": "the verdict on file was collected before verdicts were tied to the exact builds — Mila's check needs to be collected again for these builds",
           "agent": "Mila (QC)"
         },
         {
@@ -493,12 +360,17 @@
           "agent": "Glam (lifts the freeze)"
         }
       ],
-      "review_status": "No build yet",
-      "watch_links": [],
+      "review_status": "Not ready — waiting on Mila's check",
+      "watch_links": [
+        {
+          "file": "FINAL-run-2026-11-25-2.mp4",
+          "url": ""
+        }
+      ],
       "is_test": false,
       "handoffs": [
         {
-          "at": "2026-11-25 15:40",
+          "at": "2026-11-25 01:03",
           "from": "Start a Run",
           "to": "TikTok Scout",
           "step": 2,
@@ -506,19 +378,36 @@
           "inputs": [],
           "output": "expected: steps/step2-scout/scout.md",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 01:20",
+          "from": "Start a Run",
+          "to": "TikTok Shop Agent",
+          "step": 3,
+          "what": "job opened for TikTok Shop Agent: pick.md with a product: line and the listing ID/link",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "f44e44bc690662f03bf7f39667ae9e84381b9114fdc61c30929d99e21090dd1f"
+            }
+          ],
+          "output": "expected: steps/step3-pick/pick.md",
+          "result": "handed off"
         }
       ],
       "open_job": {
-        "step": 2,
-        "agent": "TikTok Scout",
-        "job_file": "steps/step2-scout/JOB.md",
-        "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "step": 6,
+        "agent": "Story Agent",
+        "job_file": "steps/step6-script/JOB.md",
+        "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
         "needs": [
-          "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
-        "since": "2026-11-25 15:40",
-        "sent_back": []
+        "since": "2026-11-25 01:20",
+        "sent_back": [
+          "script line 5 sets up a before-and-after ('before/after') — never, for any product",
+          "script line 11 (CTA/caption) makes a banned health/beauty claim ('hair growth') — never on screen or in the caption, even if the listing says it"
+        ]
       }
     },
     {

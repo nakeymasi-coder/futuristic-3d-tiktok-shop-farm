@@ -1,19 +1,7 @@
 {
-  "generated_at": "2026-11-25 16:26",
+  "generated_at": "2026-11-25 16:29",
   "rules_version": "2026-11-25g",
   "jobs": [
-    {
-      "step": 6,
-      "agent": "Mila",
-      "job_file": "steps/step6-script/JOB.md",
-      "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
-      "needs": [
-        "Mila (an AI agent) to read the script against the farm laws"
-      ],
-      "since": "2026-11-25 14:50",
-      "sent_back": [],
-      "run_id": "run-2026-11-25-1"
-    },
     {
       "step": 2,
       "agent": "TikTok Scout",
@@ -23,8 +11,37 @@
         "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
       ],
-      "since": "2026-11-25 15:40",
+      "since": "2026-11-25 01:20",
+      "sent_back": [
+        "scout findings on file but the story sentence does not pass — no 'Story:' line in scout.md. The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)"
+      ],
+      "run_id": "run-2026-11-24-1"
+    },
+    {
+      "step": 6,
+      "agent": "Mila",
+      "job_file": "steps/step6-script/JOB.md",
+      "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+      "needs": [
+        "Mila (an AI agent) to read the script against the farm laws"
+      ],
+      "since": "2026-11-25 01:20",
       "sent_back": [],
+      "run_id": "run-2026-11-25-1"
+    },
+    {
+      "step": 6,
+      "agent": "Story Agent",
+      "job_file": "steps/step6-script/JOB.md",
+      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
+      "needs": [
+        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+      ],
+      "since": "2026-11-25 01:20",
+      "sent_back": [
+        "script line 5 sets up a before-and-after ('before/after') — never, for any product",
+        "script line 11 (CTA/caption) makes a banned health/beauty claim ('hair growth') — never on screen or in the caption, even if the listing says it"
+      ],
       "run_id": "run-2026-11-25-2"
     },
     {

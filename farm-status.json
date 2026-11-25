@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 15:40",
+  "generated_at": "2026-11-25 16:26",
   "rules_version": "2026-11-25g",
   "freeze": "ON",
   "runs": [
@@ -518,6 +518,125 @@
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
         "since": "2026-11-25 15:40",
+        "sent_back": []
+      }
+    },
+    {
+      "run_id": "run-2026-11-25-3",
+      "pick": "",
+      "model": "",
+      "mode": "",
+      "account": "@glamorousgrammyglowup",
+      "headline": "BLOCKED at Step 2 (Scout) — no scout findings on file (steps/step2-scout/scout.md)",
+      "state": "BLOCKED",
+      "open_step": 2,
+      "open_step_name": "Scout",
+      "needs": "TikTok Scout — needs: the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends; an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
+      "owner": "TikTok Scout",
+      "steps": [
+        {
+          "n": 1,
+          "name": "Start Run",
+          "state": "CLEARED",
+          "reason": "run created; config recorded from operator input",
+          "agent": "Indigo (creates the run)"
+        },
+        {
+          "n": 2,
+          "name": "Scout",
+          "state": "WAITING",
+          "reason": "no scout findings on file (steps/step2-scout/scout.md)",
+          "agent": "TikTok Scout"
+        },
+        {
+          "n": 3,
+          "name": "Pick",
+          "state": "WAITING",
+          "reason": "no pick record on file (steps/step3-pick/pick.md)",
+          "agent": "TikTok Shop Agent"
+        },
+        {
+          "n": 4,
+          "name": "Product Photo",
+          "state": "WAITING",
+          "reason": "no product photo attached — no photo in hand, no scene, no script, full stop",
+          "agent": "TikTok Shop Agent (grabs the listing photo)"
+        },
+        {
+          "n": 5,
+          "name": "Photo Match Check",
+          "state": "WAITING",
+          "reason": "no match verdict recorded — the grabbed photo has not been checked against the listing's own image",
+          "agent": "A checker who did not grab the photo"
+        },
+        {
+          "n": 6,
+          "name": "Script",
+          "state": "WAITING",
+          "reason": "no script on file (steps/step6-script/script.md)",
+          "agent": "Story Agent (writes or fixes the script)"
+        },
+        {
+          "n": 7,
+          "name": "Styled Image",
+          "state": "WAITING",
+          "reason": "no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
+          "agent": "Casting agent (Glam's uploaded model), then Mila approves"
+        },
+        {
+          "n": 8,
+          "name": "Package",
+          "state": "WAITING",
+          "reason": "no package on file (steps/step8-package/package.md)",
+          "agent": "Story Agent + Video Agent (package)"
+        },
+        {
+          "n": 9,
+          "name": "Build",
+          "state": "WAITING",
+          "reason": "no build files on file (steps/step9-builds/)",
+          "agent": "Indigo (build)"
+        },
+        {
+          "n": 10,
+          "name": "Checks — Mila (QC owner)",
+          "state": "WAITING",
+          "reason": "no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build",
+          "agent": "Mila (QC)"
+        },
+        {
+          "n": 11,
+          "name": "Caption & Post",
+          "state": "FROZEN",
+          "reason": "posting freeze is ON — the runner has no posting action; Step 11 never clears here",
+          "agent": "Glam (lifts the freeze)"
+        }
+      ],
+      "review_status": "No build yet",
+      "watch_links": [],
+      "is_test": false,
+      "handoffs": [
+        {
+          "at": "2026-11-25 16:26",
+          "from": "Start a Run",
+          "to": "TikTok Scout",
+          "step": 2,
+          "what": "job opened for TikTok Scout: scout.md with real findings and a Story: line",
+          "inputs": [],
+          "output": "expected: steps/step2-scout/scout.md",
+          "result": "handed off"
+        }
+      ],
+      "open_job": {
+        "step": 2,
+        "agent": "TikTok Scout",
+        "job_file": "steps/step2-scout/JOB.md",
+        "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "needs": [
+          "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
+          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+        ],
+        "since": "2026-11-25 16:26",
         "sent_back": []
       }
     }

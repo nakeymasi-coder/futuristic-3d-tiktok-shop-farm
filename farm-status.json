@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-25 17:02",
-  "rules_version": "2026-11-25i",
+  "generated_at": "2026-11-25 17:10",
+  "rules_version": "2026-11-25j",
   "freeze": "ON",
   "runs": [
     {
@@ -122,7 +122,7 @@
         "step": 2,
         "agent": "TikTok Scout",
         "job_file": "steps/step2-scout/JOB.md",
-        "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "job": "Trends-only quick check, capped at 10 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
         "needs": [
           "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -450,6 +450,21 @@
           ],
           "output": "steps/step6-script/script.md (sha256 bcd989506c0d4d0f…)",
           "result": "waiting on Mila"
+        },
+        {
+          "at": "2026-11-25 17:02",
+          "from": "Story Agent",
+          "to": "Mila",
+          "step": 6,
+          "what": "job opened for Mila: approve the exact script (steps/step6-script/script.md) or send it back with notes",
+          "inputs": [
+            {
+              "file": "steps/step6-script/script.md",
+              "sha256": "bcd989506c0d4d0f45be4512f36eab610e214f529cad669b3262551196068476"
+            }
+          ],
+          "output": "expected: Mila's approval or send-back",
+          "result": "waiting on Mila"
         }
       ],
       "open_job": {
@@ -460,7 +475,7 @@
         "needs": [
           "Mila (an AI agent) to read the script against the farm laws"
         ],
-        "since": "2026-11-25 16:59",
+        "since": "2026-11-25 17:02",
         "sent_back": []
       }
     },
@@ -574,7 +589,7 @@
         "step": 2,
         "agent": "TikTok Scout",
         "job_file": "steps/step2-scout/JOB.md",
-        "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+        "job": "Trends-only quick check, capped at 10 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
         "needs": [
           "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"

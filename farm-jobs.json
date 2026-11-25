@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-11-25 17:02",
-  "rules_version": "2026-11-25i",
+  "generated_at": "2026-11-25 17:10",
+  "rules_version": "2026-11-25j",
   "jobs": [
     {
       "step": 2,
       "agent": "TikTok Scout",
       "job_file": "steps/step2-scout/JOB.md",
-      "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "job": "Trends-only quick check, capped at 10 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
       "needs": [
         "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -37,7 +37,7 @@
       "needs": [
         "Mila (an AI agent) to read the script against the farm laws"
       ],
-      "since": "2026-11-25 16:59",
+      "since": "2026-11-25 17:02",
       "sent_back": [],
       "run_id": "run-2026-11-25-2"
     },
@@ -45,7 +45,7 @@
       "step": 2,
       "agent": "TikTok Scout",
       "job_file": "steps/step2-scout/JOB.md",
-      "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "job": "Trends-only quick check, capped at 10 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
       "needs": [
         "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"

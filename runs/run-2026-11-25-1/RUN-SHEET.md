@@ -52,3 +52,5 @@ HEADLINE: BLOCKED at Step 6 (Script) — no script on file (steps/step6-script/s
 - [2026-11-25 14:44] CHAIN: Photo Match Checker → Story Agent (Step 6) — handed off
 - [2026-11-25 14:44] Step 5: match verdict recorded — MATCH by Photo Match Checker (grabber: TikTok Shop Agent).
 - [2026-11-25 14:44] CHAIN: Photo Match Checker → Story Agent (Step 6) — handed off
+- [2026-11-25 14:45] SUBMIT: Step 6 by Story Agent — script.md
+- [2026-11-25 14:45] CHAIN: Story Agent → Story Agent (Step 6) — sent back

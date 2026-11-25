@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 14:44",
+  "generated_at": "2026-11-25 14:45",
   "rules_version": "2026-11-25f",
   "jobs": [
     {
@@ -10,8 +10,11 @@
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
       ],
-      "since": "2026-11-25 14:44",
-      "sent_back": [],
+      "since": "2026-11-25 14:45",
+      "sent_back": [
+        "script line 19 sets up a before-and-after ('hair flip') — never, for any product",
+        "script line 29 sets up a before-and-after ('hair flip') — never, for any product"
+      ],
       "run_id": "run-2026-11-25-1"
     }
   ]

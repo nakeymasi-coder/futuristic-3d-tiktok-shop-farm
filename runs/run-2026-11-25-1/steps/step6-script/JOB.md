@@ -1,5 +1,10 @@
+## ⚠ SENT BACK — fix these, then submit again
+
+- script line 19 sets up a before-and-after ('hair flip') — never, for any product
+- script line 29 sets up a before-and-after ('hair flip') — never, for any product
+
 # JOB — Step 6: Story Agent
-Run: run-2026-11-25-1 · rules version 2026-11-25f · opened 2026-11-25 14:44 · posting freeze ON
+Run: run-2026-11-25-1 · rules version 2026-11-25f · opened 2026-11-25 14:45 · posting freeze ON
 
 ## 🔒 LOCKED: Locked to your own step, then hand off
 Glam's rule, in her words: "they should hand off automatically to the next agent" and "Nobody should be off trying to do somebody else's job and then get stuck." Each agent does only its own step. The moment its step's output is complete, it hands it in with submit, and the next agent's job opens automatically. No side trips into another step's work: anything a later step needs is that step's job. If you can't finish your own step, stop right away and report BLOCKED: [what] - [why]. Don't search other routes, watch tutorials or stall.

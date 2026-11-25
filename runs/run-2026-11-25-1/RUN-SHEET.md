@@ -60,3 +60,5 @@ HEADLINE: BLOCKED at Step 6 (Script) — no script on file (steps/step6-script/s
 - [2026-11-25 14:47] CHAIN: Story Agent → Mila (Step 6) — waiting on Mila
 - [2026-11-25 14:48] Step 6: Mila's signed verdict placed — SENDBACK.
 - [2026-11-25 14:48] CHAIN: Mila → Story Agent (Step 6) — sent back
+- [2026-11-25 14:48] SUBMIT: Step 6 by Story Agent — script.md
+- [2026-11-25 14:48] CHAIN: Story Agent → Mila (Step 6) — waiting on Mila

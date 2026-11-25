@@ -1,11 +1,11 @@
 {
-  "sig": "[\"agent\", 6, \"Story Agent\", [\"Mila sent the script back: LINE 3 'don't feel weighed down' promises a result the listing doesn't state; use 'It's lightweight, a quick little massage between your braids and twists.' Clips 1 and 4: add 'no bottles or products anywhere in frame' to the bathroom shots. Keep the opener's on-screen text off the label. Swap #selfcarenight for #scalpoil.\"], \"\"]",
+  "sig": "[\"mila\", 6, \"Mila\", [], \"8d3055d57341565d38461c7740316dec794697042f7a6b107433fbcd3a1c90bd\"]",
   "opened_at": "2026-11-25 14:48",
-  "last_actor": "Mila",
+  "last_actor": "Story Agent",
   "open": {
-    "kind": "agent",
+    "kind": "mila",
     "step": 6,
-    "agent": "Story Agent",
-    "to": "Story Agent"
+    "agent": "Mila",
+    "to": "Mila"
   }
 }

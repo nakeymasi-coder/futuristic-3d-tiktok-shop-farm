@@ -5,22 +5,22 @@ Angle (Glam, Nov 25, this run): scalp care and how it feels. No damaged-edges or
 
 CTA: the scalp oil is linked below (on screen from the first second, and the caption's first line)
 
-Opener (0 to 3 s, Glam's call for this run): the real listing photo, full screen, unchanged. This opener replaces the end close-up (Glam, Nov 25): no listing photo at the end; total about 35 s. On-screen text: "When's the last time your scalp got some attention?"
+Opener (0 to 3 s, Glam's call for this run): the real listing photo, full screen, unchanged. This opener replaces the end close-up (Glam, Nov 25): no listing photo at the end; total about 35 s. On-screen text, placed off the label: "When's the last time your scalp got some attention?"
 
-Clip 1 (hook, model to camera, cozy bathroom, chest-up):
+Clip 1 (hook, model to camera, cozy bathroom, chest-up, no bottles or products anywhere in frame):
 LINE 1: "Sis, when's the last time your scalp got some attention?"
 
 Clip 2 (use shot: oil on her fingertips, pressing along her parts, the product itself out of frame):
 LINE 2: "Rosemary and mint, a few drops straight on the parts."
 
 Clip 3 (use shot: slow fingertip massage, eyes closed, relaxed):
-LINE 3: "It's lightweight, so your braids and twists don't feel weighed down."
+LINE 3: "It's lightweight, a quick little massage between your braids and twists."
 
-Clip 4 (model to camera, warm smile, same look as clip 1):
+Clip 4 (model to camera, warm smile, same look as clip 1, no bottles or products anywhere in frame):
 LINE 4: "Give your scalp some love tonight. Tap the orange cart."
 
 Caption first line: Scalp-care night with a rosemary and mint oil, linked below
-Hashtags: #scalpcare #rosemaryoil #naturalhaircare #selfcarenight #baskandlather
+Hashtags: #scalpcare #rosemaryoil #naturalhaircare #scalpoil #baskandlather
 
 Checks the Story Agent ran before submitting:
 - Every spoken line is 12 words or fewer; no numbers, prices or sold counts.
@@ -28,3 +28,5 @@ Checks the Story Agent ran before submitting:
 - No "I used it": she never says she used it, how long, or what it did.
 - No before-and-after of any kind.
 - Product only as the real listing photo; the AI never draws it.
+
+Mila's send-back (Nov 25) fixed: line 3 reworded with no result, no products in the bathroom shots, opener text off the label, #scalpoil.

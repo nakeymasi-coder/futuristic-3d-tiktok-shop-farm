@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 18:04",
+  "generated_at": "2026-11-25 18:06",
   "rules_version": "2026-11-25m",
   "jobs": [
     {
@@ -39,7 +39,7 @@
       "needs": [
         "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
       ],
-      "since": "2026-11-25 15:40",
+      "since": "2026-11-25 18:04",
       "sent_back": [],
       "run_id": "run-2026-11-25-2"
     },

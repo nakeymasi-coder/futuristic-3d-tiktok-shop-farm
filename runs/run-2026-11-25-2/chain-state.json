@@ -1,11 +1,11 @@
 {
-  "sig": "[\"agent\", 2, \"TikTok Scout\", [], \"\"]",
-  "opened_at": "2026-11-25 15:40",
+  "sig": "[\"agent\", 3, \"TikTok Shop Agent\", [], \"\"]",
+  "opened_at": "2026-11-25 18:04",
   "last_actor": "Start a Run",
   "open": {
     "kind": "agent",
-    "step": 2,
-    "agent": "TikTok Scout",
-    "to": "TikTok Scout"
+    "step": 3,
+    "agent": "TikTok Shop Agent",
+    "to": "TikTok Shop Agent"
   }
 }

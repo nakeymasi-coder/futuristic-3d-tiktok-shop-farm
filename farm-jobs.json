@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 13:56",
+  "generated_at": "2026-11-25 14:12",
   "rules_version": "2026-11-25f",
   "jobs": [
     {
@@ -11,8 +11,10 @@
         "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
       ],
-      "since": "2026-11-25 13:56",
-      "sent_back": [],
+      "since": "2026-11-25 14:12",
+      "sent_back": [
+        "scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)"
+      ],
       "run_id": "run-2026-11-25-1"
     }
   ]

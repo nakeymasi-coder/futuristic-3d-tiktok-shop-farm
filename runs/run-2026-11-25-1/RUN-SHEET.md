@@ -23,3 +23,5 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 ## GATE LOG (appended by the runner only — never hand-edited)
 - [2026-11-25 13:56] Run created by Glam (Start Run). Statuses start empty; they are earned by evidence only.
 - [2026-11-25 13:56] CHAIN: Start a Run → TikTok Scout (Step 2) — handed off
+- [2026-11-25 14:12] SUBMIT: Step 2 by TikTok Scout — scout.md
+- [2026-11-25 14:12] CHAIN: TikTok Scout → TikTok Scout (Step 2) — sent back

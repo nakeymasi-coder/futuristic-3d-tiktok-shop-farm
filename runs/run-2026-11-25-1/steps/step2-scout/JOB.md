@@ -1,5 +1,9 @@
+## ⚠ SENT BACK — fix these, then submit again
+
+- scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)
+
 # JOB — Step 2: TikTok Scout
-Run: run-2026-11-25-1 · rules version 2026-11-25f · opened 2026-11-25 13:56 · posting freeze ON
+Run: run-2026-11-25-1 · rules version 2026-11-25f · opened 2026-11-25 14:12 · posting freeze ON
 
 ## 🔒 LOCKED: Locked to your own step, then hand off
 Glam's rule, in her words: "they should hand off automatically to the next agent" and "Nobody should be off trying to do somebody else's job and then get stuck." Each agent does only its own step. The moment its step's output is complete, it hands it in with submit, and the next agent's job opens automatically. No side trips into another step's work: anything a later step needs is that step's job. If you can't finish your own step, stop right away and report BLOCKED: [what] - [why]. Don't search other routes, watch tutorials or stall.

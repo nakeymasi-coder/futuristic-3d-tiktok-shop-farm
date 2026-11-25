@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 13:56",
+  "generated_at": "2026-11-25 14:12",
   "rules_version": "2026-11-25f",
   "freeze": "ON",
   "runs": [
@@ -9,11 +9,11 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 2 (Scout) — no scout findings on file (steps/step2-scout/scout.md)",
-      "state": "BLOCKED",
+      "headline": "BLOCKED at Step 2 (Scout) — scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
+      "state": "STOPPED",
       "open_step": 2,
       "open_step_name": "Scout",
-      "needs": "TikTok Scout — needs: the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends; an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
+      "needs": "sent back to TikTok Scout: scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
       "owner": "TikTok Scout",
       "steps": [
         {
@@ -27,7 +27,7 @@
           "n": 2,
           "name": "Scout",
           "state": "WAITING",
-          "reason": "no scout findings on file (steps/step2-scout/scout.md)",
+          "reason": "scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
           "agent": "TikTok Scout"
         },
         {
@@ -107,6 +107,16 @@
           "inputs": [],
           "output": "expected: steps/step2-scout/scout.md",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 14:12",
+          "from": "TikTok Scout",
+          "to": "TikTok Scout",
+          "step": 2,
+          "what": "TikTok Scout submitted; SENT BACK to TikTok Scout: scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)",
+          "inputs": [],
+          "output": "steps/step2-scout/scout.md (sha256 db8248191d7f02ed…)",
+          "result": "sent back"
         }
       ],
       "open_job": {
@@ -118,8 +128,10 @@
           "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
           "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
-        "since": "2026-11-25 13:56",
-        "sent_back": []
+        "since": "2026-11-25 14:12",
+        "sent_back": [
+          "scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)"
+        ]
       }
     }
   ]

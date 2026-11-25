@@ -26,3 +26,5 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-25 17:58] CLAIM: Step 2 by TikTok Scout (muse_farm-agent-scout) — 10-minute cap
 - [2026-11-25 18:04] CHAIN: Start a Run → TikTok Shop Agent (Step 3) — handed off
 - [2026-11-25 18:08] CLAIM: Step 3 by TikTok Shop Agent (muse_farm-agent-shop) — 5-minute cap
+- [2026-11-25 18:08] BLOCKED: Step 3 — TikTok Shop Agent: No lineup product has a saved real listing photo — farm-data/products/ is empty and all 14 weekly-lineup products carry photo_status BLOCKED (Streamer Desktop sign-in needed, Glam signs in herself). No pick can be finalized: Step 3 requires a lineup product whose real listing photos are saved, and Step 4 cannot attach a photo that does not exist. No substitute photo will be used.
+- [2026-11-25 18:08] BLOCKED: Step 2 — TikTok Scout: time cap reached: claimed at 2026-11-25 17:58, 10-minute cap, nothing handed in

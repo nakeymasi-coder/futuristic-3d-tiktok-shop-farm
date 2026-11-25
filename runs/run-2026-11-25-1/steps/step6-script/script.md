@@ -16,7 +16,7 @@ LINE 2: "Rosemary and mint, a few drops straight on the parts."
 Clip 3 (use shot: slow fingertip massage, eyes closed, relaxed):
 LINE 3: "It's lightweight, so your braids and twists don't feel weighed down."
 
-Clip 4 (model to camera, warm smile, no reveal or hair flip):
+Clip 4 (model to camera, warm smile, same look as clip 1):
 LINE 4: "Give your scalp some love tonight. Tap the orange cart."
 
 Caption first line: Scalp-care night with a rosemary and mint oil, linked below
@@ -26,5 +26,5 @@ Checks the Story Agent ran before submitting:
 - Every spoken line is 12 words or fewer; no numbers, prices or sold counts.
 - No growth, regrowth, thickness, alopecia or any result promised, in lines, on-screen text, CTA, caption or hashtags.
 - No "I used it": she never says she used it, how long, or what it did.
-- No before-and-after: no reveal, hair flip or "after" shot after the use shots.
+- No before-and-after of any kind.
 - Product only as the real listing photo; the AI never draws it.

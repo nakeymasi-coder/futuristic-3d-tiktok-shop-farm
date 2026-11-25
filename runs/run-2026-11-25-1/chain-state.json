@@ -1,11 +1,11 @@
 {
-  "sig": "[\"agent\", 6, \"Story Agent\", [\"script line 19 sets up a before-and-after ('hair flip') \u2014 never, for any product\", \"script line 29 sets up a before-and-after ('hair flip') \u2014 never, for any product\"], \"24403877021661a42487be41f3beda7aefa88a33ebb261a2edcfe917de2bb790\"]",
-  "opened_at": "2026-11-25 14:45",
+  "sig": "[\"mila\", 6, \"Mila\", [], \"e5b493d4c604d8b2957f827d574ea520525731a383d60fa1a3776aea0ff9ad5e\"]",
+  "opened_at": "2026-11-25 14:46",
   "last_actor": "Story Agent",
   "open": {
-    "kind": "agent",
+    "kind": "mila",
     "step": 6,
-    "agent": "Story Agent",
-    "to": "Story Agent"
+    "agent": "Mila",
+    "to": "Mila"
   }
 }

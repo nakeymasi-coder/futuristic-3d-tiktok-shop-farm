@@ -1,11 +1,11 @@
 {
-  "sig": "[\"agent\", 2, \"TikTok Scout\", [\"scout findings on file but the story sentence does not pass \u2014 story sentence FAILED the smart story check \u2014 it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)\"], \"db8248191d7f02ed062d592d6473730e9f8a105f77bd5b0769f512322f187483\"]",
-  "opened_at": "2026-11-25 14:12",
+  "sig": "[\"agent\", 3, \"TikTok Shop Agent\", [], \"6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860\"]",
+  "opened_at": "2026-11-25 14:13",
   "last_actor": "TikTok Scout",
   "open": {
     "kind": "agent",
-    "step": 2,
-    "agent": "TikTok Scout",
-    "to": "TikTok Scout"
+    "step": 3,
+    "agent": "TikTok Shop Agent",
+    "to": "TikTok Shop Agent"
   }
 }

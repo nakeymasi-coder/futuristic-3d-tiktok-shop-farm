@@ -43,3 +43,4 @@ HEADLINE: BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/
 - [2026-11-25 14:12] SUBMIT: Step 2 by TikTok Scout — scout.md
 - [2026-11-25 14:12] CHAIN: TikTok Scout → TikTok Scout (Step 2) — sent back
 - [2026-11-25 14:12] SUBMIT: Step 2 by TikTok Scout — scout.md
+- [2026-11-25 14:13] CHAIN: TikTok Scout → TikTok Shop Agent (Step 3) — handed off

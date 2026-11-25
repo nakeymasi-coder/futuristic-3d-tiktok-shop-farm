@@ -117,6 +117,21 @@
           "inputs": [],
           "output": "steps/step2-scout/scout.md (sha256 db8248191d7f02ed…)",
           "result": "sent back"
+        },
+        {
+          "at": "2026-11-25 14:13",
+          "from": "TikTok Scout",
+          "to": "TikTok Shop Agent",
+          "step": 3,
+          "what": "job opened for TikTok Shop Agent: pick.md with a product: line and the listing ID/link",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "6432c62f850e75aea0885303904122d551e7156a1867bf18600c594b33931860"
+            }
+          ],
+          "output": "steps/step2-scout/scout.md (sha256 6432c62f850e75ae…)",
+          "result": "handed off"
         }
       ],
       "open_job": {
@@ -127,7 +142,7 @@
         "needs": [
           "the farm's TikTok Shop seller view (kept signed in) to see the showcase, what's selling and what's sold out"
         ],
-        "since": "2026-11-25 14:12",
+        "since": "2026-11-25 14:13",
         "sent_back": []
       }
     }

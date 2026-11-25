@@ -95,7 +95,7 @@
         "the Mila sign workflow (.github/workflows/mila-sign.yml), run with her own session id",
         "Mila's public key registered in farm-rules.json mila_signing.public_key (from the workflow's show-key mode, with Glam's yes)"
       ],
-      "trigger_id": "",
+      "trigger_id": "trig_01Hx9r53NcUvein4EcnyeCUv",
       "session_id": ""
     }
   ],

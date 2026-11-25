@@ -1,11 +1,11 @@
 {
-  "sig": "[\"agent\", 6, \"Story Agent\", [], \"\"]",
-  "opened_at": "2026-11-25 21:05",
-  "last_actor": "Photo Match checker",
+  "sig": "[\"mila\", 6, \"Mila\", [], \"2b8936dc333b921786a3efaa4c5f685f6a74ee71f48b6b688d52b074ce6caa73\"]",
+  "opened_at": "2026-11-25 21:07",
+  "last_actor": "Story Agent",
   "open": {
-    "kind": "agent",
+    "kind": "mila",
     "step": 6,
-    "agent": "Story Agent",
-    "to": "Story Agent"
+    "agent": "Mila",
+    "to": "Mila"
   }
 }

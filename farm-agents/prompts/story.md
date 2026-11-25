@@ -26,6 +26,7 @@ A farm change lives in the repo first. Muse jobs only follow what's on main: pul
    This pulls every shared run from the farm-status branch. Then read farm-jobs.json and find the open job for YOUR role. If the firing text names a run, use that run.
 4. If there is no open job for your role, stop. Your last message is: "No open job for <your role>."
 5. Read that run's JOB.md for your step (workspace/farm-runs/<run>/steps/<step folder>/JOB.md) and do exactly what it says.
+6. Claim your step before you start: python3 farm-runner/runner.py claim <run id> --step <your step> --by "<your role>" --session <your id>. Your time cap starts then (Scout 10 minutes, every other job 5). A hand-in past the cap is refused and BLOCKED goes on the board.
 
 ## If you are blocked
 - Time cap: 5 minutes per job. At the cap, hand in what you have, or run report-blocked with the reason.

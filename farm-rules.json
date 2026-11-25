@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25j",
+  "version": "2026-11-25k",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -15,7 +15,9 @@
     "caption_search_words_max": 5,
     "shop_posts_per_day": 3,
     "agents": 9,
-    "modes": 12
+    "modes": 12,
+    "scout_time_cap_minutes": 10,
+    "job_time_cap_minutes": 5
   },
   "run_order": [
     {

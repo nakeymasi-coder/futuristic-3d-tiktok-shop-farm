@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 18:37",
+  "generated_at": "2026-11-25 18:39",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -688,11 +688,11 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/pick.md)",
-      "state": "BLOCKED",
+      "headline": "BLOCKED at Step 3 — TikTok Shop Agent reported BLOCKED: Streamer Desktop sign-in wall: TikTok Shop Streamer Desktop / LIVE Manager (shop.tiktok.com/streamer/) redirected to business.tiktok.com/us/creator/live showing Log in / Join now — not signed in as glamorousgrammyglowup, so the live stock and price check on the picked product (Turmeric + Honey Body Oil, listing 1731203941857530625) could not be done. No sign-in attempted; Glam signs in herself. No CAPTCHA seen. (2026-11-25 18:39)",
+      "state": "STOPPED",
       "open_step": 3,
       "open_step_name": "Pick",
-      "needs": "TikTok Shop Agent — needs: TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product",
+      "needs": "TikTok Shop Agent reported BLOCKED: Streamer Desktop sign-in wall: TikTok Shop Streamer Desktop / LIVE Manager (shop.tiktok.com/streamer/) redirected to business.tiktok.com/us/creator/live showing Log in / Join now — not signed in as glamorousgrammyglowup, so the live stock and price check on the picked product (Turmeric + Honey Body Oil, listing 1731203941857530625) could not be done. No sign-in attempted; Glam signs in herself. No CAPTCHA seen.",
       "owner": "TikTok Shop Agent",
       "steps": [
         {

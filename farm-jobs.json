@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-11-25 14:49",
+  "generated_at": "2026-11-25 14:50",
   "rules_version": "2026-11-25f",
   "jobs": [
     {
-      "step": 6,
-      "agent": "Mila",
-      "job_file": "steps/step6-script/JOB.md",
-      "job": "Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script <run> --by Mila. If not, send it back to the Story Agent: runner.py approve-script <run> --by Mila --send-back \"what to fix\". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+      "step": 7,
+      "agent": "Casting / Image Agent",
+      "job_file": "steps/step7-styled/JOB.md",
+      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves with her signed verdict file it (or sends it back with notes).",
       "needs": [
-        "Mila (an AI agent) to read the script against the farm laws"
+        "access to Glam's uploaded model photos"
       ],
-      "since": "2026-11-25 14:49",
+      "since": "2026-11-25 14:50",
       "sent_back": [],
       "run_id": "run-2026-11-25-1"
     }

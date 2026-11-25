@@ -1,6 +1,6 @@
 # Scout findings — run-2026-11-25-1 — 2026-11-25 (read in Glam's Chrome, signed in as @glamorousgrammyglowup)
 
-Story: For my 40-and-over ladies whose edges took years of tight styles, this is the little scalp-care routine I'd hand you myself.
+Story: For my grown ladies whose edges took years of tight styles, this is the little scalp-care routine I'd hand you myself.
 
 ## What's working on @glamorousgrammyglowup (TikTok profile, read 2026-11-25 ~9:05 AM ET)
 - 33.4K followers. Top videos by views: "40 and over" reply talk 1.4M; TikTok tips 230.1K; caregiver back-story 111.3K and 109.9K; Christmas carols skit 53.3K; turmeric oil hands-and-feet Shop video 53.7K; "50 and over" 48.1K.

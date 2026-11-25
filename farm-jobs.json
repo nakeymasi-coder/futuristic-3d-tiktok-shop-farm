@@ -1,20 +1,17 @@
 {
-  "generated_at": "2026-11-25 14:12",
+  "generated_at": "2026-11-25 14:13",
   "rules_version": "2026-11-25f",
   "jobs": [
     {
-      "step": 2,
-      "agent": "TikTok Scout",
-      "job_file": "steps/step2-scout/JOB.md",
-      "job": "Find what is rising on TikTok today for the shop account (trending sounds, hashtags, Shop best sellers, top videos in the category) and put real, named, dated findings on the run. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "step": 3,
+      "agent": "TikTok Shop Agent",
+      "job_file": "steps/step3-pick/JOB.md",
+      "job": "Read the Scout's findings and pick the product from what's actually selling in the showcase. A selling product may repeat any day; skip sold-out products. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
       "needs": [
-        "the farm's TikTok browser (Glam keeps it signed in) to read the Shop showcase, best sellers and trends",
-        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+        "the farm's TikTok Shop seller view (kept signed in) to see the showcase, what's selling and what's sold out"
       ],
       "since": "2026-11-25 14:12",
-      "sent_back": [
-        "scout findings on file but the story sentence does not pass — story sentence FAILED the smart story check — it contains a number: it names a spec, not a person (label copy does not leave the Scout). The Scout does not hand off without one real sentence in Glam's voice: who this is for and why they'd care (a 'Story:' line in steps/step2-scout/scout.md)"
-      ],
+      "sent_back": [],
       "run_id": "run-2026-11-25-1"
     }
   ]

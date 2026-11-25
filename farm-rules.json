@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25k",
+  "version": "2026-11-25l",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -17,7 +17,9 @@
     "agents": 9,
     "modes": 12,
     "scout_time_cap_minutes": 10,
-    "job_time_cap_minutes": 5
+    "job_time_cap_minutes": 5,
+    "weekly_lineup_time_cap_minutes": 10,
+    "photo_finisher_time_cap_minutes": 10
   },
   "run_order": [
     {
@@ -204,8 +206,8 @@
     },
     {
       "id": "time-cap",
-      "title": "Time cap: Scout 10 minutes, every other job 5",
-      "text": "The Scout gets a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, it hands in what it has, or runs report-blocked with the reason."
+      "title": "Time cap: Scout, weekly lineup and photo finisher 10 minutes, every other job 5",
+      "text": "The Scout, the weekly lineup job and the photo finisher job each get a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, a run step hands in what it has, or runs report-blocked with the reason; the weekly lineup and the photo finisher save what they have and stop."
     },
     {
       "id": "scout-trends-only",
@@ -220,7 +222,7 @@
     {
       "id": "weekly-lineup",
       "title": "Weekly lineup",
-      "text": "Once a week, pick that week's products to promote from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily. Save it in the repo (farm-data/weekly-lineup.json)."
+      "text": "Once a week, pick that week's products to promote from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily. Save it in the repo (farm-data/weekly-lineup.json). It stays inside 10 minutes per run; at the cap, it saves what it has and stops."
     },
     {
       "id": "photos-ahead",
@@ -265,7 +267,7 @@
     {
       "id": "photo-finisher",
       "title": "Photo finisher job",
-      "text": "The photo finisher job works through the lineup's blocked photos a few at a time, turmeric staples first, and skips any already saved. It stays inside 5 minutes per run and saves real listing photos only. A photo that won't download stays BLOCKED with the reason."
+      "text": "The photo finisher job works through the lineup's blocked photos a few at a time, turmeric staples first, and skips any already saved. It stays inside 10 minutes per run and saves real listing photos only. A photo that won't download stays BLOCKED with the reason."
     },
     {
       "id": "repo-first",

@@ -88,10 +88,12 @@
         10
       ],
       "prompt": "prompts/mila.md",
-      "mode": "ONE persistent session (fires into the same session every time), no schedule",
+      "mode": "fresh session per fire (its own routine), no schedule",
       "next": "whoever the runner opens next",
       "needs": [
-        "her own key, made in her own session with runner.py mila-keygen"
+        "the repo secret MILA_SIGNING_SEED (Glam's own passphrase; only the Mila sign workflow reads it)",
+        "the Mila sign workflow (.github/workflows/mila-sign.yml), run with her own session id",
+        "Mila's public key registered in farm-rules.json mila_signing.public_key (from the workflow's show-key mode, with Glam's yes)"
       ],
       "trigger_id": "",
       "session_id": ""

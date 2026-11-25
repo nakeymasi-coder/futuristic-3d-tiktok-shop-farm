@@ -1,0 +1,114 @@
+# Mila sign — Glam, Nov 25 (Option 1). Mila's signing key lives ONLY in the
+# repo secret MILA_SIGNING_SEED (Glam's own passphrase). No Claude session ever
+# holds it. Mila's own session reviews the work, then runs this workflow with
+# her verdict and her session id; this workflow signs (the signature covers her
+# session id and the exact files) and places the verdict on the run.
+name: Mila sign
+run-name: "Mila ${{ inputs.mode }} · ${{ inputs.run }} step ${{ inputs.step }} · ${{ inputs.verdict }} · ${{ inputs.session }}"
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "sign (place a verdict) or show-key (print Mila's PUBLIC key to register)"
+        required: true
+        default: sign
+        type: choice
+        options: [sign, show-key]
+      run:
+        description: "Run id, e.g. run-2026-11-25-2"
+        required: false
+        default: ""
+      step:
+        description: "Step Mila is ruling on: 6 (script), 7 (model photo) or 10 (final QC)"
+        required: false
+        default: "6"
+        type: choice
+        options: ["6", "7", "10"]
+      verdict:
+        description: "APPROVE or SENDBACK for steps 6-7, PASS or FAIL for step 10"
+        required: false
+        default: ""
+      notes:
+        description: "What Mila checked and, if sending back, every fix needed"
+        required: false
+        default: ""
+      session:
+        description: "Mila's own session id (session_...)"
+        required: false
+        default: ""
+permissions:
+  contents: write
+concurrency:
+  group: farm-status
+  cancel-in-progress: false
+jobs:
+  mila:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make Mila's key from the secret (never printed)
+        env:
+          SEED_PHRASE: ${{ secrets.MILA_SIGNING_SEED }}
+        run: |
+          if [ -z "$SEED_PHRASE" ]; then
+            echo "::error::BLOCKED: the repo secret MILA_SIGNING_SEED is not set. Glam adds it once in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          umask 077
+          python3 -c "import hashlib,os;open(os.environ['RUNNER_TEMP']+'/mila-key','w').write(hashlib.sha256(os.environ['SEED_PHRASE'].encode()).hexdigest())"
+      - name: Show Mila's public key (to register in farm-rules.json)
+        if: ${{ inputs.mode == 'show-key' }}
+        run: |
+          python3 -c "import sys,os;sys.path.insert(0,'farm-runner');import ed25519 as e;print('Mila public key:', e.public_key(bytes.fromhex(open(os.environ['RUNNER_TEMP']+'/mila-key').read())).hex())"
+          rm -f "$RUNNER_TEMP/mila-key"
+      - name: Sign and place Mila's verdict
+        if: ${{ inputs.mode == 'sign' }}
+        env:
+          MILA_SIGNING_KEY: ${{ runner.temp }}/mila-key
+          FARM_HOME: ${{ runner.temp }}/farmhome
+          RUN_ID: ${{ inputs.run }}
+          STEP: ${{ inputs.step }}
+          VERDICT: ${{ inputs.verdict }}
+          NOTES: ${{ inputs.notes }}
+          SESSION: ${{ inputs.session }}
+        run: |
+          set -o pipefail
+          trap 'rm -f "$MILA_SIGNING_KEY"' EXIT
+          mkdir -p "$FARM_HOME"
+          export HOME="$FARM_HOME"
+          case "$SESSION" in session_*) ;; *) echo "::error::BLOCKED: Mila's own session id (session_...) is required."; exit 1;; esac
+          [ -n "$RUN_ID" ] || { echo "::error::BLOCKED: no run id given."; exit 1; }
+          python3 farm-runner/runner.py status-export | tee export.txt
+          : > out.txt
+          RUNDIR="$HOME/workspace/farm-runs/$RUN_ID"
+          [ -d "$RUNDIR" ] || { echo "::error::BLOCKED: run $RUN_ID not found on the shared farm."; exit 1; }
+          FILES=$(python3 - "$RUNDIR" "$STEP" <<'PY'
+          import sys
+          sys.path.insert(0, "farm-runner"); sys.argv = [sys.argv[0]] + sys.argv[1:]
+          from pathlib import Path
+          import runner as r
+          run, step = Path(sys.argv[1]), int(sys.argv[2])
+          if step == 6:
+              fs = [run / "steps" / r.STEP_DIRS[6] / "script.md"]
+          elif step == 7:
+              fs = r.files_with_ext(run / "steps" / r.STEP_DIRS[7], r.IMAGE_EXTS)
+          else:
+              fs = r.files_with_ext(run / "steps" / r.STEP_DIRS[9], r.VIDEO_EXTS)
+          fs = [f for f in fs if f.is_file()]
+          print("\n".join(str(f) for f in fs))
+          PY
+          )
+          [ -n "$FILES" ] || { echo "::error::BLOCKED: nothing on file for step $STEP to rule on."; exit 1; }
+          ARGS=(); while IFS= read -r f; do ARGS+=(--file "$f"); done <<< "$FILES"
+          OUT="$RUNNER_TEMP/mila-verdict.md"
+          python3 farm-runner/runner.py mila-sign --run "$RUN_ID" --step "$STEP" --verdict "$VERDICT" --notes "$NOTES" --session "$SESSION" "${ARGS[@]}" --out "$OUT" | tee -a out.txt
+          case "$STEP" in
+            6) python3 farm-runner/runner.py approve-script "$RUN_ID" --verdict-file "$OUT" --session "$SESSION" | tee -a out.txt ;;
+            7) python3 farm-runner/runner.py approve-image "$RUN_ID" --verdict-file "$OUT" --session "$SESSION" | tee -a out.txt ;;
+            10) python3 farm-runner/runner.py submit "$RUN_ID" --step 10 --by Mila --file "$OUT" --session "$SESSION" | tee -a out.txt ;;
+          esac
+          if grep -q "REFUSED\|BLOCKED\|STATUS NOT PUBLISHED" out.txt; then
+            echo "::error::Mila's verdict did not go through. See the lines above."
+            exit 1
+          fi
+          echo "MILA VERDICT PLACED: $RUN_ID step $STEP $VERDICT by session $SESSION"

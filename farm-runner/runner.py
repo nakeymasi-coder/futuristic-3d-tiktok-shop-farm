@@ -936,8 +936,9 @@ def mila_verify(path, run_id, step, paths):
     pub = mila_public_key()
     if not pub:
         return False, ("Mila's key isn't registered yet (farm-rules.json "
-                       "mila_signing.public_key is empty) — Mila's own "
-                       "session makes it with runner.py mila-keygen"), kv
+                       "mila_signing.public_key is empty) — Glam registers "
+                       "the key the Mila sign workflow shows in show-key "
+                       "mode"), kv
     try:
         ok = _ed.verify(bytes.fromhex(pub), _signed_message(kv),
                         bytes.fromhex(kv.get("signature", "")))
@@ -1746,7 +1747,7 @@ def cmd_approve_script(args):
         return 2
     if not _can_sign():
         print("REFUSED — Mila's approvals count only from her signed verdict "
-              "file (runner.py mila-sign, dropped in Glam Claude Handoff); "
+              "file (made by the Mila sign workflow, mila-sign.yml); "
               "pass it with --verdict-file. Typing --by Mila is not enough.")
         return 2
     folder = run / "steps" / STEP_DIRS[6]
@@ -1805,7 +1806,7 @@ def cmd_approve_image(args):
         return 2
     if not _can_sign():
         print("REFUSED — Mila's approvals count only from her signed verdict "
-              "file (runner.py mila-sign, dropped in Glam Claude Handoff); "
+              "file (made by the Mila sign workflow, mila-sign.yml); "
               "pass it with --verdict-file. Typing --by Mila is not enough.")
         return 2
     folder = run / "steps" / STEP_DIRS[7]
@@ -2704,11 +2705,11 @@ def save_chain_state(run, st):
 # after Mila approve it ... Don't wait for my approval to make the video.")
 MILA_GATES = {
     6: {"what": "approve the exact script (steps/step6-script/script.md) or send it back with notes",
-        "job": "Read the script against the farm laws and the real listing photo. If it is right, approve it: runner.py approve-script <run> --by Mila. If not, send it back to the Story Agent: runner.py approve-script <run> --by Mila --send-back \"what to fix\". Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
         "files": lambda run: [run / "steps" / STEP_DIRS[6] / "script.md"],
         "needs": ["Mila (an AI agent) to read the script against the farm laws"]},
     7: {"what": "approve the model photo (steps/step7-styled/) or send it back with notes",
-        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. If it is right, approve it: runner.py approve-image <run> --verdict-file <your signed APPROVE verdict> (made with runner.py mila-sign). If not: runner.py approve-image <run> --verdict-file <your signed SENDBACK verdict>. The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 7, verdict APPROVE or SENDBACK, notes, and your own session id; it signs with the key only it holds. The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
         "files": lambda run: files_with_ext(run / "steps" / STEP_DIRS[7], IMAGE_EXTS),
         "needs": ["Mila (an AI agent) to look at the photo"]},
 }
@@ -2832,7 +2833,12 @@ def job_md(run, info):
             out.append(f"- {fill(laws[lid]['title'])}: {fill(laws[lid]['text'])}")
     out.append("\n## Hand in")
     out.append(f"- Output: {a.get('output', '')} → {a.get('output_file', '')}")
-    if n == 5:
+    if n == 10:
+        out.append("- Hand in ONLY by running the Mila sign workflow "
+                   f"(mila-sign.yml) with run {cfg['run_id']}, step 10, verdict "
+                   "PASS or FAIL, notes, and your own session id. It signs "
+                   "with the key only it holds and submits for you.")
+    elif n == 5:
         out.append("- Submit with: runner.py record-match "
                    f"{cfg['run_id']} --checker <you> --grabber <grabber> "
                    "--verdict MATCH|NO-MATCH")

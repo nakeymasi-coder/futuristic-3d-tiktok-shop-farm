@@ -1,10 +1,28 @@
 # Futuristic 3D TikTok Shop Farm
 
-Glam's futuristic 3D TikTok Shop agent farm - a showcase page in TikTok colors (black, cyan #25F4EE, pink #FE2C55) with a tilting 3D phone hero, nine clickable agent mission cards, an animated launch sequence, the Run Board, Farm Laws, and the Live Games menu.
-
-**Live page:** https://nakeymasi-coder.github.io/futuristic-3d-tiktok-shop-farm/
+Glam's TikTok Shop agent farm. **Live page:** https://nakeymasi-coder.github.io/futuristic-3d-tiktok-shop-farm/
 
 The live page only changes after Glam approves the change.
+
+## The farm is three things, and everything is in plain view
+
+1. **`farm-rules.json` — the master rules file.** Every farm rule lives here and only here: the laws, the 11-step run order, Mila's scorecard, the form options and modes, the numbers (words a line, clip seconds, hashtags), and every word list and pattern the runner checks. The farm page shows the whole file, readable, so everyone sees the same rules.
+2. **`farm-runner/runner.py` — the farm code.** It runs the farm from evidence in each run's folder, checks every gate, and never posts.
+3. **`index.html` — the farm page.** It reads `farm-rules.json` live and shows every run's live status on the **Live Run Board** (from `farm-status.json`), step by step, including what is BLOCKED, what it needs and who acts next.
+
+Also kept: this README (the operator guide), `manifest.webmanifest` and the icons (`icon-512.png`, `icon-192.png`, `apple-touch-icon.png`, `favicon-32.png`), and `farm-runner/fixcheck.sh` (the full test run).
+
+**Archive (read-only):** the old playbook, runbook and test log are kept, never deleted, at https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm/tree/main/archive. Nothing reads its rules from there.
+
+## How a rule changes now
+
+Glam approves → edit `farm-rules.json` once → run `python3 farm-runner/runner.py check-rules` → the page and the runner read it live, and Mila's handoff carries it on the next run.
+
+Numbers live once, in `"numbers"`. A law that says `{max_spoken_words_per_line}` is filled from there, so changing a number changes every sentence that uses it. `check-rules` fails if a `{placeholder}` has no number, if the page stops reading the rules or status file, or if anything reads an archived book.
+
+## Deploy note
+
+`farm-rules.json` must sit next to `runner.py`, in the folder above it, or in `~/workspace/` (or set `FARM_RULES` to its path). Without it, the runner stops with exit 4 and a plain message. It never falls back to an old copy. Copy `farm-rules.json` together with `runner.py` whenever the runner is updated.
 
 ## The 9 agents
 
@@ -16,14 +34,43 @@ The live page only changes after Glam approves the change.
 6. Indigo (Builder & Handoff)
 7. Caption & Post Agent
 8. Mila (Quality Control)
-9. TikTok Live Game Agent (A-09, LIVE ONLY) - watches Glam's TikTok Live chat, pulls the real people engaging (recent commenters, Top 10 Engagers), and builds a live game from those people: Names Wheel, Number Wheel 1 to 200, Top 10 Engagers Wheel, Top Engager Showdown, Trivia Pop, Last One Standing, Mystery Pumpkin Pick, Secret Word Drop, Closest Guess, Head-to-Head.
+9. TikTok Live Game Agent (A-09, LIVE ONLY): builds live games only from the real people engaging on Glam's live.
 
-## Files
+## Operating the runner, step by step
 
-- `index.html` - the whole farm, one self-contained page
-- `manifest.webmanifest` - install manifest (name, icons, colors)
-- `icon-512.png`, `icon-192.png`, `apple-touch-icon.png`, `favicon-32.png` - the farm's icon set
-- `merged-farm-playbook-v2.txt` - the farm playbook (page copy, GG skill, Video Express workflow)
-- `farm-runner/` - the farm runner: `runner.py` (the evidence-derived executor), `RUNBOOK.md` (how to operate it), `VERIFICATION.md` (the cheat tests and their results)
+The two laws: **the posting freeze is ON** (Step 11 is locked in code; the runner has no posting action, and only Glam lifts the freeze, outside the runner), and **no product plan** (the runner and the 2-hourly driver job never name a product; they only work the run folders that exist).
+
+A run is a folder: `~/workspace/farm-runs/run-<date>-<n>/`. Status is **derived from the evidence in that folder, never set by hand**. If a step's evidence isn't there, the step hasn't happened.
+
+Commands below are shown as `runner.py`; the live copy is `python3 ~/workspace/farm-runner/runner.py`.
+
+1. **Create the run:** `runner.py create` (optional `--mode "Get Ready With Me"`). A run starts empty; the product is picked at Step 3 and the model at Step 7.
+2. **Scout (Step 2):** put real, named findings in `steps/step2-scout/scout.md` with a `Story:` line, one real sentence in Glam's voice about who this is for and why they'd care. No passing story sentence, no handoff.
+3. **Pick (Step 3):** `steps/step3-pick/pick.md` with a `product:` line. This file is the pick.
+4. **Listing photo (Step 4):** `runner.py attach-photo <run> <photo-file> --by <who grabbed it>`. It must be the real listing photo.
+5. **Photo match (Step 5):** `runner.py record-match <run> --checker <name> --grabber <name> --verdict MATCH` (or `NO-MATCH`). The checker can't be the person who grabbed the photo.
+6. **Script (Step 6):** `steps/step6-script/script.md` with spoken lines on `LINE n:` rows (a `Hook:` row is checked too) and a `CTA:` line pointing below. The script check runs the laws from `farm-rules.json`. Show Glam the script, and only after she approves it run `runner.py approve-script <run>`. Her approval is tied to the exact script; any edit after that needs her approval again.
+7. **Model photo (Step 7):** Glam's best-fitting uploaded model photo, used as-is, goes in `steps/step7-styled/`.
+8. **Package (Step 8):** `steps/step8-package/package.md` with a `References:` line naming the approved model photo and the real listing photo. Check it with `runner.py lint <run>`.
+9. **Build (Step 9):** every Video Express build goes in `steps/step9-builds/`, good and bad. Put each video's Google Drive link in `steps/step9-builds/links.md` (`build-1.mp4: https://drive.google.com/...`) so it can be watched from the page.
+10. **Hand off to Mila (Step 10):** `runner.py handoff <run>` copies every build, the approved script and the listing photo to `~/workspace/farm-qc-handoff/<run-id>/`, with a `HANDOFF.md` that carries Mila's full scorecard and the farm laws from `farm-rules.json`. Mila writes `verdict.md` there.
+11. **Collect the verdict:** `runner.py collect-verdict <run>` collects it once, records exactly which builds it covers, and moves it to `verdict-collected-<time>.md`. A new or changed build waits on Mila again.
+12. **Review:** `runner.py review-manifest` rebuilds the review list. Glam's verdict is recorded with `runner.py review-decision <run> --decision approved` (or `sent-back`). Approval never posts.
+
+Anytime:
+
+- `runner.py status <run>`: the run's true status, derived.
+- `runner.py check <run> --to <step>`: verifies every earlier gate (2 through 11; 11 always refuses, freeze).
+- `runner.py drive <run>` / `runner.py drive-all`: advance runs to their next human gate (`drive-all` is what the scheduler calls).
+- `runner.py status-export`: writes `farm-status.json` for the page's Live Run Board.
+- `runner.py check-rules`: proves the rules file is complete and nothing reads an archived book.
+
+`status`, `drive`, `drive-all`, `review-manifest` and `review-decision` also rewrite `farm-status.json`. It goes next to the page when the runner sits in this repo, otherwise to `~/workspace/farm-status.json` (or wherever `FARM_STATUS_OUT` points).
+
+What the driver never does: post or touch TikTok, approve a script, pass a QC check, record Glam's decision, create a run, invent evidence, or run a product plan.
+
+## Testing
+
+`bash farm-runner/fixcheck.sh` runs every check in a scratch folder (never your real run folders) and prints a pass/fail summary.
 
 By Glam Hustle Hub.

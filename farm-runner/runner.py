@@ -41,7 +41,7 @@ Evidence map (what clears each step):
   5 Photo Match    steps/step5-match/match-verdict.md with verdict: MATCH,
                    signed by a checker who is NOT the grabber of record
   6 Script         steps/step6-script/script.md non-empty AND passing the
-                   Step 6 script check (script_findings: <=12 words a line,
+                   Step 6 script check (script_findings: farm-rules.json word cap a line,
                    person-first hook not just the mode name, soft CTA on
                    file, no specs/prices/sold counts/use claims) AND
                    steps/step6-script/glam-approval.md (approved_by: Glam)
@@ -73,6 +73,89 @@ HANDOFF_DIR = WORKSPACE / "farm-qc-handoff"
 RUNNER_DIR = WORKSPACE / "farm-runner"
 MANIFEST_JSON = RUNNER_DIR / "review-manifest.json"
 REVIEW_HTML = RUNNER_DIR / "review-section.html"
+
+# ----------------------------------------------------------------------------
+# THE MASTER RULES FILE (Glam, Nov 24: "Yes, that's how it's supposed to be")
+# Every rule this runner checks — word limits, clip rule, spec words, person
+# words, mode names, use claims, CTAs, staging/handling patterns — lives in
+# ONE file: farm-rules.json. The runner keeps NO copy of its own. If the file
+# is missing or broken, every command stops (exit 4); there is no silent
+# fallback. Lookup order: $FARM_RULES, next to runner.py, its parent folder,
+# ~/workspace/farm-rules.json.
+# ----------------------------------------------------------------------------
+
+REQUIRED_RULE_KEYS = {
+    "numbers": ["max_spoken_words_per_line", "clip_seconds",
+                "clips_per_video", "closeup_seconds", "video_seconds_about"],
+    "checks": ["spec_words", "spec_exempt_phrases", "person_words",
+               "first_person_words", "mode_names", "use_claim_patterns",
+               "spoken_cta_patterns", "banned_spoken_phrases",
+               "banned_spoken_patterns", "price_patterns",
+               "urgency_patterns", "sold_count_patterns",
+               "label_wording_patterns", "product_description_terms",
+               "product_description_patterns", "staging_patterns",
+               "handling_nouns", "handling_verbs", "guard_patterns"],
+    "laws": [], "run_order": [], "mila_scorecard": [], "form": [],
+    "version": [],
+}
+
+
+def rules_candidates():
+    import os
+    here = Path(__file__).resolve().parent
+    out = []
+    if os.environ.get("FARM_RULES"):
+        return [Path(os.environ["FARM_RULES"]).expanduser()]
+    out.append(here / "farm-rules.json")
+    out.append(here.parent / "farm-rules.json")
+    out.append(Path.home() / "workspace" / "farm-rules.json")
+    return out
+
+
+def rules_problems(data):
+    probs = []
+    for top, subs in REQUIRED_RULE_KEYS.items():
+        if top not in data:
+            probs.append(f"missing '{top}'")
+            continue
+        for k in subs:
+            if k not in data[top]:
+                probs.append(f"missing '{top}.{k}'")
+    return probs
+
+
+def load_rules():
+    tried = rules_candidates()
+    for p in tried:
+        if p.is_file():
+            try:
+                data = json.loads(p.read_text(encoding="utf-8"))
+            except ValueError as e:
+                print(f"FARM RULES BROKEN — {p} is not valid JSON ({e}). "
+                      "The runner keeps no copy of the rules, so it stops "
+                      "here. Fix farm-rules.json, then run check-rules.")
+                sys.exit(4)
+            probs = rules_problems(data)
+            if probs:
+                print(f"FARM RULES INCOMPLETE — {p}: " + "; ".join(probs) +
+                      ". The runner stops here.")
+                sys.exit(4)
+            return p, data
+    print("FARM RULES NOT FOUND — the runner reads every rule from "
+          "farm-rules.json and keeps no copy of its own, so it stops here. "
+          "Looked in: " + ", ".join(str(p) for p in tried) +
+          ". Put farm-rules.json next to runner.py (or set FARM_RULES).")
+    sys.exit(4)
+
+
+RULES_PATH, RULES = load_rules()
+NUM = RULES["numbers"]
+CHK = RULES["checks"]
+MAX_WORDS = int(NUM["max_spoken_words_per_line"])
+CLIP_SECONDS = float(NUM["clip_seconds"])
+CLIPS_PER_VIDEO = int(NUM["clips_per_video"])
+CLOSEUP_SECONDS = str(NUM["closeup_seconds"])
+
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 VIDEO_EXTS = {".mp4", ".mov", ".m4v", ".webm"}
@@ -122,70 +205,28 @@ STEP_DIRS = {
 # shot and nothing else.
 # ----------------------------------------------------------------------------
 
-LABEL_WORDING_PATTERNS = [
-    r"label\s+(reads|says|shows|that\s+reads)",
-    r"the\s+label\s+(reads|says|shows)",
-    r"\blabel\s*:\s*[\"“\w]",
-    r"\breads\s+[\"“][^\"”]{2,}[\"”]\s+on\s+(the\s+)?(label|bottle|packaging)",
-]
 
-PRODUCT_DESCRIPTION_TERMS = [
-    "the exact product",
-    "clear bottle", "rectangular bottle", "tall bottle", "small bottle",
-    "amber bottle", "white bottle", "glass bottle", "plastic bottle",
-    "gold cap", "screw cap", "dropper cap", "metallic cap", "small cap",
-    "golden oil", "yellow-gold", "yellow gold oil",
-    "200ml", "6.76oz", "6.76 oz",
-]
 
-PRODUCT_DESCRIPTION_PATTERNS = [
-    r"\b(tall|small|clear|rectangular|amber|white|glass|plastic|slim)\s+(\w+\s+)?bottle\b",
-    r"\bbottle\s+of\s+[^,.\"]{0,50}\boil\b",
-]
 
-STAGING_PATTERNS = [
-    r"\bpour(s|ing|ed)?\b",
-    r"\btips?\s+the\s+bottle\b",
-    r"\btipping\b",
-    r"\bhand-?off\b",
-    r"\bhands?\s+(her|him|them|the\s+model)\s+the\s+bottle\b",
-    r"\bpasses\s+the\s+bottle\b",
-    r"\braises?\s+the\s+bottle\b",
-    r"\braised\s+beside\b",
-    r"\bholds?\s+the\s+bottle\b",
-    r"\bholding\s+the\s+bottle\b",
-    r"\bbottle\s+in\s+(her|his|one|the)\s+hand\b",
-    r"\bin\s+her\s+other\s+hand\b",
-    r"\bshakes?\s+the\s+bottle\b",
-    r"\bunscrew",
-    r"\bopens?\s+the\s+bottle\b",
-    r"\bpools?\s+in\s+(her|his|the)\s+palm\b",
-    r"\bsmooths?\s+[^.]{0,40}\bbottle\s+in\s+hand\b",
-]
 
 # Generic handling (audit fix #4, Nov 24): the staging bar holds for ANY
 # product, not just bottles — a jar, tube, spray, compact or "the product in
 # her hand" is handling too. These are NOT applied to the one declared
 # Texture shot: / Show-it shot: line (that shot is judged by its own rules).
-HANDLING_NOUNS = (r"(?:bottle|jar|tube|tub|pump|spray|can|box|tin|compact|"
-                  r"palette|stick|pouch|container|package|product|item)s?")
-HANDLING_VERBS = (r"(?:picks?\s+up|picking\s+up|picked\s+up|lifts?|lifting|"
-                  r"lifted|holds?|holding|held|raises?|raising|hands?|"
-                  r"passes|passing|shakes?|shaking|squeezes?|squeezing|"
-                  r"opens?|opening|tilts?|tilting|sprays?|spraying)")
+
+
+LABEL_WORDING_PATTERNS = CHK["label_wording_patterns"]
+PRODUCT_DESCRIPTION_TERMS = CHK["product_description_terms"]
+PRODUCT_DESCRIPTION_PATTERNS = CHK["product_description_patterns"]
+STAGING_PATTERNS = CHK["staging_patterns"]
+HANDLING_NOUNS = CHK["handling_nouns"]
+HANDLING_VERBS = CHK["handling_verbs"]
 GENERIC_HANDLING_PATTERNS = [
     r"\b" + HANDLING_VERBS + r"\s+(?:up\s+)?(?:the|her|his|a|an|one|this|that|"
     r"their)\s+(?:\w+\s+){0,2}?" + HANDLING_NOUNS + r"\b",
     r"\b" + HANDLING_NOUNS + r"\s+in\s+(?:her|his|one|both|the|their)\s+hands?\b",
-    r"\bspray(?:s|ing|ed)?\b",
-    r"\bsqueez(?:e|es|ing|ed)\b",
-]
-
-GUARD_PATTERNS = [
-    r"never\s+spoken,\s+never\s+mouthed",
-    r"the\s+only\s+spoken\s+words\s+in\s+this\s+entire\s+video",
-    r"silent\s+visual\s+direction",
-]
+] + list(CHK.get("handling_extra_patterns", []))
+GUARD_PATTERNS = CHK["guard_patterns"]
 
 CLIP_HEADER = re.compile(r"(?i)\s*(?:\*\*)?(?:C\d{2}\b|clip\s+\d+\b)")
 REFERENCES_LINE = re.compile(r"references?\s*:", re.IGNORECASE)
@@ -281,43 +322,20 @@ def nonempty_file(path):
 # materials, true to size, sizes, stretchy, waterproof, and measures and
 # tech specs of every kind. One shared list: the story check and the
 # Step 6 script check both read it.
-STORY_SPEC_WORDS = (
-    "ml", "milliliter", "milliliters", "millilitre", "millilitres",
-    "oz", "ounce", "ounces", "gram", "grams", "kg", "mg", "percent", "%",
-    "plant-based", "plant based", "made with", "formula", "ingredient",
-    "ingredients", "net wt", "fl oz",
-    "true to size", "runs small", "runs large", "size up", "size down",
-    "stretchy", "waterproof", "water resistant", "water-resistant",
-    "non slip", "nonslip", "non-slip", "leakproof",
-    "polyester", "spandex", "elastane", "nylon", "rayon", "viscose",
-    "acrylic", "linen", "silk", "wool", "denim", "leather", "suede",
-    "liter", "liters", "litre", "litres", "quart", "quarts", "gallon",
-    "gallons", "inches", "inch", "pounds", "lbs", "watts", "watt",
-    "volts", "volt", "mah", "battery", "batteries", "usb", "bluetooth",
-    "led", "stainless", "bpa", "dishwasher safe", "microwave safe",
-)
 # The sentence must be about a PERSON — one of these has to be in it. The
 # list is spelled out on purpose (Claude, Nov 24): the check needs something
 # concrete to look for.
-STORY_PERSON_WORDS = (
-    "you", "your", "yours", "her", "hers", "she", "i", "i'm", "my", "me",
-    "we", "our", "mom", "grandma", "sister", "friend", "girl", "woman",
-    "women", "ladies", "he", "his", "him",
-    # audit fix #6 (Nov 24): men's and neutral person words — casting now
-    # covers men's clothing and unisex, so the story check has to see them.
-    "man", "men", "guy", "guys", "dad", "father", "husband", "brother", "son",
-    "grandpa", "grandson", "boyfriend", "uncle", "daughter", "wife", "aunt",
-    "they", "them", "their", "anyone", "everyone", "someone", "somebody",
-    "he's", "she's", "y'all",
-)
 # First-person words: a hook built only on these speaks for the model, not
 # to the viewer (audit fix #26 — "the hook speaks to the VIEWER's moment").
-FIRST_PERSON_WORDS = ("i", "i'm", "i've", "i'll", "i'd", "my", "me", "mine",
-                      "we", "our", "us")
 
 
 # Everyday phrases that contain a spec word but are not specs (audit fix #25).
-SPEC_EXEMPT_PHRASES = ("silk press",)
+
+
+STORY_SPEC_WORDS = tuple(CHK["spec_words"])
+STORY_PERSON_WORDS = tuple(CHK["person_words"])
+FIRST_PERSON_WORDS = tuple(CHK["first_person_words"])
+SPEC_EXEMPT_PHRASES = tuple(CHK["spec_exempt_phrases"])
 
 
 def spec_text(low):
@@ -370,48 +388,21 @@ def story_sentence_state(path):
 # list the story check reads (beauty measures, fashion specs, general
 # tech/home specs), so the bars hold for any product, not just the oil.
 SCRIPT_SPEC_WORDS = STORY_SPEC_WORDS
+MODE_NAMES = tuple(CHK["mode_names"])
+USE_CLAIM_PATTERNS = tuple(CHK["use_claim_patterns"])
+SPOKEN_CTA_PATTERNS = tuple(CHK["spoken_cta_patterns"])
+BANNED_SPOKEN_PHRASES = tuple(CHK["banned_spoken_phrases"])
+BANNED_SPOKEN_PATTERNS = tuple(CHK["banned_spoken_patterns"])
+PRICE_PATTERNS = tuple(CHK["price_patterns"])
+URGENCY_PATTERNS = tuple(CHK["urgency_patterns"])
+SOLD_COUNT_PATTERNS = tuple(CHK["sold_count_patterns"])
 # Mode names (the Mode Barn) — a first line that is ONLY the mode name is a
 # label, not a hook (Claude, Nov 24).
-MODE_NAMES = (
-    # all 16 modes in the page's Mode Barn (audit fix #21)
-    "problem solution", "problem to solution", "get ready with me", "grwm",
-    "unboxing reveal", "nighttime routine", "bathroom vanity demo",
-    "before you buy", "my honest take", "restock day", "comment reply video",
-    "side by side test", "side-by-side test", "morning routine",
-    "what i actually use", "quick tip", "shelf tour", "first impression",
-    "the closer look",
-)
 # Use claims the AI model can never make (the hook speaks to the VIEWER's
 # moment, never "I used it" — Claude's line, Nov 24).
-USE_CLAIM_PATTERNS = (
-    r"\bi (?:used(?! to\b)|use|tried|bought|ordered)\b",
-    r"\bbeen using\b",
-    r"\bworks for me\b",
-    r"\bmy results\b",
-    # Applied use claims (Claude, Nov 24): "has been living on my counter
-    # all week" claims the product lives with the model — same claim as
-    # "I use it," said sideways.
-    r"\bliving on my\b",
-    r"\bhas been living\b",
-    # The pattern, not just the phrase (Claude, Nov 24 — widened past
-    # beauty): been using / wearing / reaching for, and "my go-to."
-    r"\bbeen (?:using|wearing|reaching for|grabbing|taking)\b",
-    r"\bmy go[- ]to\b",
-)
 
 
 # Any spoken call to buy (audit fix #5): allowed once, in the closing line.
-SPOKEN_CTA_PATTERNS = (
-    r"\blink\s+(?:is\s+)?(?:below|down\s+below|in\s+(?:my\s+|the\s+)?bio)\b",
-    r"\bin\s+my\s+bio\b",
-    r"\bshop\s+(?:now|it|yours|this)\b",
-    r"\b(?:buy|order)\s+(?:now|it|yours|one|this|today)\b",
-    r"\b(?:grab|get|snag|cop)\s+(?:yours|one|it\s+now)\b",
-    r"\badd\s+(?:it\s+)?to\s+(?:your\s+)?cart\b",
-    r"\bcheck\s+(?:it\s+)?out\s+(?:below|now|here)\b",
-    r"\b(?:tap|click|hit|press)\s+(?:the\s+)?(?:orange\s+|yellow\s+)?"
-    r"(?:cart|basket|card|button)\b",
-)
 
 
 def spoken_lines(script_path):
@@ -422,7 +413,8 @@ def spoken_lines(script_path):
     for raw in script_path.read_text(
             encoding="utf-8", errors="replace").splitlines():
         head = raw.strip().lstrip("*-# ").lower()
-        if not (head.startswith("line") or head.startswith("hook")):
+        if not (head.startswith("line") or head.startswith("hook")
+                or head.startswith("clip") or re.match(r"c\d{2}\b", head)):
             continue
         m = re.search(r'"([^"]+)"', raw) or re.search(r"“([^”]+)”", raw)
         if m:
@@ -434,7 +426,7 @@ def script_findings(run):
     """The Step 6 SCRIPT CHECK (Glam + Claude, Nov 24): the mechanical bars
     a script must pass BEFORE Glam's approval gate, so she is not the first
     filter. Returns a list of (category, message); empty = passing.
-    Bars: every spoken line <= 12 words; one short spoken CTA allowed in
+    Bars (all read from farm-rules.json): every spoken line within the word cap; one short spoken CTA allowed in
     the final line only (like 'tap the orange cart') — 'tap the link'
     never; no spec/measure
     words or numbers in spoken lines; no price and no sold counts; no
@@ -453,10 +445,11 @@ def script_findings(run):
     for i, line in enumerate(lines, 1):
         low = line.lower()
         n_words = len(line.split())
-        if n_words > 12:
+        if n_words > MAX_WORDS:
             findings.append(("line-length", f"LINE {i} is {n_words} spoken "
-                             "words (bar: 12 max)"))
-        if re.search(r"\b(?:tap|click|hit|press)\s+(?:the|that|this|my)\s+link\b", low):
+                             f"words (bar: {MAX_WORDS} max)"))
+        if (any(re.search(p, low) for p in BANNED_SPOKEN_PATTERNS)
+                or any(ph in low for ph in BANNED_SPOKEN_PHRASES)):
             findings.append(("tap-the-link", f"LINE {i} says 'tap/click the "
                              "link' — that phrase is banned; the one "
                              "allowed spoken CTA sits in the final line, "
@@ -478,15 +471,14 @@ def script_findings(run):
                 findings.append(("spec", f"LINE {i} contains the spec word "
                                  f"'{w}' — label copy is not spoken"))
                 break
-        if ("$" in line or re.search(r"\bdollars?\b", low)
-                or re.search(r"\bpric(?:e|es|ed|ing)\b", low)):
+        if any(re.search(p, low) for p in PRICE_PATTERNS):
             findings.append(("price", f"LINE {i} carries a price — no "
                              "prices in spoken lines"))
-        if re.search(r"\bsold\s*out\b|\bselling\s+out\b", low):
+        if any(re.search(p, low) for p in URGENCY_PATTERNS):
             findings.append(("urgency", f"LINE {i} makes an urgency/sold-out "
                              "claim — the GG shield bans invented urgency "
                              "claims"))
-        elif re.search(r"\bsold\b", low):
+        elif any(re.search(p, low) for p in SOLD_COUNT_PATTERNS):
             findings.append(("sold-count", f"LINE {i} carries a sold "
                              "count — never in a script"))
         claimed = False
@@ -497,12 +489,13 @@ def script_findings(run):
                                  "used it"))
                 claimed = True
                 break
-        if not claimed and re.search(r"\ball (?:week|month)\b", low):
+        if not claimed and any(re.search(p, low) for p in
+                               CHK.get("first_person_use_claim_patterns", [])):
             # "all week / all month" is a use claim only in the model's own
             # mouth (first person) — in the viewer's moment ("your feet
             # hurt all week") it is a hook, and it passes.
             toks = set(re.findall(r"[a-z']+", low))
-            if toks.intersection({"i", "i've", "i'm", "my", "me", "mine"}):
+            if toks.intersection(FIRST_PERSON_WORDS):
                 findings.append(("use-claim", f"LINE {i} makes an 'I used "
                                  "it' claim ('all week/month' in the "
                                  "model's own voice) — the model is AI and "
@@ -528,7 +521,26 @@ def script_findings(run):
                          "moment (you, your, her, a mom...)"))
     text = (script.read_text(encoding="utf-8", errors="replace")
             if script.exists() else "")
-    cta_ok = any(l.strip().lower().startswith("cta:") and "below" in l.lower()
+    # STAGING in the script's own directions (Nov 24, Indigo's first script:
+    # "she holds the bottle, a drop on her hand"). The staging bar is already
+    # law — product stationary, no hands on it, one declared show-it shot only
+    # — so the script check reads every line OUTSIDE the quoted spoken words.
+    for no, raw in enumerate(text.splitlines(), 1):
+        if re.match(r"(?i)\s*[*#-]*\s*(texture|show-it)\s+shot\s*:", raw):
+            continue
+        direction = re.sub(r'"[^"]*"|“[^”]*”', " ", raw).lower()
+        if not direction.strip():
+            continue
+        if any(re.search(p, direction) for p in
+               list(STAGING_PATTERNS) + GENERIC_HANDLING_PATTERNS):
+            findings.append(("staging", f"script line {no} stages the product "
+                             "in hands or motion — the product stays put "
+                             "with no hands on it; only the one declared "
+                             "show-it shot is allowed"))
+    soft = CHK.get("soft_cta_line", {"starts_with": "cta:",
+                                     "must_mention": "below"})
+    cta_ok = any(l.strip().lower().startswith(soft["starts_with"])
+                 and soft["must_mention"] in l.lower()
                  for l in text.splitlines())
     if not cta_ok:
         findings.append(("no-cta", "no soft CTA up top on file — script.md "
@@ -597,32 +609,32 @@ def lint_package(run):
                     findings.append(("STAGING", i, line))
                     break
         # CLIP RULE (Glam + Claude, Nov 24 — audit fix #28): every clip is
-        # 8 seconds flat, max 12 spoken words in a clip, four clips make the
+        # (numbers from farm-rules.json) N seconds flat, max N spoken words in a clip, N clips make the
         # video; the 1-2 second clean close-up of the listing photo is kept.
         for q in re.findall(r'"([^"]+)"|“([^”]+)”', line):
             qt = (q[0] or q[1]).strip()
-            if len(qt.split()) > 12:
+            if len(qt.split()) > MAX_WORDS:
                 findings.append(("CLIP RULE", i, f"{len(qt.split())} spoken "
-                                 "words in one clip — max 12 spoken words in a "
-                                 "clip"))
+                                 f"words in one clip — max {MAX_WORDS} spoken "
+                                 "words in a clip"))
                 break
         is_clip = bool(CLIP_HEADER.match(raw))
         if is_clip and "close-up" not in low and "close up" not in low:
             for m in re.finditer(r"\b(\d+(?:\.\d+)?)\s*(?:-|–|to)?\s*"
                                  r"(?:s|sec|secs|second|seconds)\b", low):
-                if float(m.group(1)) != 8:
+                if float(m.group(1)) != CLIP_SECONDS:
                     findings.append(("CLIP RULE", i, f"clip length "
                                      f"{m.group(1)} seconds — every clip is "
-                                     "8 seconds flat"))
+                                     f"{CLIP_SECONDS:g} seconds flat"))
                     break
 
     clip_headers = [raw for raw in lines if CLIP_HEADER.match(raw)
                     and "close-up" not in raw.lower()
                     and "close up" not in raw.lower()]
-    if len(clip_headers) > 4:
+    if len(clip_headers) > CLIPS_PER_VIDEO:
         findings.append(("CLIP RULE", 0, f"{len(clip_headers)} clips declared "
-                         "— four clips make the video (plus the 1-2 second "
-                         "close-up)"))
+                         f"— {CLIPS_PER_VIDEO} clips make the video (plus the "
+                         f"{CLOSEUP_SECONDS} second close-up)"))
 
     # SHOW-IT SHOT — the one legal motion/hand shot per video, any category
     # (Glam + Claude, Nov 24): exactly one declared shot, proven first.
@@ -652,6 +664,10 @@ def lint_package(run):
                              "with hands or motion needs a test build "
                              "proving that exact shot first"))
 
+    # CAPTION (farm laws: caption keywords, 3-5 hashtags, soft CTA up top in
+    # the caption's first line) — the caption is a Step 8 deliverable.
+    findings.extend(caption_findings(run, lines))
+
     if not REFERENCES_LINE.search(text):
         findings.append(("REFERENCES", 0,
                          "no 'References:' line — package must declare its references"))
@@ -661,6 +677,56 @@ def lint_package(run):
                          "references are the approved styled image AND the real "
                          "listing photo"))
     return findings
+
+
+def caption_findings(run, lines):
+    """Read the package's Caption: block and hold it to the farm laws."""
+    out = []
+    start = None
+    for i, raw in enumerate(lines):
+        if re.match(r"(?i)\s*[*#-]*\s*caption\s*:", raw):
+            start = i
+            break
+    if start is None:
+        return [("CAPTION", 0, "no 'Caption:' in the package — the caption "
+                 "(product keyword first line, soft CTA, hashtags) is part "
+                 "of the Next package")]
+    block = [lines[start].split(":", 1)[1].strip()]
+    for raw in lines[start + 1:]:
+        if not raw.strip() or re.match(r"\s*[*#-]*\s*[A-Za-z][\w -]{0,30}:\s", raw):
+            break
+        block.append(raw.strip())
+    block = [b for b in block if b]
+    if not block:
+        return [("CAPTION", start + 1, "the Caption: block is empty")]
+    first = block[0].lower()
+    cfg = {}
+    try:
+        cfg = load_config(run)
+    except SystemExit:
+        pass
+    pick = (pick_from_record(run, cfg) or "").lower()
+    words = [w for w in re.findall(r"[a-z]{4,}", pick)]
+    if words and not any(w in first for w in words):
+        out.append(("CAPTION", start + 1, "the caption's first line doesn't "
+                    "name the product in words buyers search — caption "
+                    "keywords are a farm law"))
+    cta_words = CHK.get("caption_cta_words", ["below", "linked"])
+    if not any(w in first for w in cta_words):
+        out.append(("CAPTION", start + 1, "the caption's first line has no "
+                    "soft CTA pointing below (on screen, linked below, "
+                    "caption's first line)"))
+    tags = re.findall(r"#\w+", " ".join(block).lower())
+    lo, hi = int(NUM.get("hashtags_min", 3)), int(NUM.get("hashtags_max", 5))
+    if not (lo <= len(tags) <= hi):
+        out.append(("CAPTION", start + 1, f"{len(tags)} hashtags — every "
+                    f"caption carries {lo} to {hi} tied to the product"))
+    generic = set(t.lower() for t in CHK.get("generic_hashtags", []))
+    bad = [t for t in tags if t in generic]
+    if bad:
+        out.append(("CAPTION", start + 1, "generic hashtags " + ", ".join(bad)
+                    + " — never generic tags"))
+    return out
 
 
 def blocking_findings(findings):
@@ -946,6 +1012,7 @@ def cmd_status(args):
     run = resolve_run(args.run)
     text, _ = render_status(run)
     write_derived_block(run)
+    write_status_file()
     print(text)
     return 0
 
@@ -1114,6 +1181,7 @@ def cmd_handoff(args):
           "approved-script.md. Write your verdict to verdict.md in this "
           "folder (verdict: PASS or FAIL, checker: Mila, with the frames/"
           "lines behind it).\n"
+        + "\n" + render_scorecard_md() + "\n" + render_laws_md()
     )
     (dest / "HANDOFF.md").write_text(manifest, encoding="utf-8")
     sheet_log(run, f"Step 9→10: QC handoff copied EVERY build "
@@ -1259,6 +1327,7 @@ def cmd_drive_all(args):
                   if d.is_dir() and (d / "config.json").exists())
     if not runs:
         print("drive-all: no runs in ~/workspace/farm-runs/ — nothing to drive.")
+        write_status_file()
         return 0
     for run in runs:
         print(f"DRIVING {run.name} …")
@@ -1340,6 +1409,7 @@ def build_review_manifest():
                              encoding="utf-8")
     html = render_review_html(entries)
     REVIEW_HTML.write_text(html, encoding="utf-8")
+    write_status_file()
     return manifest
 
 
@@ -1424,6 +1494,264 @@ def cmd_review_decision(args):
     return 0
 
 
+
+# ----------------------------------------------------------------------------
+# Rendering the master rules (farm-rules.json) for Mila's handoff. The old
+# books were archived (Glam, Nov 24: "A) Do it") — rules live ONLY in
+# farm-rules.json; nothing here reads or writes any archived book.
+# Words in {curly braces} inside a law/step/scorecard line are filled from
+# "numbers", so a number changes in one spot.
+# ----------------------------------------------------------------------------
+
+PLACEHOLDER = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def fill(text):
+    """Replace {key} with numbers[key] from farm-rules.json."""
+    return PLACEHOLDER.sub(
+        lambda m: str(NUM[m.group(1)]) if m.group(1) in NUM else m.group(0),
+        str(text))
+
+
+def rule_texts(data):
+    """Every rule string that may carry {placeholders}, with where it lives."""
+    out = []
+    for l in data.get("laws", []):
+        out += [(f"laws.{l.get('id')}.title", l.get("title", "")),
+                (f"laws.{l.get('id')}.text", l.get("text", ""))]
+    for st in data.get("run_order", []):
+        out += [(f"run_order.{st.get('n')}.name", st.get("name", "")),
+                (f"run_order.{st.get('n')}.text", st.get("text", ""))]
+    sc = data.get("mila_scorecard", {})
+    for k, v in sc.items():
+        for i, x in enumerate(v if isinstance(v, list) else [v]):
+            out.append((f"mila_scorecard.{k}[{i}]" if isinstance(v, list)
+                        else f"mila_scorecard.{k}", x))
+    return out
+
+
+def missing_placeholders(data):
+    nums = data.get("numbers", {})
+    bad = []
+    for where, text in rule_texts(data):
+        for key in PLACEHOLDER.findall(str(text)):
+            if key not in nums:
+                bad.append(f"{where}: {{{key}}} has no number in \"numbers\"")
+    return bad
+
+
+def render_scorecard_md():
+    sc = RULES["mila_scorecard"]
+    out = [f"## Mila's scorecard (farm-rules.json, version {RULES['version']})",
+           f"CRITICAL — {fill(sc['critical_rule'])}"]
+    out += [f"- {fill(x)}" for x in sc["critical"]]
+    out.append(f"MAJOR — {fill(sc['major_rule'])}")
+    out += [f"- {fill(x)}" for x in sc["major"]]
+    out.append(f"MINOR — scored {fill(sc['minor_scale'])}: " +
+               ". ".join(fill(x) for x in sc["minor"]) + ".")
+    out.append(f"PASS BAR: {fill(sc['pass_bar'])}")
+    out.append(f"SIGN-OFF: {fill(sc['sign_off'])}")
+    return "\n".join(out) + "\n"
+
+
+def render_laws_md():
+    out = [f"## Farm laws (farm-rules.json, version {RULES['version']})"]
+    out += [f"- {fill(l['title'])}: {fill(l['text'])}" for l in RULES["laws"]]
+    return "\n".join(out) + "\n"
+
+
+def cmd_sync_rules(args):
+    print("sync-rules: nothing to sync — the old books are archived and the "
+          "rules live ONLY in farm-rules.json. The page and the runner read it "
+          "live, and Mila's handoff carries it on the next run. Run "
+          "check-rules to prove nothing drifted.")
+    return 0
+
+
+# Names of the archived books. Built in pieces so this check never flags
+# its own definition.
+ARCHIVED_NAMES = ("merged-farm-" + "playbook", "RUNBOOK" + ".md",
+                  "VERIFICATION" + ".md", "archive" + "/")
+
+
+def archived_reads_in_runner(path):
+    hits = []
+    for i, line in enumerate(path.read_text(encoding="utf-8",
+                                            errors="replace").splitlines(), 1):
+        if line.lstrip().startswith("#"):
+            continue
+        for name in ARCHIVED_NAMES:
+            if name in line:
+                hits.append(f"{path.name} line {i} reads '{name}': "
+                            f"{line.strip()[:90]}")
+    return hits
+
+
+def archived_reads_in_page(path):
+    """A page may LINK to the archive folder (so everyone can see it); it may
+    never fetch or load an archived book as a source of rules."""
+    hits = []
+    text = path.read_text(encoding="utf-8", errors="replace")
+    alt = "|".join(re.escape(n) for n in ARCHIVED_NAMES)
+    pats = [r"fetch\(\s*['\"`][^'\"`]*(?:" + alt + ")",
+            r"\bsrc\s*=\s*['\"][^'\"]*(?:" + alt + ")",
+            r"XMLHttpRequest[^;]*(?:" + alt + ")",
+            r"import\s*\(\s*['\"][^'\"]*(?:" + alt + ")"]
+    for pat in pats:
+        for m in re.finditer(pat, text):
+            ln = text.count("\n", 0, m.start()) + 1
+            hits.append(f"{path.name} line {ln} loads an archived book: "
+                        f"{m.group(0)[:90]}")
+    return hits
+
+
+def cmd_check_rules(args):
+    drift = []
+    print(f"check-rules: farm-rules.json OK — {RULES_PATH} "
+          f"(version {RULES['version']}, every key the runner needs present)")
+    for b in missing_placeholders(RULES):
+        drift.append(b)
+    runner = Path(args.runner) if getattr(args, "runner", None) else \
+        Path(__file__).resolve()
+    explicit_page = bool(getattr(args, "page", None))
+    page = Path(args.page) if explicit_page else RULES_PATH.parent / "index.html"
+    if not explicit_page and not page.exists():
+        page = Path(__file__).resolve().parent.parent / "index.html"
+    if runner.exists():
+        drift += archived_reads_in_runner(runner)
+    else:
+        drift.append(f"runner not found ({runner})")
+    if page.exists():
+        ptext = page.read_text(encoding="utf-8", errors="replace")
+        for need in ("farm-rules.json", "farm-status.json"):
+            if need not in ptext:
+                drift.append(f"{page.name} does not read {need}")
+        drift += archived_reads_in_page(page)
+    elif explicit_page:
+        drift.append(f"index.html not found ({page})")
+    else:
+        print("check-rules: the farm page isn't on this machine — page checks "
+              "skipped (run check-rules in the repo, or pass --page).")
+    if drift:
+        print("check-rules: DRIFT —")
+        for d in drift:
+            print(f"  - {d}")
+        print("Fix: rules live only in farm-rules.json — edit it there, and "
+              "never read a rule from an archived book.")
+        return 2
+    print("check-rules: OK — farm-rules.json is complete, every {placeholder} "
+          "has a number, the page reads farm-rules.json and farm-status.json, "
+          "and nothing reads an archived book.")
+    return 0
+
+
+# ----------------------------------------------------------------------------
+# farm-status.json — every run's live status, step by step, where everyone
+# can see it (Glam, Nov 24: "Nothing should be hidden where no one can see
+# what's going on"). The farm page's Live Run Board reads this file.
+# ----------------------------------------------------------------------------
+
+def status_out_path():
+    import os
+    if os.environ.get("FARM_STATUS_OUT"):
+        return Path(os.environ["FARM_STATUS_OUT"]).expanduser()
+    repo = Path(__file__).resolve().parent.parent
+    if (repo / "index.html").exists():
+        return repo / "farm-status.json"
+    return WORKSPACE / "farm-status.json"
+
+
+def step_owner(run, n, state):
+    if n == 6:
+        script = run / "steps" / STEP_DIRS[6] / "script.md"
+        if state == "INVALID" or not nonempty_file(script):
+            return "Story Agent (writes or fixes the script)"
+        return "Glam (script approval)"
+    return {
+        1: "Indigo (creates the run)",
+        2: "TikTok Scout",
+        3: "TikTok Shop Agent",
+        4: "TikTok Shop Agent (grabs the listing photo)",
+        5: "A checker who did not grab the photo",
+        7: "Casting agent (Glam's uploaded model), then Glam approves",
+        8: "Story Agent + Video Agent (package)",
+        9: "Indigo (build)",
+        10: "Mila (QC)",
+        11: "Glam (lifts the freeze)",
+    }.get(n, "")
+
+
+def run_status_entry(run):
+    cfg, results = derive(run)
+    head = headline(results)
+    open_n, open_name, needs, state = None, "", "", "READY"
+    for n, name, st, reason in results:
+        if n == 11:
+            break
+        if st != "CLEARED":
+            open_n, open_name, needs = n, name, reason
+            state = "STOPPED" if st == "INVALID" else "BLOCKED"
+            break
+    pick = pick_from_record(run, cfg) or ""
+    review = review_entry(run)
+    links = watch_links(run)
+    builds = files_with_ext(run / "steps" / STEP_DIRS[9], VIDEO_EXTS)
+    if open_n is None:
+        owner = "Glam (final review; she lifts the freeze)"
+        needs = ("Glam's final review — " + (review["review_status"]
+                 if review else "waiting for Glam") + ". Freeze on.")
+    else:
+        owner = step_owner(run, open_n, results[open_n - 1][2])
+    return {
+        "run_id": cfg["run_id"],
+        "pick": pick,
+        "model": cfg.get("cast_model", ""),
+        "mode": cfg.get("mode", ""),
+        "account": cfg.get("account", ""),
+        "headline": head,
+        "state": state,
+        "open_step": open_n,
+        "open_step_name": open_name,
+        "needs": needs,
+        "owner": owner,
+        "steps": [{"n": n, "name": name, "state": st, "reason": reason}
+                  for n, name, st, reason in results],
+        "review_status": review["review_status"] if review else "No build yet",
+        "watch_links": [{"file": b.name, "url": links.get(b.name, "")}
+                        for b in builds],
+        "is_test": bool(re.search(r"TEST|MOCK", pick.upper())),
+    }
+
+
+def write_status_file():
+    import os
+    runs = []
+    if RUNS_DIR.is_dir():
+        for run in sorted(d for d in RUNS_DIR.iterdir()
+                          if d.is_dir() and (d / "config.json").exists()):
+            runs.append(run_status_entry(run))
+    data = {"generated_at": now_stamp(), "rules_version": RULES["version"],
+            "freeze": "ON", "runs": runs}
+    out = status_out_path()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_name(out.name + ".tmp")
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+                   encoding="utf-8")
+    os.replace(tmp, out)
+    return out, data
+
+
+def cmd_status_export(args):
+    out, data = write_status_file()
+    print(f"farm-status.json written: {out} ({len(data['runs'])} run(s), "
+          f"generated {data['generated_at']})")
+    for r in data["runs"]:
+        print(f"  {r['run_id']} — {r['state']} — step {r['open_step']} "
+              f"{r['open_step_name']} — needs: {r['needs'][:80]} — "
+              f"owner: {r['owner']}")
+    return 0
+
+
 # ----------------------------------------------------------------------------
 
 def main():
@@ -1501,6 +1829,17 @@ def main():
     p.add_argument("--decision", required=True, choices=["approved", "sent-back"])
     p.add_argument("--recorded-by", default="Indigo")
     p.set_defaults(fn=cmd_review_decision)
+
+    p = sub.add_parser("sync-rules", help="(retired) the old books are archived; rules live only in farm-rules.json")
+    p.set_defaults(fn=cmd_sync_rules)
+
+    p = sub.add_parser("check-rules", help="prove farm-rules.json is complete, placeholders resolve, the page reads it, and nothing reads an archived book")
+    p.add_argument("--runner", default=None)
+    p.add_argument("--page", default=None)
+    p.set_defaults(fn=cmd_check_rules)
+
+    p = sub.add_parser("status-export", help="write farm-status.json (every run's live status) for the farm page")
+    p.set_defaults(fn=cmd_status_export)
 
     args = ap.parse_args()
     return args.fn(args)

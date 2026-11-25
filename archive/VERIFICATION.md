@@ -172,7 +172,7 @@ create → scout/pick evidence → photo attached → match (independent checker
 
 ## (o) AUDIT FIX ROUND — Nov 24–25
 Glam's call (Nov 24): fix all 33 audit problems, nothing left for later. Fixed on branch claude/project-thread-r6019m; live page not touched until Glam approves.
-Test: `farm-runner/fixcheck.sh` (runs in a scratch HOME, never the real run folders) — **99 passed, 0 failed**. It reruns every failing audit case plus cheat tests (a)–(n) as regressions:
+Test: `farm-runner/fixcheck.sh` (runs in a scratch HOME, never the real run folders) — **109 passed, 0 failed** (99 audit-fix and regression cases + 10 master-rules-file cases below). It reruns every failing audit case plus cheat tests (a)–(n) as regressions:
 - Mila's verdict covers the exact builds she was handed (name + sha256); a new or changed build waits on her again; a verdict is collected once and moved to verdict-collected-<stamp>.md (no 12x loop).
 - Glam's script approval stores the script's sha256; any edit puts Step 6 back to waiting on her.
 - Handling lint covers any product (jar, tube, pump, spray, "product in her hand"), not just bottles; the declared show-it line is exempt.
@@ -183,3 +183,14 @@ Test: `farm-runner/fixcheck.sh` (runs in a scratch HOME, never the real run fold
 - Runs can start empty; the pick lands at Step 3 from pick.md.
 - Review cards show a ▶ Watch link from steps/step9-builds/links.md.
 Note: approvals and verdicts recorded before this change carry no fingerprint, so those runs (including the mock run) show WAITING until re-recorded.
+
+### (o-2) ONE MASTER RULES FILE — farm-rules.json (Glam: "Yes, that's how it's supposed to be", Nov 24)
+Every rule now lives in `farm-rules.json`: laws, run order, Mila's scorecard, form options, and every word list/pattern/number the runner checks. runner.py keeps no copy (all hard-coded rule lists and the 12-word / 8-second / 4-clip limits removed); a missing or broken file stops every command (exit 4). Mila's HANDOFF.md now carries her full scorecard + the laws from the file. `sync-rules` regenerates the rules block in RUNBOOK.md and the playbook (and the playbook's skill prompt); `check-rules` proves they match and that the page reads the file.
+Tests in fixcheck.sh (all PASS):
+- Cap set to 10 in a copy of the JSON → the same 11-word line fails with "bar: 10 max" (real file: passes).
+- "nana" added to person_words in a copy → a story sentence using it clears Step 2 (real file: fails).
+- FARM_RULES pointing at a missing file → "FARM RULES NOT FOUND", exit 4; broken JSON → "FARM RULES BROKEN", exit 4.
+- check-rules passes on the real RUNBOOK, playbook and page; a hand-edit inside a copy of the RUNBOOK block is caught as drift (exit 2).
+- Mila's HANDOFF.md carries the scorecard (critical / major / minor / pass bar / sign-off) and the laws, with the rules version.
+- No hard-coded rule list remains in runner.py.
+**How a rule changes now:** Glam approves → edit farm-rules.json once → `runner.py sync-rules` → `runner.py check-rules` → the page and runner already read it live; Mila's handoff carries it on the next run.

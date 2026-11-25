@@ -3,6 +3,8 @@
 # fixcheck.sh — reruns every failing audit case (#1-#6, #13, #21, #24-#29, #32)
 # and the VERIFICATION regression cases (a)-(n) against the fixed runner.
 export HOME=/tmp/fx; rm -rf $HOME; mkdir -p $HOME
+# Live status goes to a scratch file during tests, never into the repo.
+export FARM_STATUS_OUT=/tmp/fx/farm-status.json
 R="python3 $(cd "$(dirname "$0")" && pwd)/runner.py"
 P=0; F=0
 ok(){ P=$((P+1)); echo "PASS  $1 :: $2"; }
@@ -85,7 +87,8 @@ $R approve-script $RUN >/dev/null
 # ---------- Step 7/8 lint
 cp /tmp/fx_p.png $D/step7-styled/model.png
 K=$D/step8-package/package.md
-lint(){ printf "%b" "$2" > $K; OUT=$($R lint $RUN 2>&1); expect "$1" "$3" "$OUT"; }
+CAP='Caption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n'
+lint(){ printf "%b" "$2$CAP" > $K; OUT=$($R lint $RUN 2>&1); expect "$1" "$3" "$OUT"; }
 lint "#4 jar/tube/'product in her hand' fails" 'References: approved styled image + the real listing photo\nClip 2: she picks up the jar and lifts it to camera.\nClip 3: she holds the tube up next to her face.\nClip 4: product in her hand, spraying.\n' "LINT RESULT: FAIL"
 OUT2=$(echo "$OUT" | grep -c "\[STAGING\]"); [ "$OUT2" -ge 3 ] && ok "#4 three handling lines caught" "STAGING findings: $OUT2" || bad "#4 three handling lines caught" "STAGING findings: $OUT2"
 lint "#4 stationary jar passes" 'References: approved styled image + the real listing photo\nC01 - 8 seconds. She smiles at the counter, the jar sits on the counter untouched.\n' "package passes"
@@ -107,7 +110,7 @@ lint "(n-j) show-it with no action fails" 'References: approved styled image + t
 lint "#4 show-it gadget 'spray in use' not double-flagged" 'References: approved styled image + the real listing photo\nShow-it shot: the mister in use, spraying a fine mist.\n' "package passes"
 rm $D/step8-package/staging-proof.md
 lint "(n-c/h) show-it without proof fails" 'References: approved styled image + the real listing photo\nShow-it shot: the gadget in use.\n' "LINT RESULT: FAIL"
-printf 'References: approved styled image + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\n' > $K
+printf "%b" 'References: approved styled image + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\n'"$CAP" > $K
 OUT=$($R check $RUN --to 9; echo "exit $?"); expect "(d) clean package clears to 9" "CHECK to Step 9: OK" "$OUT"
 # ---------- builds, handoff, verdicts (#1, #2, (f))
 echo fake1 > $D/step9-builds/v1.mp4
@@ -154,4 +157,102 @@ OUT=$($R check $RUN --to 11; echo "exit $?"); expect "(e) check --to 11 refused,
 OUT=$($R check $RUN --to 0); expect "#32 check --to 0 sane message" "not a step that can be checked" "$OUT"
 grep -q "sync-review" "$(dirname "$0")/runner.py" && bad "#32 sync-review reference gone" "" || ok "#32 sync-review reference gone" "comment now names review-manifest"
 OUT=$($R drive-all); expect "drive-all smoke test" "drive-all: drove" "$OUT"
+# ---------- MASTER RULES FILE: farm-rules.json is the single source
+RDIR="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "$RDIR/.." && pwd)"
+REAL_RULES="$ROOT/farm-rules.json"; [ -f "$RDIR/farm-rules.json" ] && REAL_RULES="$RDIR/farm-rules.json"
+TMPR=$(mktemp -d)
+python3 - "$REAL_RULES" "$TMPR/ten.json" "$TMPR/nana.json" <<'PY'
+import json,sys
+d=json.load(open(sys.argv[1])); d["numbers"]["max_spoken_words_per_line"]=10; json.dump(d,open(sys.argv[2],"w"))
+d=json.load(open(sys.argv[1])); d["checks"]["person_words"].append("nana"); json.dump(d,open(sys.argv[3],"w"))
+PY
+printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long double shift at work, girl."\nLINE 2: "Tap the orange cart."\n' > $S
+OUT=$($R status $RUN); expect "RULES 11-word line passes under the real file (cap from JSON)" "Step 6 .*(WAITING|CLEARED)" "$OUT"
+OUT=$(FARM_RULES=$TMPR/ten.json $R approve-script $RUN); expect "RULES cap edited to 10 in the JSON -> same 11-word line fails, message says 10" "LINE 1 is 11 spoken words \(bar: 10 max\)" "$OUT"
+printf 'Findings: x\nStory: For the nana who hosts every single Sunday dinner.\n' > $D/step2-scout/scout.md
+OUT=$($R status $RUN); expect "RULES 'nana' not a person word in the real file -> fails" "Step 2 .*WAITING" "$OUT"
+OUT=$(FARM_RULES=$TMPR/nana.json $R status $RUN); expect "RULES 'nana' added to person_words in the JSON -> passes" "Step 2 .*CLEARED" "$OUT"
+printf 'Findings: x\nStory: Your feet hurt all week and you deserve a soft landing.\n' > $D/step2-scout/scout.md
+OUT=$(FARM_RULES=$TMPR/missing.json $R status $RUN; echo "exit $?"); expect "RULES file missing -> runner stops, clear message, exit 4" "FARM RULES NOT FOUND.*exit 4" "$(echo "$OUT"|tr '\n' ' ')"
+echo '{ broken' > $TMPR/broken.json
+OUT=$(FARM_RULES=$TMPR/broken.json $R status $RUN; echo "exit $?"); expect "RULES file broken JSON -> runner stops, exit 4" "FARM RULES BROKEN.*exit 4" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R check-rules --page "$ROOT/index.html"; echo "exit $?")
+if echo "$OUT" | grep -q "exit 0"; then ok "RULES check-rules passes on the real rules file, runner and page" "$(echo "$OUT"|grep -m1 'check-rules: OK —' | cut -c1-120)"
+else bad "RULES check-rules on the real files" "$(echo "$OUT"|tr '\n' ' ')"; fi
+# ---------- ARCHIVE: nothing reads an archived book
+cp "$RDIR/runner.py" $TMPR/runner_planted.py
+printf 'BOOK = Path(__file__).parent / "RUNBOOK.md"\n' >> $TMPR/runner_planted.py
+OUT=$($R check-rules --runner $TMPR/runner_planted.py --page "$ROOT/index.html"; echo "exit $?"); expect "ARCHIVE check-rules flags a planted RUNBOOK.md read in the runner" "reads 'RUNBOOK.md'.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+printf '<script>fetch("archive/merged-farm-playbook-v2.txt")</script> farm-rules.json farm-status.json' > $TMPR/page_planted.html
+OUT=$($R check-rules --page $TMPR/page_planted.html; echo "exit $?"); expect "ARCHIVE check-rules flags a page that fetches an archived book" "loads an archived book.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+printf '<a href="https://github.com/x/y/tree/main/archive">Archive</a> farm-rules.json farm-status.json' > $TMPR/page_link.html
+OUT=$($R check-rules --page $TMPR/page_link.html; echo "exit $?"); expect "ARCHIVE a visible LINK to the archive folder is allowed" "check-rules: OK.*exit 0" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$($R sync-rules; echo "exit $?"); expect "ARCHIVE sync-rules retired, writes no book" "books are archived.*exit 0" "$(echo "$OUT"|tr '\n' ' ')"
+# ---------- PLACEHOLDERS
+python3 - "$REAL_RULES" "$TMPR/nope.json" <<'PY'
+import json,sys
+d=json.load(open(sys.argv[1])); d["laws"][0]["text"]+=" Planted {nope}."; json.dump(d,open(sys.argv[2],"w"))
+PY
+OUT=$(FARM_RULES=$TMPR/nope.json $R check-rules --page "$ROOT/index.html"; echo "exit $?"); expect "PLACEHOLDER a {nope} with no number is caught" "\{nope\} has no number.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+grep -q '{' $H/HANDOFF.md && bad "PLACEHOLDER HANDOFF.md fully filled (no { left)" "$(grep -m1 '{' $H/HANDOFF.md)" || ok "PLACEHOLDER HANDOFF.md fully filled (no { left)" "$(grep -m1 'spoken words' $H/HANDOFF.md | cut -c1-110)"
+# ---------- LIVE STATUS FILE farm-status.json
+$R approve-script $RUN >/dev/null  # the RULES tests edited the script; re-record Glam's approval
+rm -f $FARM_STATUS_OUT; $R status $RUN >/dev/null
+python3 - $FARM_STATUS_OUT "$RUN" <<'PY' && ok "STATUS farm-status.json written with the exact schema" "keys ok" || bad "STATUS schema" "see above"
+import json,sys
+d=json.load(open(sys.argv[1]))
+assert set(d)=={"generated_at","rules_version","freeze","runs"}, set(d)
+assert d["freeze"]=="ON"
+keys={"run_id","pick","model","mode","account","headline","state","open_step","open_step_name","needs","owner","steps","review_status","watch_links","is_test"}
+for r in d["runs"]:
+    assert set(r)==keys, set(r)^keys
+    assert r["state"] in ("READY","BLOCKED","STOPPED")
+    for st in r["steps"]: assert set(st)=={"n","name","state","reason"}
+    for w in r["watch_links"]: assert set(w)=={"file","url"}
+PY
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RUN'][0];print(r['state'],r['open_step'],r['is_test'],r['review_status'])")
+expect "STATUS READY run has open_step null (TEST run flagged)" "^READY None True" "$OUT"
+$R create --mode "Quick Tip" >/dev/null; RUN2=run-$(date +%F)-2
+OUT=$($R status-export); expect "STATUS status-export writes the file" "farm-status.json written" "$OUT"
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RUN2'][0];print(r['state'],'|',r['open_step'],'|',r['owner'],'|',r['needs'])")
+expect "STATUS BLOCKED run shows owner + what it needs" "^BLOCKED \| 2 \| TikTok Scout \| no scout findings" "$OUT"
+printf 'Findings: x\nStory: Your feet hurt and you deserve better.\n' > $HOME/workspace/farm-runs/$RUN2/steps/step2-scout/scout.md
+printf 'product: TEST Mug\n' > $HOME/workspace/farm-runs/$RUN2/steps/step3-pick/pick.md
+cp /tmp/fx_p.png $HOME/workspace/farm-runs/$RUN2/steps/step4-photo/p.png
+$R record-match $RUN2 --checker Mila --grabber Mila --verdict MATCH >/dev/null
+$R drive $RUN2 >/dev/null
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RUN2'][0];print(r['state'],'|',r['open_step'],'|',r['owner'])")
+expect "STATUS STOPPED run (self-signed match) names step 5 and the checker" "^STOPPED \| 5 \| A checker who did not grab" "$OUT"
+[ ! -f "$ROOT/farm-status.json" ] && ok "STATUS tests never wrote into the repo" "FARM_STATUS_OUT honored" || bad "STATUS wrote into repo" "$ROOT/farm-status.json"
+printf 'verdict: PASS\nchecker: Mila\n' >/dev/null
+grep -q "MAJOR — must fix" $H/HANDOFF.md && grep -q "PASS BAR" $H/HANDOFF.md && grep -q "Farm laws (farm-rules.json" $H/HANDOFF.md && ok "RULES Mila's HANDOFF.md carries the scorecard + laws from the JSON" "$(grep -m1 "Mila's scorecard" $H/HANDOFF.md)" || bad "RULES handoff scorecard" "$(head -3 $H/HANDOFF.md)"
+grep -qE '^(STORY_SPEC_WORDS|STORY_PERSON_WORDS|MODE_NAMES|USE_CLAIM_PATTERNS|SPOKEN_CTA_PATTERNS|STAGING_PATTERNS) = [\(\[]$' "$RDIR/runner.py" && bad "RULES no hard-coded rule lists left in runner.py" "" || ok "RULES no hard-coded rule lists left in runner.py" "all read from farm-rules.json"
+rm -rf $TMPR
+# ---------- Indigo's first real script (Nov 24 night): three rule breaks Glam caught by eye
+RUN3=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
+D3=$HOME/workspace/farm-runs/$RUN3/steps
+printf 'product: Turmeric + Honey Body Oil (Elowen Lab)\n' > $D3/step3-pick/pick.md
+printf 'Clip 1: "Your skin has been dry all winter, sis."\nClip 2: "Turmeric and honey body oil right here on my vanity."\nShe holds the bottle and a drop lands on her hand.\nClip 3: "Tap the orange cart."\n' > $D3/step6-script/script.md
+OUT=$($R approve-script $RUN3 2>&1)
+expect "INDIGO script: approval refused" "APPROVAL REFUSED" "$OUT"
+expect "INDIGO 'right here on my vanity' caught as a use/ownership claim" "\[use-claim\] LINE 2" "$OUT"
+expect "INDIGO held bottle + drop on her hand caught as staging" "\[staging\] script line 3" "$OUT"
+expect "INDIGO no soft CTA up top caught" "\[no-cta\]" "$OUT"
+printf 'References: approved styled image + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\n' > $D3/step8-package/package.md
+OUT=$($R lint $RUN3 2>&1)
+expect "INDIGO package with no caption fails" "no 'Caption:' in the package" "$OUT"
+printf 'References: approved styled image + the real listing photo\nC01 - 8 seconds, product stationary.\nCaption: so cute right?\n#fyp #viral\n' > $D3/step8-package/package.md
+OUT=$($R lint $RUN3 2>&1)
+expect "caption with no product keyword fails" "doesn't name the product" "$OUT"
+expect "caption with no soft CTA fails" "no soft CTA pointing below" "$OUT"
+expect "caption with 2 hashtags fails" "2 hashtags" "$OUT"
+expect "generic hashtags fail" "generic hashtags #fyp, #viral" "$OUT"
+printf 'References: approved styled image + the real listing photo\nC01 - 8 seconds, product stationary.\nCaption: Turmeric honey body oil, linked below for your dry winter skin\n#turmericoil #bodyoil #dryskin #honeyskincare\n' > $D3/step8-package/package.md
+OUT=$($R lint $RUN3 2>&1)
+expect "fixed caption passes" "package passes" "$OUT"
+printf 'CTA: it is linked below for you\nClip 1: "Your skin has been dry all winter, sis."\nClip 2: "This one sits right there on the counter."\nThe bottle stays on the counter, no hands on it.\nClip 3: "Tap the orange cart."\n' > $D3/step6-script/script.md
+OUT=$($R status $RUN3 2>&1)
+expect "INDIGO script rewritten to the rules passes the check" "Step 6 +Script +(WAITING|BLOCKED).*(passing the script check|earlier gate)" "$OUT"
+OUT=$($R approve-script $RUN3 2>&1)
+expect "rewritten script takes Glam's approval" "Recorded Glam's script approval" "$OUT"
 echo; echo "SUMMARY: $P passed, $F failed"

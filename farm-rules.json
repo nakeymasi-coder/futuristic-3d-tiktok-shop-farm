@@ -1,0 +1,551 @@
+{
+  "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
+  "version": "2026-11-25",
+  "approved_by": "Glam",
+  "numbers": {
+    "max_spoken_words_per_line": 12,
+    "clip_seconds": 8,
+    "clips_per_video": 4,
+    "closeup_seconds": "1 to 2",
+    "video_seconds_about": 34,
+    "hook_seconds": 3,
+    "hashtags_min": 3,
+    "hashtags_max": 5,
+    "caption_search_words_min": 3,
+    "caption_search_words_max": 5,
+    "shop_posts_per_day": 3,
+    "agents": 9,
+    "modes": 16
+  },
+  "run_order": [
+    {
+      "n": 1,
+      "name": "Start a Run",
+      "text": "Opens empty; the product is picked at Step 3."
+    },
+    {
+      "n": 2,
+      "name": "TikTok Scout",
+      "text": "Real, named findings plus the one story sentence in Glam's voice: who this is for and why they'd care. No sentence, no handoff."
+    },
+    {
+      "n": 3,
+      "name": "TikTok Shop Agent",
+      "text": "Picks the product from what's actually selling. A selling product may repeat any day; sold-out products are skipped."
+    },
+    {
+      "n": 4,
+      "name": "Product Photo",
+      "text": "The ACTUAL listing photo, the only product description for every later step."
+    },
+    {
+      "n": 5,
+      "name": "Photo Match Check",
+      "text": "The grabbed photo matches the pick's name and the listing's own image, checked by someone who did not grab it. A mismatch blocks the run."
+    },
+    {
+      "n": 6,
+      "name": "Story Agent script",
+      "text": "Real-UGC pain-point script built from the story sentence; passes the script check; Glam approves the exact script."
+    },
+    {
+      "n": 7,
+      "name": "Model photo — Glam's uploaded model",
+      "text": "The best-fitting uploaded model, photo used as-is, never generated. Glam approves."
+    },
+    {
+      "n": 8,
+      "name": "\"Next\" package",
+      "text": "Video Express clip prompts + hook + caption; the model photo and the real listing photo are the references; no product described in words."
+    },
+    {
+      "n": 9,
+      "name": "Video Agent build",
+      "text": "Built in Video Express, Realistic Consistent Character workflow. Every build goes to Mila."
+    },
+    {
+      "n": 10,
+      "name": "Checks",
+      "text": "Mila's frame-by-frame check and scorecard, then Glam. Mila's PASS covers only the exact builds she was handed."
+    },
+    {
+      "n": 11,
+      "name": "Caption & Post",
+      "text": "Only after Glam lifts the @glamorousgrammyglowup posting freeze."
+    }
+  ],
+  "laws": [
+    {
+      "id": "exact-product",
+      "title": "Exact products only",
+      "text": "Every scene uses the listing's real product photo as the reference. Prompts never describe the product in words or carry label wording. If the render doesn't match the real product, it fails."
+    },
+    {
+      "id": "words",
+      "title": "Max {max_spoken_words_per_line} spoken words a line",
+      "text": "Every clip is {clip_seconds} seconds flat with max {max_spoken_words_per_line} spoken words. {clips_per_video} clips make the video, ending with a {closeup_seconds} second clean close-up of the REAL listing photo — about {video_seconds_about} seconds."
+    },
+    {
+      "id": "hook",
+      "title": "Hook in the first {hook_seconds} seconds",
+      "text": "The first spoken line is a person-first hook built from the story sentence, spoken to the viewer's moment, never the model's, and also shown as on-screen text."
+    },
+    {
+      "id": "cta",
+      "title": "One spoken CTA, at the end",
+      "text": "Soft CTA up top: on screen, the product linked below, and the caption's first line. One short spoken CTA in the closing line only, like \"tap the orange cart\". Never \"tap the link\"."
+    },
+    {
+      "id": "no-use-claims",
+      "title": "No \"I used it\" claims",
+      "text": "The model is AI and never used the product. No use claims, no results, no health or beauty claims, nothing the listing doesn't say."
+    },
+    {
+      "id": "no-prices",
+      "title": "No prices, no sold counts",
+      "text": "No prices, discounts, sold counts or invented urgency in any video or caption. The product link shows the live price."
+    },
+    {
+      "id": "casting",
+      "title": "Glam's uploaded models only",
+      "text": "Pick the best fit for the product and its buyer: a woman for women's products, a man for men's clothing, either for unisex, and the best-fitting uploaded model for every other category. The photo is used as-is, never generated."
+    },
+    {
+      "id": "staging",
+      "title": "Product stays put",
+      "text": "The product stays stationary with no hands on it. A pour, hand-off, or held or lifted product fails always. Exactly ONE show-it shot is allowed, only after a test build proved it: skincare = Texture shot (on skin, bottle stays on the counter); clothes = fabric moving; shoes = on feet walking; gadget = in use."
+    },
+    {
+      "id": "hashtags",
+      "title": "{hashtags_min} to {hashtags_max} hashtags, required",
+      "text": "Every caption carries {hashtags_min} to {hashtags_max} hashtags tied to the product and its niche. Never generic tags like #fyp or #viral."
+    },
+    {
+      "id": "keywords",
+      "title": "Caption keywords",
+      "text": "The caption's first line names the product in words buyers search, plus {caption_search_words_min} to {caption_search_words_max} search words. Add a visible on-screen keyword at posting if the editor allows. Missing keywords = fail."
+    },
+    {
+      "id": "repeats",
+      "title": "Repeats yes, copies no",
+      "text": "A product that's selling can repeat any day. Never an identical or near-identical video. Skip sold-out products."
+    },
+    {
+      "id": "labels",
+      "title": "Disclosures on",
+      "text": "AI-generated label ON and Disclose post content (branded content) ON for every Shop video. Commercially cleared music only on Shop videos."
+    },
+    {
+      "id": "qc",
+      "title": "Mila checks every step",
+      "text": "Mila is in charge of quality control; the maker never checks her own work. A fail goes back to the agent who did it with what's wrong written down."
+    },
+    {
+      "id": "freeze",
+      "title": "Posting freeze ON",
+      "text": "Nothing posts while the @glamorousgrammyglowup freeze is on. Only Glam lifts it."
+    },
+    {
+      "id": "blocked",
+      "title": "Can't use it? Stop",
+      "text": "If any agent can't use something a step needs, STOP and report BLOCKED: [what] - [why] to Glam. No substitute tools, no workarounds."
+    },
+    {
+      "id": "no-dead-air",
+      "title": "No dead air",
+      "text": "Edits are tightened so there are no long pauses — natural breath beats only. The video moves the way a real person talks."
+    },
+    {
+      "id": "feel-human",
+      "title": "It has to feel human",
+      "text": "Conversational delivery, natural gestures and head movement, normal blinking. If it looks like a robot, it goes back for a rebuild."
+    },
+    {
+      "id": "live-games",
+      "title": "Live games: real people, real prizes, Glam's call",
+      "text": "Agent A-09 works only from people actually seen on the live — never an invented name or number. Prizes are only the prizes Glam listed, and winners and prize messages always wait for Glam's approval of the exact text before anything is sent."
+    },
+    {
+      "id": "ptp-sequence",
+      "title": "Product-to-Post lane: the sequence is law",
+      "text": "Model photo first, edits until approved, then \"Next\" delivers Video Express clip prompts + hook + caption — never out of order."
+    },
+    {
+      "id": "verify-listing",
+      "title": "Right listing, checked live",
+      "text": "Attach the actual correct product listing — the real one for this product. Before posting, verify in the live listing: title, size chart and availability."
+    }
+  ],
+  "mila_scorecard": {
+    "critical_rule": "automatic fail. Anything that could give Glam a violation is an automatic fail. No exceptions. The critical tier IS the GG skill's compliance rules: if the GG skill bans it, it is critical here. Any one of these and the video is dead; no score saves it:",
+    "critical": [
+      "Wrong product — what is on screen is not the product in the real listing photo: wrong shape, wrong cap, wrong label, or it morphs mid-clip. The product on screen must match the listing photos exactly in size, shape, color, logo, packaging and details in every frame. If it morphs or drifts at any point, that is an automatic fail.",
+      "Banned health or beauty claims — clears acne, anti-aging, heals, treats, cures, FDA approved, or any medical or weight loss claim, spoken, on screen, or in the caption, even if the listing says it.",
+      "Before-and-after — shown or implied, for skincare, body products, or hair products, or anything comparing weight or body shape in any category.",
+      "A price or a sold count, spoken or on screen.",
+      "Missing AI label or missing disclosure.",
+      "A fake \"I used it\" claim — the model claiming she used it, wears it, or lives with it when she didn't."
+    ],
+    "major_rule": "must fix. Any one of these and the video goes back before it can pass:",
+    "major": [
+      "Face drifting from the anchor — the model stops looking like the approved model.",
+      "Bad hands.",
+      "Lip sync off.",
+      "No hook in the first three seconds.",
+      "No CTA up top.",
+      "Wrong framing for the category — the shot does not follow the framing rule for that product's category.",
+      "A clip over 12 spoken words, or a clip that is not 8 seconds flat.",
+      "No on-screen hook text in the first three seconds.",
+      "A failed sound-off check — the video would not stop the scroll on mute.",
+      "Hashtags that do not match the product — generic tags like #fyp or #viral, or tags for the wrong product, type, color, or style.",
+      "Caption keywords — the first line of every caption names the product in words people actually search. Indigo also adds a short visible text overlay with that keyword near the top at posting if the editor allows it. If the caption keyword is missing, the post fails and gets fixed before it goes up."
+    ],
+    "minor": [
+      "Pacing",
+      "Lighting",
+      "Music fit"
+    ],
+    "minor_scale": "1 to 5 each",
+    "pass_bar": "zero criticals, zero majors, and the minor scores average 4 or higher.",
+    "sign_off": "Mila signs every video with her score and her notes — what she checked, what she found, and the exact scene and second of anything she failed, with a screenshot attached of anything she fails. Nothing reaches Glam without Mila's sign-off."
+  },
+  "form": {
+    "product_shown": [
+      "Let the Story Agent pick",
+      "None — no product on camera",
+      "Worn on her body (clothes, shoes, bags, accessories)",
+      "Sitting on the vanity in front of her",
+      "On the bathroom counter, by the sink",
+      "On the shelf behind her",
+      "On the nightstand",
+      "In the shower / tub setup",
+      "Flat lay on the table",
+      "Beside her — she points and talks, never touches it",
+      "Mirror shot — product on the counter in front of her",
+      "On screen only — the listing photo, nothing in her hands",
+      "One show-it shot (needs a proven test build first)"
+    ],
+    "product_types": [
+      "Women's clothing",
+      "Men's clothing",
+      "Unisex clothing",
+      "Shoes",
+      "Bag",
+      "Accessory",
+      "Skincare & beauty",
+      "Body care",
+      "Hair",
+      "Home",
+      "Gadget",
+      "Other"
+    ],
+    "modes": [
+      "Problem → Solution",
+      "Get Ready With Me",
+      "Unboxing Reveal",
+      "Nighttime Routine",
+      "Bathroom Vanity Demo",
+      "Before You Buy",
+      "My Honest Take",
+      "Restock Day",
+      "Comment Reply Video",
+      "Side-by-Side Test",
+      "Morning Routine",
+      "What I Actually Use",
+      "Quick Tip",
+      "Shelf Tour",
+      "First Impression",
+      "The Closer Look"
+    ]
+  },
+  "checks": {
+    "_note": "Word lists and patterns the runner's checks use. Patterns are Python regular expressions. Edit here only; the runner keeps no copy.",
+    "spec_words": [
+      "ml",
+      "milliliter",
+      "milliliters",
+      "millilitre",
+      "millilitres",
+      "oz",
+      "ounce",
+      "ounces",
+      "gram",
+      "grams",
+      "kg",
+      "mg",
+      "percent",
+      "%",
+      "plant-based",
+      "plant based",
+      "made with",
+      "formula",
+      "ingredient",
+      "ingredients",
+      "net wt",
+      "fl oz",
+      "true to size",
+      "runs small",
+      "runs large",
+      "size up",
+      "size down",
+      "stretchy",
+      "waterproof",
+      "water resistant",
+      "water-resistant",
+      "non slip",
+      "nonslip",
+      "non-slip",
+      "leakproof",
+      "polyester",
+      "spandex",
+      "elastane",
+      "nylon",
+      "rayon",
+      "viscose",
+      "acrylic",
+      "linen",
+      "silk",
+      "wool",
+      "denim",
+      "leather",
+      "suede",
+      "liter",
+      "liters",
+      "litre",
+      "litres",
+      "quart",
+      "quarts",
+      "gallon",
+      "gallons",
+      "inches",
+      "inch",
+      "pounds",
+      "lbs",
+      "watts",
+      "watt",
+      "volts",
+      "volt",
+      "mah",
+      "battery",
+      "batteries",
+      "usb",
+      "bluetooth",
+      "led",
+      "stainless",
+      "bpa",
+      "dishwasher safe",
+      "microwave safe"
+    ],
+    "spec_exempt_phrases": [
+      "silk press"
+    ],
+    "person_words": [
+      "you",
+      "your",
+      "yours",
+      "her",
+      "hers",
+      "she",
+      "i",
+      "i'm",
+      "my",
+      "me",
+      "we",
+      "our",
+      "mom",
+      "grandma",
+      "sister",
+      "friend",
+      "girl",
+      "woman",
+      "women",
+      "ladies",
+      "he",
+      "his",
+      "him",
+      "man",
+      "men",
+      "guy",
+      "guys",
+      "dad",
+      "father",
+      "husband",
+      "brother",
+      "son",
+      "grandpa",
+      "grandson",
+      "boyfriend",
+      "uncle",
+      "daughter",
+      "wife",
+      "aunt",
+      "they",
+      "them",
+      "their",
+      "anyone",
+      "everyone",
+      "someone",
+      "somebody",
+      "he's",
+      "she's",
+      "y'all"
+    ],
+    "first_person_words": [
+      "i",
+      "i'm",
+      "i've",
+      "i'll",
+      "i'd",
+      "my",
+      "me",
+      "mine",
+      "we",
+      "our",
+      "us"
+    ],
+    "mode_names": [
+      "problem solution",
+      "problem to solution",
+      "get ready with me",
+      "grwm",
+      "unboxing reveal",
+      "nighttime routine",
+      "bathroom vanity demo",
+      "before you buy",
+      "my honest take",
+      "restock day",
+      "comment reply video",
+      "side by side test",
+      "side-by-side test",
+      "morning routine",
+      "what i actually use",
+      "quick tip",
+      "shelf tour",
+      "first impression",
+      "the closer look"
+    ],
+    "use_claim_patterns": [
+      "\\bi (?:used(?! to\\b)|use|tried|bought|ordered)\\b",
+      "\\bbeen using\\b",
+      "\\bworks for me\\b",
+      "\\bmy results\\b",
+      "\\bliving on my\\b",
+      "\\bhas been living\\b",
+      "\\bbeen (?:using|wearing|reaching for|grabbing|taking)\\b",
+      "\\bmy go[- ]to\\b",
+      "\\b(?:on|in|at|from|off)\\s+my\\s+(?:vanity|counter|countertop|shelf|nightstand|sink|dresser|desk|table|bathroom|cabinet|drawer|bag|purse|closet|routine|cart|kitchen|bedroom|feet|skin|face|body)\\b"
+    ],
+    "spoken_cta_patterns": [
+      "\\blink\\s+(?:is\\s+)?(?:below|down\\s+below|in\\s+(?:my\\s+|the\\s+)?bio)\\b",
+      "\\bin\\s+my\\s+bio\\b",
+      "\\bshop\\s+(?:now|it|yours|this)\\b",
+      "\\b(?:buy|order)\\s+(?:now|it|yours|one|this|today)\\b",
+      "\\b(?:grab|get|snag|cop)\\s+(?:yours|one|it\\s+now)\\b",
+      "\\badd\\s+(?:it\\s+)?to\\s+(?:your\\s+)?cart\\b",
+      "\\bcheck\\s+(?:it\\s+)?out\\s+(?:below|now|here)\\b",
+      "\\b(?:tap|click|hit|press)\\s+(?:the\\s+)?(?:orange\\s+|yellow\\s+)?(?:cart|basket|card|button)\\b"
+    ],
+    "banned_spoken_phrases": [
+      "tap the link",
+      "click the link"
+    ],
+    "label_wording_patterns": [
+      "label\\s+(reads|says|shows|that\\s+reads)",
+      "the\\s+label\\s+(reads|says|shows)",
+      "\\blabel\\s*:\\s*[\\\"“\\w]",
+      "\\breads\\s+[\\\"“][^\\\"”]{2,}[\\\"”]\\s+on\\s+(the\\s+)?(label|bottle|packaging)"
+    ],
+    "product_description_terms": [
+      "the exact product",
+      "clear bottle",
+      "rectangular bottle",
+      "tall bottle",
+      "small bottle",
+      "amber bottle",
+      "white bottle",
+      "glass bottle",
+      "plastic bottle",
+      "gold cap",
+      "screw cap",
+      "dropper cap",
+      "metallic cap",
+      "small cap",
+      "golden oil",
+      "yellow-gold",
+      "yellow gold oil",
+      "200ml",
+      "6.76oz",
+      "6.76 oz"
+    ],
+    "product_description_patterns": [
+      "\\b(tall|small|clear|rectangular|amber|white|glass|plastic|slim)\\s+(\\w+\\s+)?bottle\\b",
+      "\\bbottle\\s+of\\s+[^,.\\\"]{0,50}\\boil\\b"
+    ],
+    "staging_patterns": [
+      "\\bpour(s|ing|ed)?\\b",
+      "\\btips?\\s+the\\s+bottle\\b",
+      "\\btipping\\b",
+      "\\bhand-?off\\b",
+      "\\bhands?\\s+(her|him|them|the\\s+model)\\s+the\\s+bottle\\b",
+      "\\bpasses\\s+the\\s+bottle\\b",
+      "\\braises?\\s+the\\s+bottle\\b",
+      "\\braised\\s+beside\\b",
+      "\\bholds?\\s+the\\s+bottle\\b",
+      "\\bholding\\s+the\\s+bottle\\b",
+      "\\bbottle\\s+in\\s+(her|his|one|the)\\s+hand\\b",
+      "\\bin\\s+her\\s+other\\s+hand\\b",
+      "\\bshakes?\\s+the\\s+bottle\\b",
+      "\\bunscrew",
+      "\\bopens?\\s+the\\s+bottle\\b",
+      "\\bpools?\\s+in\\s+(her|his|the)\\s+palm\\b",
+      "\\bsmooths?\\s+[^.]{0,40}\\bbottle\\s+in\\s+hand\\b"
+    ],
+    "handling_nouns": "(?:bottle|jar|tube|tub|pump|spray|can|box|tin|compact|palette|stick|pouch|container|package|product|item)s?",
+    "handling_verbs": "(?:picks?\\s+up|picking\\s+up|picked\\s+up|lifts?|lifting|lifted|holds?|holding|held|raises?|raising|hands?|passes|passing|shakes?|shaking|squeezes?|squeezing|opens?|opening|tilts?|tilting|sprays?|spraying)",
+    "guard_patterns": [
+      "never\\s+spoken,\\s+never\\s+mouthed",
+      "the\\s+only\\s+spoken\\s+words\\s+in\\s+this\\s+entire\\s+video",
+      "silent\\s+visual\\s+direction"
+    ],
+    "generic_hashtags": [
+      "#fyp",
+      "#foryou",
+      "#foryoupage",
+      "#viral",
+      "#trending",
+      "#tiktok"
+    ],
+    "banned_spoken_patterns": [
+      "\\b(?:tap|click|hit|press)\\s+(?:the|that|this|my)\\s+link\\b"
+    ],
+    "price_patterns": [
+      "\\$",
+      "\\bdollars?\\b",
+      "\\bpric(?:e|es|ed|ing)\\b"
+    ],
+    "urgency_patterns": [
+      "\\bsold\\s*out\\b",
+      "\\bselling\\s+out\\b"
+    ],
+    "sold_count_patterns": [
+      "\\bsold\\b"
+    ],
+    "handling_extra_patterns": [
+      "\\bspray(?:s|ing|ed)?\\b",
+      "\\bsqueez(?:e|es|ing|ed)\\b",
+      "\\b(?:a\\s+)?(?:drop|drops|dab|dabs|pump|pumps|squirt|dot|dots|bit|some)\\s+(?:of\\s+(?:\\w+\\s+){0,3})?(?:on|onto|in|into)\\s+(?:her|his|the|their)\\s+(?:hand|hands|palm|palms|fingers?|fingertips?|wrist)\\b"
+    ],
+    "first_person_use_claim_patterns": [
+      "\\ball (?:week|month)\\b"
+    ],
+    "soft_cta_line": {
+      "starts_with": "cta:",
+      "must_mention": "below"
+    },
+    "caption_cta_words": [
+      "below",
+      "linked"
+    ],
+    "_note_caption": "Step 8 lint reads the package's Caption: block: first line names the product (keyword) and points below (soft CTA); numbers.hashtags_min..hashtags_max hashtags; none from generic_hashtags."
+  }
+}

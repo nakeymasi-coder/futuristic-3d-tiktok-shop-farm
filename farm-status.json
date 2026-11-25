@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 20:57",
+  "generated_at": "2026-11-25 20:58",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -688,11 +688,11 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 3 — TikTok Shop Agent reported BLOCKED: Streamer Desktop sign-in wall: business.tiktok.com/us/creator/live redirected to the TikTok for Business login (ads.tiktok.com/i18n/login) — no sign-in attempted. The required Streamer Desktop stock+price check could not run. Pick is ready (Turmeric + Honey Body Oil, listing 1731203941857530625, in saved showcase, 9 product-only photos saved) and the public listing page showed it in stock at $8.88, but stock/price must come from Streamer Desktop per farm law. 5-minute cap also elapsed during the browser check, so no hand-in was made. (2026-11-25 20:03)",
-      "state": "STOPPED",
+      "headline": "BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/pick.md)",
+      "state": "BLOCKED",
       "open_step": 3,
       "open_step_name": "Pick",
-      "needs": "TikTok Shop Agent reported BLOCKED: Streamer Desktop sign-in wall: business.tiktok.com/us/creator/live redirected to the TikTok for Business login (ads.tiktok.com/i18n/login) — no sign-in attempted. The required Streamer Desktop stock+price check could not run. Pick is ready (Turmeric + Honey Body Oil, listing 1731203941857530625, in saved showcase, 9 product-only photos saved) and the public listing page showed it in stock at $8.88, but stock/price must come from Streamer Desktop per farm law. 5-minute cap also elapsed during the browser check, so no hand-in was made.",
+      "needs": "TikTok Shop Agent — needs: TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product",
       "owner": "TikTok Shop Agent",
       "steps": [
         {

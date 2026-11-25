@@ -25,3 +25,4 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-25 15:40] CHAIN: Start a Run → TikTok Scout (Step 2) — handed off
 - [2026-11-25 17:58] CLAIM: Step 2 by TikTok Scout (muse_farm-agent-scout) — 10-minute cap
 - [2026-11-25 18:04] CHAIN: Start a Run → TikTok Shop Agent (Step 3) — handed off
+- [2026-11-25 18:08] CLAIM: Step 3 by TikTok Shop Agent (muse_farm-agent-shop) — 5-minute cap

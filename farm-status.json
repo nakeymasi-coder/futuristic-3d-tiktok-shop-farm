@@ -877,6 +877,29 @@
           ],
           "output": "steps/step5-match/match-verdict.md (sha256 6d951abb3e0a6ea3…)",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 21:05",
+          "from": "Photo Match checker",
+          "to": "Story Agent",
+          "step": 6,
+          "what": "job opened for Story Agent: script.md",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "593331334a96b5b0321ed6fd798fa98d110429bb8c492f26e5a28e839a5f04ed"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "1fee3b43216d6cf795fb3c46fc86763e54d7385778a1a744cf1f111e1cfb0af5"
+            },
+            {
+              "file": "steps/step4-photo/00.jpg",
+              "sha256": "470dccbf175a57f50337cc55e896a29a9f66c257f11f0c0a9dacfd5f8281d949"
+            }
+          ],
+          "output": "expected: steps/step6-script/script.md",
+          "result": "handed off"
         }
       ],
       "open_job": {

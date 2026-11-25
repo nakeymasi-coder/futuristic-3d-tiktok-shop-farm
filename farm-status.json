@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 17:32",
+  "generated_at": "2026-11-25 17:33",
   "rules_version": "2026-11-25k",
   "freeze": "ON",
   "runs": [
@@ -772,6 +772,21 @@
           "inputs": [],
           "output": "expected: steps/step2-scout/scout.md",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 17:32",
+          "from": "Start a Run",
+          "to": "TikTok Shop Agent",
+          "step": 3,
+          "what": "job opened for TikTok Shop Agent: pick.md with a product: line and the listing ID/link",
+          "inputs": [
+            {
+              "file": "steps/step2-scout/scout.md",
+              "sha256": "593331334a96b5b0321ed6fd798fa98d110429bb8c492f26e5a28e839a5f04ed"
+            }
+          ],
+          "output": "expected: steps/step3-pick/pick.md",
+          "result": "handed off"
         }
       ],
       "open_job": {
@@ -782,7 +797,7 @@
         "needs": [
           "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
         ],
-        "since": "2026-11-25 16:26",
+        "since": "2026-11-25 17:32",
         "sent_back": []
       }
     }

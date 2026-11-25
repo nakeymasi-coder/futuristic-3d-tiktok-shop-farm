@@ -40,3 +40,5 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-25 18:57] CLAIM: Step 3 by TikTok Shop Agent (muse_farm-agent-shop) — 5-minute cap
 - [2026-11-25 18:59] CLAIM: Step 3 by TikTok Shop Agent (muse_farm-agent-shop) — 5-minute cap
 - [2026-11-25 18:59] BLOCKED: Step 3 — TikTok Shop Agent: Streamer Desktop sign-in wall: TikTok Shop Streamer Desktop / LIVE Manager (business.tiktok.com/us/creator/live) redirected to TikTok Ads login page, not signed in — no sign-in attempted per Glam's rule. Stock and live price for Turmeric + Honey Body Oil (1731203941857530625) could not be checked. Glam signs in herself.
+- [2026-11-25 19:57] BLOCKED report on Step 3 cleared (TikTok Shop Agent handed in) — was: TikTok Shop Agent: Streamer Desktop sign-in wall: TikTok Shop Streamer Desktop / LIVE Manager (business.tiktok.com/us/creator/live) redirected to TikTok Ads login page, not signed in — no sign-in attempted per Glam's rule. Stock and live price for Turmeric + Honey Body Oil (1731203941857530625) could not be checked. Glam signs in herself.
+- [2026-11-25 19:57] CLAIM: Step 3 by TikTok Shop Agent (muse_farm-agent-shop) — 5-minute cap

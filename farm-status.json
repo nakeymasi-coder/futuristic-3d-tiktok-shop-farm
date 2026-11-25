@@ -688,11 +688,11 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 3 — TikTok Shop Agent reported BLOCKED: Streamer Desktop sign-in wall: TikTok Shop Streamer Desktop / LIVE Manager (business.tiktok.com/us/creator/live) redirected to TikTok Ads login page, not signed in — no sign-in attempted per Glam's rule. Stock and live price for Turmeric + Honey Body Oil (1731203941857530625) could not be checked. Glam signs in herself. (2026-11-25 18:59)",
-      "state": "STOPPED",
+      "headline": "BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/pick.md)",
+      "state": "BLOCKED",
       "open_step": 3,
       "open_step_name": "Pick",
-      "needs": "TikTok Shop Agent reported BLOCKED: Streamer Desktop sign-in wall: TikTok Shop Streamer Desktop / LIVE Manager (business.tiktok.com/us/creator/live) redirected to TikTok Ads login page, not signed in — no sign-in attempted per Glam's rule. Stock and live price for Turmeric + Honey Body Oil (1731203941857530625) could not be checked. Glam signs in herself.",
+      "needs": "TikTok Shop Agent — needs: TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product",
       "owner": "TikTok Shop Agent",
       "steps": [
         {

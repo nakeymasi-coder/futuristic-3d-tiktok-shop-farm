@@ -10,6 +10,10 @@ on:
         description: "Video mode (leave blank and the Story Agent picks)"
         required: false
         default: ""
+      product:
+        description: "Product (only for a Product-to-Post run; leave blank and the Shop Agent picks at Step 3)"
+        required: false
+        default: ""
       account:
         description: "TikTok account"
         required: false
@@ -29,7 +33,8 @@ jobs:
           FARM_HOME: ${{ runner.temp }}/farmhome
           MODE: ${{ inputs.mode }}
           ACCOUNT: ${{ inputs.account }}
+          PRODUCT: ${{ inputs.product }}
         run: |
           mkdir -p "$FARM_HOME"
-          HOME="$FARM_HOME" python3 farm-runner/runner.py create --mode "$MODE" --account "$ACCOUNT" --by "Glam (Start Run)" 2>&1 | tee out.txt
+          HOME="$FARM_HOME" python3 farm-runner/runner.py create --mode "$MODE" --account "$ACCOUNT" --pick "$PRODUCT" --by "Glam (Start Run)" 2>&1 | tee out.txt
           grep -q "^Status published to the Live Run Board" out.txt || { echo "::error::The run did not reach the Live Run Board. See the lines above."; exit 1; }

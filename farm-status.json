@@ -801,6 +801,21 @@
           ],
           "output": "expected: steps/step3-pick/pick.md",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-25 21:02",
+          "from": "Start a Run",
+          "to": "TikTok Shop Agent",
+          "step": 4,
+          "what": "job opened for TikTok Shop Agent: the real listing photo (an image file)",
+          "inputs": [
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "1fee3b43216d6cf795fb3c46fc86763e54d7385778a1a744cf1f111e1cfb0af5"
+            }
+          ],
+          "output": "expected: steps/step4-photo/",
+          "result": "handed off"
         }
       ],
       "open_job": {
@@ -811,7 +826,7 @@
         "needs": [
           "the product's real listing photos, saved with the weekly lineup"
         ],
-        "since": "2026-11-25 17:32",
+        "since": "2026-11-25 21:02",
         "sent_back": []
       }
     }

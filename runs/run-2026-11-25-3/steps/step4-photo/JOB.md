@@ -1,0 +1,46 @@
+# JOB — Step 4: TikTok Shop Agent
+Run: run-2026-11-25-3 · rules version 2026-11-25n · opened 2026-11-25 21:02 · posting freeze ON
+
+## 🔒 HARD RULE: Products only from TikTok Shop Streamer Desktop
+Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. The one exception is a product's listing photos, which may also come from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed). Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself.
+
+## 🔒 LOCKED: Locked to your own step, then hand off
+Glam's rule, in her words: "they should hand off automatically to the next agent" and "Nobody should be off trying to do somebody else's job and then get stuck." Each agent does only its own step. The moment its step's output is complete, it hands it in with submit, and the next agent's job opens automatically. No side trips into another step's work: anything a later step needs is that step's job. If you can't finish your own step, stop right away and report BLOCKED: [what] - [why]. Don't search other routes, watch tutorials or stall.
+
+⏱ Time cap: 5 minutes, counted from when you claim the step. At the cap, hand in what you have, or run report-blocked with the reason.
+
+▶ Start by claiming the step (the clock starts then): runner.py claim run-2026-11-25-3 --step 4 --by "TikTok Shop Agent" --session <your id>. A hand-in past the cap is refused and BLOCKED goes on the board. Claim again to start a fresh try.
+
+## Your job
+Submit the picked product's real listing photo from its photos saved with the lineup (farm-data/products/<listing id>/). It becomes the only product description for every later step. If its photos weren't saved, the product is BLOCKED with the reason. Never a drawn or substituted photo. A photo comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or the image links saved from those (image_urls in farm-data/showcase-products.json, downloaded with no browser and no sign-in), never from a regular tiktok.com video or profile page. Only a product-only image, never one with a person, face, hands or body in it. Any bot or security check: report BLOCKED at once with the site and page, never solve it or wait on it.
+
+## Read these (exact files)
+- steps/step3-pick/pick.md  (sha256 1fee3b43216d6cf7…)
+
+## Farm laws you follow (from farm-rules.json)
+- Products only from TikTok Shop Streamer Desktop: Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. The one exception is a product's listing photos, which may also come from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed). Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself.
+- Listing photos only from Streamer Desktop or the public Shop listing: Product listing photos come ONLY from TikTok Shop Streamer Desktop / LIVE Manager (shop.tiktok.com/streamer/...), from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or from the image links saved from those two (image_urls in farm-data/showcase-products.json). Never open a regular tiktok.com video or profile page to get a product photo. If neither can give the photo, that product is BLOCKED with the reason, no substitute.
+- Photo links saved once, photos downloaded with no sign-in: The product's real image links are saved once in farm-data/showcase-products.json, as image_urls: a list where each entry gives url (the image link exactly as the page shows it) and shows_person (true or false). They are captured from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or from Streamer Desktop's showcase list or read-only product view while Glam is signed in. Capture is read-only: never click Save, Confirm, Cover, delete or drag in any Edit Product window; close it with X. The photo finisher and Shop Step 4 then download photos straight from those saved links, with no browser and no sign-in, into farm-data/products/<listing id>/. Links are only ever captured from those two places, never a regular tiktok.com video or profile page. A link that fails: that product is BLOCKED with the reason. A lineup product with no saved image_urls is BLOCKED "image link not captured yet" until its links are captured from its public Shop listing page or Streamer Desktop.
+- No product images with people in them: Glam's rule (Nov 25): the farm can't use product images with people in them. Only product-only images (the product itself and its packaging, with no person, face, hands or body) are saved and used. Every saved image link records whether it shows a person (shows_person), and any image that does is skipped. If a product has no product-only image, it is BLOCKED "no product-only image". Photo Match (Step 5) rejects any photo with a person in it as NO-MATCH.
+- Bot check means BLOCKED at once: Any bot or security check on any page (a CAPTCHA, a "Security Check" page, a slider puzzle): never try to solve it and never wait on it. Report BLOCKED at once with the site and the page, and stop that item.
+- Locked to your own step, then hand off: Glam's rule, in her words: "they should hand off automatically to the next agent" and "Nobody should be off trying to do somebody else's job and then get stuck." Each agent does only its own step. The moment its step's output is complete, it hands it in with submit, and the next agent's job opens automatically. No side trips into another step's work: anything a later step needs is that step's job. If you can't finish your own step, stop right away and report BLOCKED: [what] - [why]. Don't search other routes, watch tutorials or stall.
+- Real product only: the AI never draws it: Glam's rule (Nov 25), for every product: the product appears ONLY as its real listing photo, label and all, exactly as the listing shows it, in the clean close-up. The video tool never draws or regenerates a product: no AI clip puts the product in frame, not on a counter, not in a hand, not worn. Prompts never describe the product in words or carry label wording. Any AI clip that shows a drawn product fails.
+- Can't use it? Stop: If any agent can't use something a step needs, STOP and report BLOCKED: [what] - [why] to Glam. No substitute tools, no workarounds.
+- Time cap: Scout, weekly lineup and photo finisher 10 minutes, every other job 5: The Scout, the weekly lineup job and the photo finisher job each get a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, a run step hands in what it has, or runs report-blocked with the reason; the weekly lineup and the photo finisher save what they have and stop.
+- Agents are the Muse jobs: The agents are the Muse jobs (muse_farm-agent-*). Mila stays out of Muse and is started by the coordinator when a gate opens. No Mila automation.
+- Shop job picks from the lineup: The Shop job (Steps 3-4) picks the day's product from the weekly lineup and uses its saved photos.
+- Photos pulled ahead: Each lineup product's real listing photos are pulled once, only from TikTok Shop Streamer Desktop / LIVE Manager or the public TikTok Shop listing page, and saved with the lineup (farm-data/products/<listing id>/). If a photo won't download, that product is BLOCKED with the reason. Never use a drawn or substituted photo.
+- Farm changes live in the repo first: A farm change lives in the repo first, and Muse jobs only follow what's on main.
+- Glam does her own secrets and sign-ins: Glam types her own secrets and does her own sign-ins. No job ever asks for, types or stores a password, code or key.
+- Farm data lives in farm-data/: The saved product list, weekly lineup, product photos, selling points, angle log and scorecard live in farm-data/ on main. No job writes them anywhere else.
+- Posting freeze ON: Nothing posts while the @glamorousgrammyglowup freeze is on. Only Glam lifts it. No farm job ever posts to TikTok.
+
+## Hand in
+- Output: the real listing photo (an image file) → steps/step4-photo/
+- Submit with: runner.py submit run-2026-11-25-3 --step 4 --by "TikTok Shop Agent" --file <your file> --session <your id>
+- <your id> is muse_ followed by YOUR OWN Muse scheduled job's id (a Claude agent uses its session_... id). One id acts as one role per run; the proof lists it for this step.
+- Can't do it? Stop, and put it on the board at once: runner.py report-blocked run-2026-11-25-3 --step 4 --by "TikTok Shop Agent" --reason "what blocked you and why" --session <your id>
+- Hands to: Photo Match checker
+
+## What this job needs that the runner can't do by itself
+- the product's real listing photos, saved with the weekly lineup

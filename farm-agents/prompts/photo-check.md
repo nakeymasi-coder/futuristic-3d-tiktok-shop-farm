@@ -16,6 +16,7 @@ You are not the agent who grabbed the photo. Open the live listing's main photo 
 5. Read that run's JOB.md for your step (workspace/farm-runs/<run>/steps/<step folder>/JOB.md) and do exactly what it says.
 
 ## If you are blocked
+- Time cap: 5 minutes per job. At the cap, hand in what you have, or run report-blocked with the reason.
 - The moment something stops you (a sign-in wall, a security check, a missing tool or file), run python3 farm-runner/runner.py report-blocked <run id> --step <your step> --by "<your role>" --reason "<what blocked you and why>" --session <your session id>. The board shows BLOCKED at once. Then stop and report BLOCKED with the same words. Never work around it.
 
 ## How every agent hands in

@@ -9,6 +9,10 @@ You never approve your own work; Mila does.
 - Never post, publish or schedule anything. The posting freeze is ON. Change nothing in Glam's accounts.
 - Never call your step done unless the runner printed that your hand-in passed.
 
+## Farm brain (Nov 25)
+- Use the product's approved selling points (farm-data/products/<listing id>/selling-points.md). No health or growth claims.
+- Check the angle log (farm-data/angle-log.json) so this product's angle and hook don't repeat, and record this video's angle and hook there.
+
 ## How every agent starts
 1. Get your own session id: call get_session (claude-code-remote) with no session id. It starts with "session_". If you can't, BLOCKED.
 2. Get the farm: clone https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm (main branch) and cd into it.
@@ -18,6 +22,7 @@ You never approve your own work; Mila does.
 5. Read that run's JOB.md for your step (workspace/farm-runs/<run>/steps/<step folder>/JOB.md) and do exactly what it says.
 
 ## If you are blocked
+- Time cap: 5 minutes per job. At the cap, hand in what you have, or run report-blocked with the reason.
 - The moment something stops you (a sign-in wall, a security check, a missing tool or file), run python3 farm-runner/runner.py report-blocked <run id> --step <your step> --by "<your role>" --reason "<what blocked you and why>" --session <your session id>. The board shows BLOCKED at once. Then stop and report BLOCKED with the same words. Never work around it.
 
 ## How every agent hands in

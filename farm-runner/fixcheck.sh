@@ -598,4 +598,23 @@ OUT=$($R proof $RM); expect "MUSEID proof lists each step's Muse job id" "Step 2
 grep -q "muse_ followed by YOUR OWN Muse scheduled job's id" $MS/step4-photo/JOB.md && grep -q -- "--session <your id>" $MS/step4-photo/JOB.md && ok "MUSEID every agent JOB.md tells Muse exactly what id to pass" "JOB.md" || bad "MUSEID JOB.md id line" ""
 OUT=$(python3 -c "import sys,argparse;sys.path.insert(0,'$ROOTF/farm-runner');import runner as r;from pathlib import Path;print(r.session_guard(Path('$HOME/workspace/farm-runs/$RM'),'Mila',6,argparse.Namespace(session='muse_job-mila-0001'),'MILA APPROVAL'))" 2>&1); expect "MUSEID a Muse id can never stand in for Mila" "REFUSED — Mila's verdicts carry her own Claude session.*None" "$(echo "$OUT"|tr '\n' ' ')"
 
+# ---------- FARM BRAIN (Glam, Nov 25: "update the farm brain" so every run reads today's decisions)
+python3 - "$ROOTF" <<'PYB' && ok "BRAIN today's 11 decisions are laws in farm-rules.json, on the right agents" "laws + agents" || bad "BRAIN rules" ""
+import json,sys
+r=sys.argv[1]; d=json.load(open(f"{r}/farm-rules.json"))
+ids={l["id"] for l in d["laws"]}
+need={"time-cap","scout-trends-only","saved-product-list","weekly-lineup","photos-ahead","shop-from-lineup","selling-points","stock-check","angle-log","scorecard","muse-agents"}
+assert need<=ids, need-ids
+A={a["step"]:a for a in d["agents"]}
+assert all("time-cap" in a["laws"] for a in d["agents"])
+assert "scout-trends-only" in A[2]["laws"] and "Do not page the showcase" in A[2]["job"]
+assert {"shop-from-lineup","stock-check","weekly-lineup"}<=set(A[3]["laws"]) and "weekly-lineup.json" in A[3]["job"]
+assert "photos-ahead" in A[4]["laws"] and "BLOCKED" in A[4]["job"]
+assert {"selling-points","angle-log"}<=set(A[6]["laws"]) and "selling-points.md" in A[6]["job"] and "angle-log.json" in A[6]["job"]
+for f in ["showcase-products.json","weekly-lineup.json","angle-log.json","scorecard.json"]: json.load(open(f"{r}/farm-data/{f}"))
+assert "## Farm brain changelog" in open(f"{r}/README.md").read()
+PYB
+RB=$($R create --mode "Get Ready With Me" | sed -n 's/^Run ID: //p')
+grep -q "Time cap: 5 minutes" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && grep -q "trends-only quick check" $HOME/workspace/farm-runs/$RB/steps/step2-scout/JOB.md && ok "BRAIN a new run's Scout JOB.md carries the 5-minute cap and trends-only rule" "JOB.md" || bad "BRAIN Scout JOB.md" ""
+
 echo; echo "SUMMARY: $P passed, $F failed"

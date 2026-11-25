@@ -107,3 +107,20 @@ What the driver never does: post or touch TikTok, approve a script, pass a QC ch
 `bash farm-runner/fixcheck.sh` runs every check in a scratch folder (never your real run folders) and prints a pass/fail summary.
 
 By Glam Hustle Hub.
+
+## Farm brain changelog
+
+### 2026-11-25 (rules version 2026-11-25h), approved by Glam on the call
+1. **Time cap:** every agent job gets a 5-minute cap. At the cap, it hands in what it has, or runs report-blocked with the reason.
+2. **Scout:** a trends-only quick check, capped at 5 minutes, at Step 2. It does not page the showcase.
+3. **Saved product list:** a saved showcase product list in the repo (name, sold count, in stock), refreshed once a day, not every run. No job pages all 264 products per run. File: `farm-data/showcase-products.json`.
+4. **Weekly lineup:** once a week, pick that week's products to promote from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily. File: `farm-data/weekly-lineup.json`.
+5. **Photos ahead:** each lineup product's real listing photos are pulled once and saved with the lineup (`farm-data/products/<listing id>/`). If a photo won't download, that product is BLOCKED with the reason. Never use a drawn or substituted photo.
+6. **Shop job:** Steps 3-4 pick the day's product from the weekly lineup and use its saved photos.
+7. **Selling points:** approved, claim-safe selling points for each product are saved next to its photos (`selling-points.md`), with no health or growth claims. Story uses them.
+8. **Stock and price check** at the start of each run. A sold-out product gets skipped and the next one is picked.
+9. **Angle log:** record the angle and hook each video used per product, so videos don't repeat. File: `farm-data/angle-log.json`.
+10. **Scorecard:** track which videos worked and which didn't (views, watch time, sales where visible) and each one's formula (hook, angle, format), so winners get repeated. It starts from existing @glamorousgrammyglowup stats, read only. The posting freeze stays ON. File: `farm-data/scorecard.json`.
+11. **Agents are the Muse jobs** (`muse_farm-agent-*`). Mila stays out of Muse and is started by the coordinator when a gate opens (the free stopgap). No Mila automation.
+
+Where it lives: each rule is a law in `farm-rules.json`, so every JOB.md prints it. The Scout, Shop and Story job texts, the agent prompts and `farm-data/README.md` all carry it too.

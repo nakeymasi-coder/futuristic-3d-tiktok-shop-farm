@@ -55,3 +55,4 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-25 21:05] Step 5: match verdict recorded — MATCH by Photo Match checker (grabber: TikTok Shop Agent).
 - [2026-11-25 21:05] CHAIN: Photo Match checker → Story Agent (Step 6) — handed off
 - [2026-11-25 21:05] CHAIN: Photo Match checker → Story Agent (Step 6) — handed off
+- [2026-11-25 21:05] CLAIM: Step 6 by Story Agent (muse_farm-agent-story) — 5-minute cap

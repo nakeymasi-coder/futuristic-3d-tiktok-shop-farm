@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25i",
+  "version": "2026-11-25j",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -202,18 +202,18 @@
     },
     {
       "id": "time-cap",
-      "title": "5-minute cap on every agent job",
-      "text": "Every agent job gets a 5-minute cap. At the cap, it hands in what it has, or runs report-blocked with the reason."
+      "title": "Time cap: Scout 10 minutes, every other job 5",
+      "text": "The Scout gets a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, it hands in what it has, or runs report-blocked with the reason."
     },
     {
       "id": "scout-trends-only",
       "title": "Scout is a trends-only quick check",
-      "text": "The Scout (Step 2) is a trends-only quick check, capped at 5 minutes. It does not page the showcase."
+      "text": "The Scout (Step 2) is a trends-only quick check, capped at 10 minutes. It does not page the showcase."
     },
     {
       "id": "saved-product-list",
       "title": "Saved showcase product list",
-      "text": "A saved showcase product list lives in the repo (farm-data/showcase-products.json: name, sold count, in stock), refreshed once a day, not every run. No job pages all 264 products per run."
+      "text": "A saved showcase product list lives in the repo (farm-data/showcase-products.json: name, sold count, in stock), refreshed once a day, not every run. No job pages all 264 products per run. Fact: the showcase page shows no sold counts."
     },
     {
       "id": "weekly-lineup",
@@ -254,6 +254,21 @@
       "id": "muse-agents",
       "title": "Agents are the Muse jobs",
       "text": "The agents are the Muse jobs (muse_farm-agent-*). Mila stays out of Muse and is started by the coordinator when a gate opens. No Mila automation."
+    },
+    {
+      "id": "best-seller-ranking",
+      "title": "How best sellers are ranked",
+      "text": "Best-seller ranking uses scorecard sales first, then past farm runs, then Scout trends."
+    },
+    {
+      "id": "photo-finisher",
+      "title": "Photo finisher job",
+      "text": "The photo finisher job works through the lineup's blocked photos a few at a time, turmeric staples first, and skips any already saved. It stays inside 5 minutes per run and saves real listing photos only. A photo that won't download stays BLOCKED with the reason."
+    },
+    {
+      "id": "repo-first",
+      "title": "Farm changes live in the repo first",
+      "text": "A farm change lives in the repo first, and Muse jobs only follow what's on main."
     }
   ],
   "mila_scorecard": {
@@ -732,7 +747,7 @@
       "by": [
         "TikTok Scout"
       ],
-      "job": "Trends-only quick check, capped at 5 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
+      "job": "Trends-only quick check, capped at 10 minutes: find what is rising on TikTok today for the shop account (trending sounds, hashtags, top videos in the category) and put real, named, dated findings on the run. Do not page the showcase. Bring the one story sentence on a 'Story:' line: who this is for and why they'd care, in Glam's voice, the way she'd say it to a friend. No sentence, no handoff.",
       "inputs": [
         "the run (opened empty at Start a Run)"
       ],
@@ -746,7 +761,8 @@
         "blocked",
         "time-cap",
         "muse-agents",
-        "scout-trends-only"
+        "scout-trends-only",
+        "repo-first"
       ],
       "needs": [
         "the farm's TikTok browser (Glam keeps it signed in) to read today's trends",
@@ -779,7 +795,9 @@
         "muse-agents",
         "shop-from-lineup",
         "weekly-lineup",
-        "stock-check"
+        "stock-check",
+        "repo-first",
+        "best-seller-ranking"
       ],
       "needs": [
         "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
@@ -809,7 +827,8 @@
         "time-cap",
         "muse-agents",
         "shop-from-lineup",
-        "photos-ahead"
+        "photos-ahead",
+        "repo-first"
       ],
       "needs": [
         "the product's real listing photos, saved with the weekly lineup"
@@ -840,7 +859,8 @@
         "exact-product",
         "qc",
         "time-cap",
-        "muse-agents"
+        "muse-agents",
+        "repo-first"
       ],
       "needs": [
         "someone other than the grabber who can open the live listing to compare"
@@ -883,7 +903,8 @@
         "time-cap",
         "muse-agents",
         "selling-points",
-        "angle-log"
+        "angle-log",
+        "repo-first"
       ],
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -916,7 +937,8 @@
         "casting",
         "exact-product",
         "time-cap",
-        "muse-agents"
+        "muse-agents",
+        "repo-first"
       ],
       "needs": [
         "access to Glam's uploaded model photos"
@@ -959,7 +981,8 @@
         "no-prices",
         "no-use-claims",
         "time-cap",
-        "muse-agents"
+        "muse-agents",
+        "repo-first"
       ],
       "needs": [
         "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
@@ -998,7 +1021,8 @@
         "no-dead-air",
         "labels",
         "time-cap",
-        "muse-agents"
+        "muse-agents",
+        "repo-first"
       ],
       "needs": [
         "Video Express in the farm's browser (kept signed in) to build the video"
@@ -1032,7 +1056,8 @@
         "qc",
         "exact-product",
         "labels",
-        "time-cap"
+        "time-cap",
+        "repo-first"
       ],
       "needs": [
         "Mila (an AI agent that can watch the video frame by frame and hear the audio)"

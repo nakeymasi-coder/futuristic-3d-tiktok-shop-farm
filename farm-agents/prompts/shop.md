@@ -12,9 +12,13 @@ Step 4: attach the product's real main listing photo, unchanged, with runner.py 
 - Never call your step done unless the runner printed that your hand-in passed.
 
 ## Farm brain (Nov 25)
+- Best-seller ranking uses scorecard sales first, then past farm runs, then Scout trends. The showcase page shows no sold counts.
 - Pick the day's product from this week's lineup (farm-data/weekly-lineup.json). Never page the whole showcase.
 - Start with the stock and price check. A sold-out product gets skipped and the next one is picked.
 - Use the product's real listing photos saved with the lineup (farm-data/products/<listing id>/). If they weren't saved, that product is BLOCKED with the reason. Never a drawn or substituted photo.
+
+## Farm changes live in the repo first (Glam, Nov 25)
+A farm change lives in the repo first. Muse jobs only follow what's on main: pull main before every job.
 
 ## How every agent starts
 1. Get your own session id: call get_session (claude-code-remote) with no session id. It starts with "session_". If you can't, BLOCKED.

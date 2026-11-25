@@ -16,6 +16,9 @@ You never approve your own work; Mila does.
 - Use the product's approved selling points (farm-data/products/<listing id>/selling-points.md). No health or growth claims.
 - Check the angle log (farm-data/angle-log.json) so this product's angle and hook don't repeat, and record this video's angle and hook there.
 
+## Farm changes live in the repo first (Glam, Nov 25)
+A farm change lives in the repo first. Muse jobs only follow what's on main: pull main before every job.
+
 ## How every agent starts
 1. Get your own session id: call get_session (claude-code-remote) with no session id. It starts with "session_". If you can't, BLOCKED.
 2. Get the farm: clone https://github.com/nakeymasi-coder/futuristic-3d-tiktok-shop-farm (main branch) and cd into it.

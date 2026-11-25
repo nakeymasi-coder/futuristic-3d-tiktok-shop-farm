@@ -107,5 +107,15 @@
     "enabled": false,
     "trigger_id": "",
     "why": "Catches a job left waiting when a handoff fire was missed. Costs one short session per hour while on. OFF until Glam says yes."
-  }
+  },
+  "support_jobs": [
+    {
+      "role": "Photo finisher",
+      "steps": [],
+      "prompt": "prompts/photo-finisher.md",
+      "mode": "Muse job, not a run step; 5 minutes per run",
+      "what": "saves the weekly lineup's blocked real listing photos a few at a time, turmeric staples first",
+      "trigger_id": ""
+    }
+  ]
 }

@@ -111,7 +111,7 @@ By Glam Hustle Hub.
 ## Farm brain changelog
 
 ### 2026-11-25 (rules version 2026-11-25h), approved by Glam on the call
-1. **Time cap:** every agent job gets a 5-minute cap. At the cap, it hands in what it has, or runs report-blocked with the reason.
+1. **Time cap:** every agent job gets a 5-minute cap (the Scout's is now 10, see item 13). At the cap, it hands in what it has, or runs report-blocked with the reason.
 2. **Scout:** a trends-only quick check, capped at 5 minutes, at Step 2. It does not page the showcase.
 3. **Saved product list:** a saved showcase product list in the repo (name, sold count, in stock), refreshed once a day, not every run. No job pages all 264 products per run. File: `farm-data/showcase-products.json`.
 4. **Weekly lineup:** once a week, pick that week's products to promote from the saved list (in-stock best sellers). Glam's turmeric products are ALWAYS included every week and can run daily. File: `farm-data/weekly-lineup.json`.
@@ -124,5 +124,10 @@ By Glam Hustle Hub.
 11. **Agents are the Muse jobs** (`muse_farm-agent-*`). Mila stays out of Muse and is started by the coordinator when a gate opens (the free stopgap). No Mila automation.
 
 12. **HARD RULE, products only from Streamer Desktop** (rules version 2026-11-25i): anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself. It's the first law in `farm-rules.json`, at the top of every JOB.md and at the top of every agent prompt.
+
+13. **Time cap update** (rules version 2026-11-25j): the Scout gets 10 minutes, and all other jobs stay at 5.
+14. **Photo finisher job:** it works through the lineup's blocked photos a few at a time, turmeric staples first, and skips any already saved. It stays inside 5 minutes per run and saves real listing photos only. A photo that won't download stays BLOCKED with the reason. Prompt: `farm-agents/prompts/photo-finisher.md`, listed in `farm-agents/routines.json` under `support_jobs`.
+15. **Facts Indigo found:** the showcase page shows no sold counts. Best-seller ranking uses scorecard sales first, then past farm runs, then Scout trends.
+16. **Repo first:** a farm change lives in the repo first, and Muse jobs only follow what's on main.
 
 Where it lives: each rule is a law in `farm-rules.json`, so every JOB.md prints it. The Scout, Shop and Story job texts, the agent prompts and `farm-data/README.md` all carry it too.

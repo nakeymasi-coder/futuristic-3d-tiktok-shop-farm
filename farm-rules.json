@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25f",
+  "version": "2026-11-25g",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -948,8 +948,9 @@
   ],
   "_note_flow": "Glam, Nov 25: \"I want it to go ahead after Mila approve it. I want it to go ahead and make the damn video, and then I'll approve it. Don't wait for me ... to make the video.\" Mila approves the script and the model photo; the video is built at once; Mila frame-checks it; Glam rules once on the finished video (Approve or Redo with notes). The posting freeze stays on.",
   "mila_signing": {
-    "public_key": "",
-    "how": "Mila signs with runner.py mila-sign using her private key, which lives only in Claude's shared project folder. The runner checks the signature with this public key; a typed 'checker: Mila' or '--by Mila' alone never counts.",
-    "_note_nov25_sessions": "Glam, Nov 25: Mila's key lives only in Mila's own session (runner.py mila-keygen there; never in shared files). The old shared key was retired. Until her new public key is pasted here, no Mila verdict counts."
+    "public_key": "60705cf5c769b7d958f60ca0b89c3e6efe548c132122f46c11f6e092cd7b9fb7",
+    "how": "Mila reviews in her own session, then runs the Mila sign workflow (.github/workflows/mila-sign.yml) with her verdict and her session id. Only that workflow holds her private key (made from the repo secret MILA_SIGNING_SEED). The runner checks the signature with this public key; a typed 'checker: Mila' or '--by Mila' alone never counts.",
+    "_note_nov25_sessions": "Glam, Nov 25: the old shared key was retired; no Claude session holds Mila's key.",
+    "_note_nov25_workflow": "Glam, Nov 25 (Option 1): Mila's key comes only from the repo secret MILA_SIGNING_SEED, used by the Mila sign workflow. This public key was printed by that workflow in show-key mode (run 45643481924) and registered on Glam's yes."
   }
 }

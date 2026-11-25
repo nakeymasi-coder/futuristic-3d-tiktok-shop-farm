@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25 20:58",
+  "generated_at": "2026-11-25 21:02",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -684,15 +684,15 @@
     },
     {
       "run_id": "run-2026-11-25-3",
-      "pick": "",
+      "pick": "Turmeric + Honey Body Oil - Plant-Based Body Care Massage Oil, Gentle Hydrating Moisture-Booster, 7-Day Turmeric Aid, Nourishing Antioxidant Self Care Product, Winter Warmth for Adults, All Skin Types, 200ml",
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 3 (Pick) — no pick record on file (steps/step3-pick/pick.md)",
+      "headline": "BLOCKED at Step 4 (Product Photo) — no product photo attached — no photo in hand, no scene, no script, full stop",
       "state": "BLOCKED",
-      "open_step": 3,
-      "open_step_name": "Pick",
-      "needs": "TikTok Shop Agent — needs: TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product",
+      "open_step": 4,
+      "open_step_name": "Product Photo",
+      "needs": "TikTok Shop Agent — needs: the product's real listing photos, saved with the weekly lineup",
       "owner": "TikTok Shop Agent",
       "steps": [
         {
@@ -712,8 +712,8 @@
         {
           "n": 3,
           "name": "Pick",
-          "state": "WAITING",
-          "reason": "no pick record on file (steps/step3-pick/pick.md)",
+          "state": "CLEARED",
+          "reason": "pick recorded: Turmeric + Honey Body Oil - Plant-Based Body Care Massage Oil, Gentle Hydrating Moisture-Booster, 7-Day Turmeric Aid, Nourishing Antioxidant Self Care Product, Winter Warmth for Adults, All Skin Types, 200ml",
           "agent": "TikTok Shop Agent"
         },
         {
@@ -804,12 +804,12 @@
         }
       ],
       "open_job": {
-        "step": 3,
+        "step": 4,
         "agent": "TikTok Shop Agent",
-        "job_file": "steps/step3-pick/JOB.md",
-        "job": "Pick the day's product from this week's lineup (farm-data/weekly-lineup.json). Start with the stock and price check: a sold-out product gets skipped and the next one is picked. Write the pick record with a 'product:' line (exact listing name) and the listing ID or link.",
+        "job_file": "steps/step4-photo/JOB.md",
+        "job": "Submit the picked product's real listing photo from its photos saved with the lineup (farm-data/products/<listing id>/). It becomes the only product description for every later step. If its photos weren't saved, the product is BLOCKED with the reason. Never a drawn or substituted photo. A photo comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed), or the image links saved from those (image_urls in farm-data/showcase-products.json, downloaded with no browser and no sign-in), never from a regular tiktok.com video or profile page. Only a product-only image, never one with a person, face, hands or body in it. Any bot or security check: report BLOCKED at once with the site and page, never solve it or wait on it.",
         "needs": [
-          "TikTok Shop Streamer Desktop / LIVE Manager (Glam signs it in herself) for the stock and price check on the picked product"
+          "the product's real listing photos, saved with the weekly lineup"
         ],
         "since": "2026-11-25 17:32",
         "sent_back": []

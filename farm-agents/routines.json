@@ -1,0 +1,14 @@
+{
+  "_what": "Each farm agent is its own Routine. Every firing starts a fresh session that does only that agent's step, hands in with its own session id, then fires the next agent's Routine. Mila is one persistent session (her signing key lives only there). trigger_id is filled in when the Routine is created. All start switched OFF: the agent Routines have no schedule (they cost nothing until fired), and the dispatcher's hourly schedule stays disabled until Glam says yes.",
+  "repo": "nakeymasi-coder/futuristic-3d-tiktok-shop-farm",
+  "agents": [
+    {"role": "TikTok Scout", "steps": [2], "prompt": "prompts/scout.md", "mode": "fresh session per fire, no schedule", "next": "TikTok Shop Agent", "needs": ["Glam's Chrome signed in to TikTok"], "trigger_id": ""},
+    {"role": "TikTok Shop Agent", "steps": [3, 4], "prompt": "prompts/shop.md", "mode": "fresh session per fire, no schedule", "next": "Photo Match checker", "needs": ["Glam's Chrome signed in to TikTok Shop Streamer Desktop"], "trigger_id": ""},
+    {"role": "Photo Match checker", "steps": [5], "prompt": "prompts/photo-check.md", "mode": "fresh session per fire, no schedule", "next": "Story Agent", "needs": ["Glam's Chrome to view the live listing photo"], "trigger_id": ""},
+    {"role": "Story Agent", "steps": [6, 8], "prompt": "prompts/story.md", "mode": "fresh session per fire, no schedule", "next": "Mila", "needs": [], "trigger_id": ""},
+    {"role": "Casting / Image Agent", "steps": [7], "prompt": "prompts/casting.md", "mode": "fresh session per fire, no schedule", "next": "Mila", "needs": ["Glam's uploaded model photos (Drive: Glam Claude Handoff)"], "trigger_id": ""},
+    {"role": "Video Agent", "steps": [9], "prompt": "prompts/video.md", "mode": "fresh session per fire, no schedule", "next": "Mila", "needs": ["Glam's Chrome signed in to Video Express"], "trigger_id": ""},
+    {"role": "Mila", "steps": [6, 7, 10], "prompt": "prompts/mila.md", "mode": "ONE persistent session (fires into the same session every time), no schedule", "next": "whoever the runner opens next", "needs": ["her own key, made in her own session with runner.py mila-keygen"], "trigger_id": "", "session_id": ""}
+  ],
+  "dispatcher": {"name": "Farm dispatcher", "prompt": "prompts/dispatcher.md", "mode": "fresh session per fire", "schedule": "hourly", "enabled": false, "trigger_id": "", "why": "Catches a job left waiting when a handoff fire was missed. Costs one short session per hour while on. OFF until Glam says yes."}
+}

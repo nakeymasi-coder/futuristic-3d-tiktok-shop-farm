@@ -6,6 +6,12 @@ export HOME=/tmp/fx; rm -rf $HOME; mkdir -p $HOME
 # Live status goes to a scratch file during tests, never into the repo.
 export FARM_STATUS_OUT=/tmp/fx/farm-status.json
 export FARM_NO_PUBLISH=1
+# Glam, Nov 25: tests run in test mode with their own throwaway Mila key;
+# the real key lives only in Mila's own session.
+export FARM_TEST_MODE=1
+python3 -c "import os;open('/tmp/fx_mila_key','w').write(os.urandom(32).hex())"
+export MILA_SIGNING_KEY=/tmp/fx_mila_key
+export FARM_TEST_MILA_PUBKEY=$(python3 -c "import sys;sys.path.insert(0,'$(cd "$(dirname "$0")" && pwd)');import ed25519 as e;print(e.public_key(bytes.fromhex(open('/tmp/fx_mila_key').read().strip())).hex())")
 R="python3 $(cd "$(dirname "$0")" && pwd)/runner.py"
 P=0; F=0
 ok(){ P=$((P+1)); echo "PASS  $1 :: $2"; }
@@ -471,5 +477,34 @@ grep -q 'window.open("https://github.com/nakeymasi-coder/futuristic-3d-tiktok-sh
 grep -q 'product:' "$ROOTF/.github/workflows/start-run.yml" && grep -q -- '--pick "$PRODUCT"' "$ROOTF/.github/workflows/start-run.yml" && ok "LANES the workflow takes the product for Product-to-Post" "start-run.yml" || bad "LANES workflow product input" ""
 ! grep -q 'status: "Waiting' "$ROOTF/index.html" && grep -q 'pill.textContent = "Draft — not a run"' "$ROOTF/index.html" && grep -q "var queue = \[\];" "$ROOTF/index.html" && ok "QUEUE drafts never show a run's step status, and no sample draft is seeded" "index.html" || bad "QUEUE drafts still look like runs" ""
 grep -q "UP NOW" "$ROOTF/index.html" && ok "BOARD agents light up from the real status" "index.html" || bad "BOARD agent lights" ""
+
+# Glam, Nov 25: each agent is its own session; Mila's key only in her session.
+SG=/tmp/fx_sess; rm -rf $SG; mkdir -p $SG/home
+Rn(){ env -u FARM_TEST_MODE HOME=$SG/home python3 "$ROOTF/farm-runner/runner.py" "$@"; }
+Rn create --mode "Get Ready With Me" >/dev/null 2>&1
+SR=$(ls $SG/home/workspace/farm-runs | head -1)
+printf 'Scout notes: the trends.\nStory: For grown ladies who give everyone else their evenings, this is a little scalp-care moment that is just theirs.\n' > $SG/scout.md
+OUT=$(Rn submit $SR --step 2 --by "TikTok Scout" --file $SG/scout.md 2>&1; echo "exit $?"); expect "SESSION a hand-in without the agent's own session is refused" "SUBMIT REFUSED.*names the agent's own session.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rn submit $SR --step 2 --by "TikTok Scout" --file $SG/scout.md --session session_01SCOUTAAAAAAA 2>&1); expect "SESSION the Scout's own session hands in" "checks passed|Handed to" "$OUT"
+printf 'product: Test Oil\nlisting ID: 123\n' > $SG/pick.md
+OUT=$(Rn submit $SR --step 3 --by "TikTok Shop Agent" --file $SG/pick.md --session session_01SCOUTAAAAAAA 2>&1; echo "exit $?"); expect "SESSION one session can't play a second agent" "already acted as TikTok Scout.*One session, one role.*exit 2" "$(echo "$OUT"|tr '\n' ' ')"
+OUT=$(Rn submit $SR --step 3 --by "TikTok Shop Agent" --file $SG/pick.md --session session_01SHOPBBBBBBBB 2>&1); expect "SESSION the Shop Agent's own session hands in" "checks passed|Handed to" "$OUT"
+OUT=$(Rn proof $SR 2>&1); expect "PROOF lists a different session per step" "OK — 2 different session" "$(echo "$OUT"|tr '\n' ' ')"
+mkdir -p $SG/shared; cp /tmp/fx_mila_key $SG/shared/k
+OUT=$(env -u FARM_TEST_MODE MILA_SIGNING_KEY=/mnt/project-files/.mila-test-never HOME=$SG/home python3 -c "import sys;sys.path.insert(0,'$ROOTF/farm-runner');import runner as r;print(r.key_in_shared_folder('/mnt/project-files/.mila/mila-signing-key'), r.key_in_shared_folder('$SG/home/.mila/k'))"); expect "MILA a key in the shared project files is never used" "^True False$" "$OUT"
+OUT=$(env -u MILA_SIGNING_KEY -u FARM_TEST_MODE HOME=$SG/home python3 "$ROOTF/farm-runner/runner.py" mila-keygen 2>&1); expect "MILA her own session makes her key, prints only the public key" "stays only in this session.*Public key for farm-rules.json" "$(echo "$OUT"|tr '\n' ' ')"
+[ -f $SG/home/.mila/mila-signing-key ] && [ "$(stat -c %a $SG/home/.mila/mila-signing-key)" = 600 ] && ok "MILA key file sits in her session's home, owner-only" "600" || bad "MILA key file" ""
+grep -q '"public_key": ""' "$ROOTF/farm-rules.json" && ok "MILA the old shared key is retired (no verdict counts until her new key is registered)" "public_key empty" || bad "MILA old key still registered" ""
+python3 - "$ROOTF" <<'PYX' && ok "AGENTS every agent has its own Routine prompt that hands in with its session and stops on BLOCKED" "routines.json" || bad "AGENTS prompts" ""
+import json,sys,os
+root=sys.argv[1]; d=json.load(open(f"{root}/farm-agents/routines.json"))
+roles=[a["role"] for a in d["agents"]]
+assert {"TikTok Scout","TikTok Shop Agent","Photo Match checker","Story Agent","Casting / Image Agent","Video Agent","Mila"} <= set(roles), roles
+for a in d["agents"]+[d["dispatcher"]]:
+    t=open(f"{root}/farm-agents/{a['prompt']}").read()
+    assert "BLOCKED" in t and "get_session" in t, a["prompt"]
+    if a in d["agents"]: assert "--session" in t and "fire_trigger" in t, a["prompt"]
+assert d["dispatcher"]["enabled"] is False
+PYX
 
 echo; echo "SUMMARY: $P passed, $F failed"

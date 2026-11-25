@@ -828,13 +828,83 @@ def blocking_findings(findings):
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ed25519 as _ed  # noqa: E402
 
-MILA_KEY_DEFAULT = Path("/mnt/project-files/.mila/mila-signing-key")
+# Glam, Nov 25: Mila's private key lives ONLY in Mila's own session (its own
+# home folder), never in the shared project files, so no other agent or
+# session can sign as her. The runner refuses to sign from a shared folder.
+MILA_KEY_DEFAULT = Path.home() / ".mila" / "mila-signing-key"
+SHARED_ROOTS = ("/mnt/project-files", "/mnt/attach/project-files")
 SIGNED_FIELDS = ("kind", "run", "step", "verdict", "covers", "notes",
-                 "signed_at")
+                 "session", "signed_at")
+
+
+def test_mode():
+    return os.environ.get("FARM_TEST_MODE") == "1"
 
 
 def mila_key_path():
     return Path(os.environ.get("MILA_SIGNING_KEY") or MILA_KEY_DEFAULT)
+
+
+def mila_public_key():
+    if test_mode() and os.environ.get("FARM_TEST_MILA_PUBKEY"):
+        return os.environ["FARM_TEST_MILA_PUBKEY"]
+    return (RULES.get("mila_signing", {}) or {}).get("public_key", "")
+
+
+def key_in_shared_folder(p):
+    try:
+        rp = str(Path(p).expanduser().resolve())
+    except OSError:
+        rp = str(p)
+    return any(rp.startswith(r) for r in SHARED_ROOTS)
+
+
+# ---- Each agent is its own session (Glam, Nov 25: "No session plays another
+# agent's role"). Every hand-in names the session that did it; one session
+# acts as one role per run; the ledger is the proof per step.
+SESSION_RE = re.compile(r"^session_[A-Za-z0-9]{8,}$")
+
+
+def ledger_path(run):
+    return run / "sessions.jsonl"
+
+
+def read_ledger(run):
+    p = ledger_path(run)
+    out = []
+    if p.exists():
+        for line in p.read_text(encoding="utf-8").splitlines():
+            try:
+                out.append(json.loads(line))
+            except ValueError:
+                continue
+    return out
+
+
+def session_guard(run, role, step, args, what):
+    """Return the session id, or None (and print REFUSED) when the hand-in
+    doesn't name a real session, or the session already played another
+    role on this run."""
+    sid = (getattr(args, "session", None) or os.environ.get("FARM_SESSION_ID")
+           or "").strip()
+    if not sid and test_mode():
+        sid = "session_TESTMODE" + re.sub(r"[^A-Za-z0-9]", "", role)[:20]
+    if not SESSION_RE.match(sid):
+        print(f"{what} REFUSED — every hand-in names the agent's own session "
+              "(--session session_...; the agent reads it with get_session). "
+              "Each farm agent runs as its own session.")
+        return None
+    norm = role.strip().lower()
+    for rec in read_ledger(run):
+        if rec.get("session") == sid and rec.get("role", "").lower() != norm:
+            print(f"{what} REFUSED — session {sid} already acted as "
+                  f"{rec.get('role')} on this run. One session, one role: "
+                  f"{role} must be its own session.")
+            return None
+    with ledger_path(run).open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps({"at": now_stamp(), "step": step, "role": role,
+                             "session": sid, "what": what}) + "\n")
+    return sid
 
 
 def covers_for(paths):
@@ -845,12 +915,13 @@ def _signed_message(kv):
     return "\n".join(f"{k}: {kv.get(k, '')}" for k in SIGNED_FIELDS).encode()
 
 
-def mila_sign_text(run_id, step, verdict, paths, notes=""):
+def mila_sign_text(run_id, step, verdict, paths, notes="", session=""):
     """Mila's signed verdict (only where her private key lives)."""
     seed = bytes.fromhex(mila_key_path().read_text().strip())
     kv = {"kind": "mila-verdict", "run": run_id, "step": str(step),
           "verdict": verdict.upper(), "covers": covers_for(paths),
-          "notes": " ".join(str(notes).split()), "signed_at": now_stamp()}
+          "notes": " ".join(str(notes).split()), "session": session,
+          "signed_at": now_stamp()}
     sig = _ed.sign(seed, _signed_message(kv)).hex()
     return "".join(f"{k}: {kv[k]}\n" for k in SIGNED_FIELDS) + \
         "checker: Mila\n" + f"signature: {sig}\n"
@@ -862,9 +933,11 @@ def mila_verify(path, run_id, step, paths):
     kv = parse_kv(Path(path))
     if not kv:
         return False, "no verdict file", kv
-    pub = (RULES.get("mila_signing", {}) or {}).get("public_key", "")
+    pub = mila_public_key()
     if not pub:
-        return False, "farm-rules.json has no Mila public key", kv
+        return False, ("Mila's key isn't registered yet (farm-rules.json "
+                       "mila_signing.public_key is empty) — Mila's own "
+                       "session makes it with runner.py mila-keygen"), kv
     try:
         ok = _ed.verify(bytes.fromhex(pub), _signed_message(kv),
                         bytes.fromhex(kv.get("signature", "")))
@@ -1567,6 +1640,8 @@ def cmd_attach_photo(args):
     if src.suffix.lower() not in IMAGE_EXTS:
         raise SystemExit(f"Not an image file ({src.suffix}); the Step 4 "
                          "evidence must be the listing photo image itself.")
+    if not session_guard(run, args.by, 4, args, "ATTACH PHOTO"):
+        return 2
     dest_dir = run / "steps" / STEP_DIRS[4]
     dest = dest_dir / src.name
     shutil.copy2(src, dest)
@@ -1580,6 +1655,8 @@ def cmd_attach_photo(args):
 
 def cmd_record_match(args):
     run = resolve_run(args.run)
+    if not session_guard(run, args.checker, 5, args, "RECORD MATCH"):
+        return 2
     dest = run / "steps" / STEP_DIRS[5] / "match-verdict.md"
     body = (
         f"verdict: {args.verdict}\n"
@@ -1623,6 +1700,14 @@ def _place_verdict(args, run, step, paths, dest_ok, dest_back):
     if not ok:
         print(f"REFUSED — the verdict file doesn't count: {why}.")
         return 2
+    sid = session_guard(run, "Mila", step, args, "MILA VERDICT")
+    if not sid:
+        return 2
+    if not test_mode() and kv.get("session") != sid:
+        print("REFUSED — Mila's verdict was signed in a different session "
+              f"({kv.get('session') or 'none'}) than the one placing it "
+              f"({sid}). Mila signs and places her own verdict.")
+        return 2
     dest = dest_ok if kv.get("verdict") == "APPROVE" else dest_back
     shutil.copy2(Path(vf).expanduser(), dest)
     if kv.get("verdict") != "APPROVE":
@@ -1638,7 +1723,8 @@ def _place_verdict(args, run, step, paths, dest_ok, dest_back):
 
 
 def _can_sign():
-    return mila_key_path().is_file()
+    p = mila_key_path()
+    return p.is_file() and not key_in_shared_folder(p)
 
 
 def cmd_approve_script(args):
@@ -1685,8 +1771,11 @@ def cmd_approve_script(args):
             sheet_log(run, "Step 6: script approval REFUSED — script fails the "
                            f"script check ({len(bad)} finding(s)).")
             return 2
+        sid = session_guard(run, "Mila", 6, args, "MILA APPROVAL")
+        if not sid:
+            return 2
         (folder / "mila-script-approval.md").write_text(
-            mila_sign_text(run.name, 6, "APPROVE", [script]),
+            mila_sign_text(run.name, 6, "APPROVE", [script], session=sid),
             encoding="utf-8")
         sheet_log(run, "Step 6: Mila's script approval recorded.")
         print(f"Recorded Mila's script approval for {run.name}.")
@@ -1733,8 +1822,12 @@ def cmd_approve_image(args):
         sheet_log(run, f"Step 7: Mila sent the model photo back — {args.send_back.strip()}")
         print(f"Mila sent the model photo back to Casting: {args.send_back.strip()}")
     else:
+        sid = session_guard(run, "Mila", 7, args, "MILA APPROVAL")
+        if not sid:
+            return 2
         (folder / "mila-image-approval.md").write_text(
-            mila_sign_text(run.name, 7, "APPROVE", imgs), encoding="utf-8")
+            mila_sign_text(run.name, 7, "APPROVE", imgs, session=sid),
+            encoding="utf-8")
         sheet_log(run, "Step 7: Mila's model photo approval recorded.")
         print(f"Recorded Mila's model photo approval for {run.name}.")
     info = sync_chain(run, actor="Mila")
@@ -1746,9 +1839,21 @@ def cmd_approve_image(args):
 
 def cmd_mila_sign(args):
     """Mila signs a verdict (only where her private key lives)."""
+    if key_in_shared_folder(mila_key_path()):
+        print("REFUSED — Mila's key is in a shared folder. It lives only in "
+              "Mila's own session (~/.mila); a shared key lets anyone sign "
+              "as her.")
+        return 2
     if not _can_sign():
         print("REFUSED — Mila's signing key isn't on this machine. Only Mila "
-              "signs her verdicts.")
+              "signs her verdicts, in her own session.")
+        return 2
+    sid = (args.session or os.environ.get("FARM_SESSION_ID") or "").strip()
+    if not sid and test_mode():
+        sid = "session_TESTMODEMila"
+    if not SESSION_RE.match(sid):
+        print("REFUSED — Mila signs with her own session id "
+              "(--session session_...).")
         return 2
     files = [Path(f).expanduser() for f in args.file]
     missing = [str(f) for f in files if not f.is_file()]
@@ -1756,11 +1861,57 @@ def cmd_mila_sign(args):
         print(f"REFUSED — file(s) not found: {', '.join(missing)}")
         return 2
     text = mila_sign_text(args.run, args.step, args.verdict, files,
-                          args.notes or "")
+                          args.notes or "", session=sid)
     out = Path(args.out or f"mila-verdict-{args.run}-step{args.step}.md")
     out.write_text(text, encoding="utf-8")
     print(f"Signed Mila's {args.verdict.upper()} for {args.run} Step "
           f"{args.step} → {out}")
+    return 0
+
+
+def cmd_mila_keygen(args):
+    """Mila's own session makes her key pair. The private key stays in this
+    session's home folder; only the public key is printed, for farm-rules.json."""
+    p = mila_key_path()
+    if key_in_shared_folder(p):
+        print("REFUSED — the key may not live in a shared folder.")
+        return 2
+    if p.is_file() and not args.replace:
+        seed = bytes.fromhex(p.read_text().strip())
+        print(f"Mila's key already exists here. Public key: "
+              f"{_ed.public_key(seed).hex()}")
+        return 0
+    p.parent.mkdir(parents=True, exist_ok=True)
+    seed = os.urandom(32)
+    p.write_text(seed.hex() + "\n", encoding="utf-8")
+    os.chmod(p, 0o600)
+    print("Mila's private key was made and stays only in this session "
+          f"({p}). Public key for farm-rules.json mila_signing.public_key: "
+          f"{_ed.public_key(seed).hex()}")
+    return 0
+
+
+def cmd_proof(args):
+    """Who did each step: the session id per step, from the run's ledger.
+    Check each id against the farm agent's own Routine run record."""
+    run = resolve_run(args.run)
+    recs = read_ledger(run)
+    if not recs:
+        print(f"PROOF {run.name}: no hand-ins with a session on file.")
+        return 1
+    print(f"PROOF {run.name} — session per hand-in (check each against that "
+          "agent's Routine run record):")
+    roles = {}
+    for r in recs:
+        print(f"  Step {r.get('step')}  {r.get('role'):<26} {r.get('session')}"
+              f"  {r.get('at')}  {r.get('what')}")
+        roles.setdefault(r.get("session"), set()).add(r.get("role"))
+    multi = {s: sorted(v) for s, v in roles.items() if len(v) > 1}
+    if multi:
+        print("PROOF FAILS — one session played more than one role: "
+              + "; ".join(f"{s}: {', '.join(v)}" for s, v in multi.items()))
+        return 2
+    print(f"OK — {len(roles)} different session(s), one role each.")
     return 0
 
 
@@ -2808,6 +2959,9 @@ def cmd_submit(args):
     if not src.is_file():
         print(f"SUBMIT REFUSED — file not found: {src}")
         return 2
+    if not session_guard(run, "Mila" if n == 10 else args.by, n, args,
+                         "SUBMIT"):
+        return 2
     folder = run / "steps" / STEP_DIRS[n]
     if n == 10:
         cfg = load_config(run)
@@ -3053,6 +3207,7 @@ def main():
     p.add_argument("run")
     p.add_argument("file")
     p.add_argument("--by", default="Indigo", help="who grabbed the photo (grabber of record)")
+    p.add_argument("--session", default=None, help="this agent's own session id (session_...)")
     p.set_defaults(fn=cmd_attach_photo)
 
     p = sub.add_parser("record-match", help="record the Step 5 Photo Match verdict")
@@ -3061,6 +3216,7 @@ def main():
     p.add_argument("--grabber", required=True)
     p.add_argument("--verdict", required=True, choices=["MATCH", "NO-MATCH"])
     p.add_argument("--notes", default="")
+    p.add_argument("--session", default=None, help="this agent's own session id (session_...)")
     p.set_defaults(fn=cmd_record_match)
 
     p = sub.add_parser("approve-script", help="Mila's Step 6 gate: approve the exact script (or --send-back \"notes\")")
@@ -3068,6 +3224,7 @@ def main():
     p.add_argument("--by", default="", help="must be Mila")
     p.add_argument("--send-back", default="", help="send the script back to the Story Agent with these notes")
     p.add_argument("--verdict-file", default="", help="Mila's signed verdict file (runner.py mila-sign)")
+    p.add_argument("--session", default=None, help="this agent's own session id (session_...)")
     p.set_defaults(fn=cmd_approve_script)
 
     p = sub.add_parser("mila-sign", help="Mila signs a verdict (only where her key lives)")
@@ -3077,6 +3234,7 @@ def main():
     p.add_argument("--file", action="append", required=True, help="the exact file(s) checked")
     p.add_argument("--notes", default="")
     p.add_argument("--out", default="")
+    p.add_argument("--session", default=None, help="this agent's own session id (session_...)")
     p.set_defaults(fn=cmd_mila_sign)
 
     p = sub.add_parser("approve-image", help="Mila's Step 7 gate: approve the exact model photo (or --send-back \"notes\")")
@@ -3084,6 +3242,7 @@ def main():
     p.add_argument("--by", default="", help="must be Mila")
     p.add_argument("--send-back", default="", help="send the photo back to Casting with these notes")
     p.add_argument("--verdict-file", default="", help="Mila's signed verdict file (runner.py mila-sign)")
+    p.add_argument("--session", default=None, help="this agent's own session id (session_...)")
     p.set_defaults(fn=cmd_approve_image)
 
     p = sub.add_parser("submit", help="an agent hands in its step's work; the step's checks run at once and the chain hands off or sends it back")
@@ -3091,6 +3250,7 @@ def main():
     p.add_argument("--step", type=int, required=True)
     p.add_argument("--by", required=True, help="the agent handing it in (must be that step's agent)")
     p.add_argument("--file", required=True)
+    p.add_argument("--session", default=None, help="this agent's own session id (session_...)")
     p.set_defaults(fn=cmd_submit)
 
     p = sub.add_parser("jobs", help="list every open agent job across runs and write farm-jobs.json")
@@ -3140,11 +3300,19 @@ def main():
     p.add_argument("--page", default=None)
     p.set_defaults(fn=cmd_check_rules)
 
+    p = sub.add_parser("mila-keygen", help="Mila's own session makes her key pair (private key stays in that session)")
+    p.add_argument("--replace", action="store_true")
+    p.set_defaults(fn=cmd_mila_keygen)
+
+    p = sub.add_parser("proof", help="show the session id behind every hand-in on a run")
+    p.add_argument("run")
+    p.set_defaults(fn=cmd_proof)
+
     p = sub.add_parser("status-export", help="write farm-status.json (every run's live status) for the farm page")
     p.set_defaults(fn=cmd_status_export)
 
     args = ap.parse_args()
-    if args.cmd not in ("check-rules", "mila-sign"):
+    if args.cmd not in ("check-rules", "mila-sign", "mila-keygen"):
         sync_runs()
     return args.fn(args)
 

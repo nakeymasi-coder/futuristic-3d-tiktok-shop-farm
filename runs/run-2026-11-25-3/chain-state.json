@@ -1,11 +1,11 @@
 {
-  "sig": "[\"agent\", 9, \"Video Agent\", [], \"\"]",
-  "opened_at": "2026-11-26 14:44",
+  "sig": "[\"mila\", 10, \"Mila\", [], \"\"]",
+  "opened_at": "2026-11-26 15:22",
   "last_actor": "Mila",
   "open": {
-    "kind": "agent",
-    "step": 9,
-    "agent": "Video Agent",
-    "to": "Video Agent"
+    "kind": "mila",
+    "step": 10,
+    "agent": "Mila",
+    "to": "Mila"
   }
 }

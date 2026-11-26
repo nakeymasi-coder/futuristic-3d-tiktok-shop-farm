@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 15:22",
+  "generated_at": "2026-11-26 15:23",
   "rules_version": "2026-11-26a",
   "jobs": [
     {
@@ -51,7 +51,7 @@
       "needs": [
         "Mila (an AI agent that can watch the video frame by frame and hear the audio)"
       ],
-      "since": "2026-11-26 14:44",
+      "since": "2026-11-26 15:22",
       "sent_back": [],
       "run_id": "run-2026-11-25-3"
     }

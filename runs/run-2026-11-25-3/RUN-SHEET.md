@@ -76,3 +76,5 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-26 14:45] CLAIM: Step 9 by Video Agent (muse_farm-agent-video) — 5-minute cap
 - [2026-11-26 14:57] BLOCKED: Step 8 — Story Agent: time cap reached: claimed at 2026-11-26 14:41, 5-minute cap, nothing handed in
 - [2026-11-26 14:57] BLOCKED: Step 9 — Video Agent: time cap reached: claimed at 2026-11-26 14:45, 5-minute cap, nothing handed in
+- [2026-11-26 15:22] Step 9→10: QC handoff copied EVERY build (7 file(s)) + script + listing photo to farm-qc-handoff/run-2026-11-25-3/.
+- [2026-11-26 15:22] CHAIN: Mila → Mila (Step 10) — waiting on Mila

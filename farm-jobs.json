@@ -45,14 +45,16 @@
     },
     {
       "step": 6,
-      "agent": "Mila",
+      "agent": "Story Agent",
       "job_file": "steps/step6-script/JOB.md",
-      "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+      "job": "Write the real-UGC pain-point script INSIDE the farm, built from the Scout's story sentence and the product's approved selling points (farm-data/products/<listing id>/selling-points.md). Check the angle log (farm-data/angle-log.json) so this product's angle and hook don't repeat, and record this video's angle and hook there. Spoken lines go on LINE rows in quotes; add the 'CTA:' line for the soft CTA up top. The script check runs the moment you submit; a failing script comes straight back to you. Then Mila approves with her signed verdict file the exact script (or sends it back with notes).",
       "needs": [
-        "Mila (an AI agent) to read the script against the farm laws"
+        "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
       ],
-      "since": "2026-11-25 21:57",
-      "sent_back": [],
+      "since": "2026-11-26 14:18",
+      "sent_back": [
+        "Mila sent the script back: Checked script.md (sha256 2b8936dc...) against the farm laws, the mila_scorecard and the real listing photo 00.jpg (Turmeric Plant massage Oil bottle, product-only). Passing: 4 spoken lines of 10, 10, 9 and 10 words; person-first hook to the viewer in LINE 1 with on-screen hook text; soft CTA up top and one spoken CTA (tap the orange cart) in the last line only; no price, sold count, urgency, specs or I-used-it claims; product kept off frame in every AI clip and shown only as the real listing photo close-up; caption first line names the product. FIXES NEEDED (send back to Story Agent): 1) LINE 4 direction: she turns back smiling with arms relaxed right after the oil shots, which reads as an after reveal (no before-and-after law). Frame face and shoulders only, no arm or skin focus, no glow, no reveal, then the real listing photo close-up. 2) LINE 1 staging: towel-only fresh-from-the-shower is a moderation risk on a Shop video. Put her in a robe or a towel wrapped high, chest-up framing, nothing suggestive. 3) LINE 3 spoken: glide on smooth can be heard as a smooth-skin result. Say only the motion, for example: Watch it glide on, slow and easy, right here. 4) Hashtags: #Over40 is an audience tag, not a product tag. Swap it for a product tag such as #BodyOil or #ShowerRoutine. Everything else stays as is."
+      ],
       "run_id": "run-2026-11-25-3"
     }
   ]

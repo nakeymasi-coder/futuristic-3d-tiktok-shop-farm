@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 15:33",
+  "generated_at": "2026-11-26 15:41",
   "rules_version": "2026-11-26a",
   "freeze": "ON",
   "runs": [
@@ -688,12 +688,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 10 (Checks — Mila (QC owner)) — new build since Mila's verdict — waiting on her check (her verdict covers only the exact build files she was handed)",
-      "state": "BLOCKED",
+      "headline": "STOPPED at Step 10 (Checks — Mila (QC owner)) — Mila's verdict on file is 'FAIL' — the build was sent back; the run does not advance",
+      "state": "STOPPED",
       "open_step": 10,
       "open_step_name": "Checks — Mila (QC owner)",
-      "needs": "Mila — needs: Mila (an AI agent that can watch the video frame by frame and hear the audio)",
-      "owner": "Mila",
+      "needs": "sent back to Video Agent: Mila's verdict on file is 'FAIL' — the build was sent back; the run does not advance",
+      "owner": "Video Agent",
       "steps": [
         {
           "n": 1,
@@ -761,8 +761,8 @@
         {
           "n": 10,
           "name": "Checks — Mila (QC owner)",
-          "state": "WAITING",
-          "reason": "new build since Mila's verdict — waiting on her check (her verdict covers only the exact build files she was handed)",
+          "state": "INVALID",
+          "reason": "Mila's verdict on file is 'FAIL' — the build was sent back; the run does not advance",
           "agent": "Mila (QC)"
         },
         {
@@ -773,7 +773,7 @@
           "agent": "Glam (lifts the freeze)"
         }
       ],
-      "review_status": "Not ready — waiting on Mila's check",
+      "review_status": "Failed Mila's check — sent back to be rebuilt",
       "watch_links": [
         {
           "file": "C01.mp4",
@@ -1057,7 +1057,7 @@
         },
         {
           "at": "2026-11-26 14:44",
-          "from": "Mila",
+          "from": "no agent hand-in",
           "to": "Video Agent",
           "step": 9,
           "what": "job opened for Video Agent: the build video file(s)",
@@ -1080,11 +1080,12 @@
             }
           ],
           "output": "expected: steps/step9-builds/",
-          "result": "handed off"
+          "result": "handed off",
+          "logged_from": "Mila"
         },
         {
           "at": "2026-11-26 15:22",
-          "from": "Mila",
+          "from": "no agent hand-in",
           "to": "Mila",
           "step": 10,
           "what": "job opened for Mila: QC check of every build in the handoff folder",
@@ -1115,7 +1116,8 @@
             }
           ],
           "output": "expected: steps/step10-qc/mila-verdict.md",
-          "result": "waiting on Mila"
+          "result": "waiting on Mila",
+          "logged_from": "Mila"
         },
         {
           "at": "2026-11-26 15:29",
@@ -1151,18 +1153,47 @@
           ],
           "output": "steps/step10-qc/mila-verdict.md (sha256 974ae0573866677b…)",
           "result": "waiting on Mila"
+        },
+        {
+          "at": "2026-11-26 15:41",
+          "from": "Mila",
+          "to": "Video Agent",
+          "step": 9,
+          "what": "SENT BACK to Video Agent: Mila's verdict on file is 'FAIL' — the build was sent back; the run does not advance",
+          "inputs": [
+            {
+              "file": "steps/step8-package/package.md",
+              "sha256": "5e45f48d99d38954f0604bd2befb5a64b312ad9ee1b273140f92de04a33d566f"
+            },
+            {
+              "file": "steps/step7-styled/casting-pick-run-2026-11-25-3.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            },
+            {
+              "file": "steps/step7-styled/model-thursday-pink-blonde.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            },
+            {
+              "file": "steps/step4-photo/00.jpg",
+              "sha256": "470dccbf175a57f50337cc55e896a29a9f66c257f11f0c0a9dacfd5f8281d949"
+            }
+          ],
+          "output": "expected: steps/step9-builds/",
+          "result": "sent back"
         }
       ],
       "open_job": {
-        "step": 10,
-        "agent": "Mila",
-        "job_file": "steps/step10-qc/JOB.md",
-        "job": "Check every build in the QC handoff folder frame by frame, bottle first, then the lines word for word against the approved script, using your scorecard. Sign your verdict with runner.py mila-sign (PASS or FAIL, covering the exact build files) and drop it in the Glam Claude Handoff folder; only a signed verdict counts. Your PASS covers only the exact builds you were handed.",
+        "step": 9,
+        "agent": "Video Agent",
+        "job_file": "steps/step9-builds/JOB.md",
+        "job": "Build the video in Video Express with the Realistic Consistent Character workflow from the package and the approved model photo. The AI clips never show the product; the real listing photo goes in only as the 1-2 second clean close-up. Every clip is 8 seconds flat; the runner measures each build before Mila sees it. Submit EVERY build, good or bad; the builder never checks her own work.",
         "needs": [
-          "Mila (an AI agent that can watch the video frame by frame and hear the audio)"
+          "Video Express in the farm's browser (kept signed in) to build the video"
         ],
-        "since": "2026-11-26 15:29",
-        "sent_back": []
+        "since": "2026-11-26 15:41",
+        "sent_back": [
+          "Mila's verdict on file is 'FAIL' — the build was sent back; the run does not advance"
+        ]
       }
     }
   ]

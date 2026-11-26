@@ -82,3 +82,4 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-26 15:29] Step 9→10: QC handoff copied EVERY build (7 file(s)) + script + listing photo to farm-qc-handoff/run-2026-11-25-3/.
 - [2026-11-26 15:29] CHAIN: Mila → Mila (Step 10) — waiting on Mila
 - [2026-11-26 15:29] SUBMIT: Step 10 by Mila — mila-verdict.md
+- [2026-11-26 15:41] CHAIN: Mila → Video Agent (Step 9) — sent back

@@ -1,5 +1,9 @@
+## ⚠ SENT BACK — fix these, then submit again
+
+- Mila's verdict on file is 'FAIL' — the build was sent back; the run does not advance
+
 # JOB — Step 9: Video Agent
-Run: run-2026-11-25-3 · rules version 2026-11-25n · opened 2026-11-26 14:44 · posting freeze ON
+Run: run-2026-11-25-3 · rules version 2026-11-26a · opened 2026-11-26 15:41 · posting freeze ON
 
 ## 🔒 HARD RULE: Products only from TikTok Shop Streamer Desktop
 Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. The one exception is a product's listing photos, which may also come from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed). Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself.
@@ -7,7 +11,7 @@ Anything about Glam's products (the showcase, best sellers, stock, listing photo
 ## 🔒 LOCKED: Locked to your own step, then hand off
 Glam's rule, in her words: "they should hand off automatically to the next agent" and "Nobody should be off trying to do somebody else's job and then get stuck." Each agent does only its own step. The moment its step's output is complete, it hands it in with submit, and the next agent's job opens automatically. No side trips into another step's work: anything a later step needs is that step's job. If you can't finish your own step, stop right away and report BLOCKED: [what] - [why]. Don't search other routes, watch tutorials or stall.
 
-⏱ Time cap: 5 minutes, counted from when you claim the step. At the cap, hand in what you have, or run report-blocked with the reason.
+⏱ Time cap: 10 minutes, counted from when you claim the step. At the cap, hand in what you have, or run report-blocked with the reason.
 
 ▶ Start by claiming the step (the clock starts then): runner.py claim run-2026-11-25-3 --step 9 --by "Video Agent" --session <your id>. A hand-in past the cap is refused and BLOCKED goes on the board. Claim again to start a fresh try.
 
@@ -32,7 +36,7 @@ Build the video in Video Express with the Realistic Consistent Character workflo
 - It has to feel human: Conversational delivery, natural gestures and head movement, normal blinking. If it looks like a robot, it goes back for a rebuild.
 - No dead air: Edits are tightened so there are no long pauses — natural breath beats only. The video moves the way a real person talks.
 - Disclosures on: AI-generated label ON and Disclose post content (branded content) ON for every Shop video. Commercially cleared music only on Shop videos.
-- Time cap: Scout, weekly lineup and photo finisher 10 minutes, every other job 5: The Scout, the weekly lineup job and the photo finisher job each get a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, a run step hands in what it has, or runs report-blocked with the reason; the weekly lineup and the photo finisher save what they have and stop.
+- Time cap: Scout, weekly lineup, photo finisher and the Video build 10 minutes, every other job 5: The Scout, the weekly lineup job, the photo finisher job and the Video Agent's Step 9 build each get a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, a run step hands in what it has, or runs report-blocked with the reason; the weekly lineup and the photo finisher save what they have and stop.
 - Agents are the Muse jobs: The agents are the Muse jobs (muse_farm-agent-*). Mila stays out of Muse and is started by the coordinator when a gate opens. No Mila automation.
 - Farm changes live in the repo first: A farm change lives in the repo first, and Muse jobs only follow what's on main.
 - Glam does her own secrets and sign-ins: Glam types her own secrets and does her own sign-ins. No job ever asks for, types or stores a password, code or key.

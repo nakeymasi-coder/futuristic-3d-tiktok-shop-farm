@@ -67,3 +67,5 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-26 14:27] Step 6: Mila's signed verdict placed — APPROVE.
 - [2026-11-26 14:27] CHAIN: Mila → Casting / Image Agent (Step 7) — handed off
 - [2026-11-26 14:31] CLAIM: Step 7 by Casting / Image Agent (muse_farm-agent-casting) — 5-minute cap
+- [2026-11-26 14:33] SUBMIT: Step 7 by Casting / Image Agent — casting-pick-run-2026-11-25-3.jpg
+- [2026-11-26 14:33] CHAIN: Casting / Image Agent → Mila (Step 7) — waiting on Mila

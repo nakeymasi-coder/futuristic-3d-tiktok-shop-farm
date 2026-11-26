@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 14:31",
+  "generated_at": "2026-11-26 14:33",
   "rules_version": "2026-11-25n",
   "jobs": [
     {
@@ -45,13 +45,13 @@
     },
     {
       "step": 7,
-      "agent": "Casting / Image Agent",
+      "agent": "Mila",
       "job_file": "steps/step7-styled/JOB.md",
-      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves with her signed verdict file it (or sends it back with notes).",
+      "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 7, verdict APPROVE or SENDBACK, notes, and your own session id; it signs with the key only it holds. The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
       "needs": [
-        "access to Glam's uploaded model photos"
+        "Mila (an AI agent) to look at the photo"
       ],
-      "since": "2026-11-26 14:27",
+      "since": "2026-11-26 14:33",
       "sent_back": [],
       "run_id": "run-2026-11-25-3"
     }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 14:31",
+  "generated_at": "2026-11-26 14:33",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -688,12 +688,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 7 (Styled Image) — no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
+      "headline": "BLOCKED at Step 7 (Styled Image) — model photo on file (casting-pick-run-2026-11-25-3.jpg) — waiting on Mila's model photo approval",
       "state": "BLOCKED",
       "open_step": 7,
       "open_step_name": "Styled Image",
-      "needs": "Casting / Image Agent — needs: access to Glam's uploaded model photos",
-      "owner": "Casting / Image Agent",
+      "needs": "Mila — needs: access to Glam's uploaded model photos",
+      "owner": "Mila",
       "steps": [
         {
           "n": 1,
@@ -741,7 +741,7 @@
           "n": 7,
           "name": "Styled Image",
           "state": "WAITING",
-          "reason": "no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
+          "reason": "model photo on file (casting-pick-run-2026-11-25-3.jpg) — waiting on Mila's model photo approval",
           "agent": "Casting agent (Glam's uploaded model), then Mila approves"
         },
         {
@@ -991,17 +991,36 @@
           ],
           "output": "expected: steps/step7-styled/",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-26 14:33",
+          "from": "Casting / Image Agent",
+          "to": "Mila",
+          "step": 7,
+          "what": "job opened for Mila: approve the model photo (steps/step7-styled/) or send it back with notes",
+          "inputs": [
+            {
+              "file": "steps/step7-styled/casting-pick-run-2026-11-25-3.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            },
+            {
+              "file": "steps/step7-styled/model-thursday-pink-blonde.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            }
+          ],
+          "output": "steps/step7-styled/casting-pick-run-2026-11-25-3.jpg (sha256 26baf9a35a9b4033…)",
+          "result": "waiting on Mila"
         }
       ],
       "open_job": {
         "step": 7,
-        "agent": "Casting / Image Agent",
+        "agent": "Mila",
         "job_file": "steps/step7-styled/JOB.md",
-        "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves with her signed verdict file it (or sends it back with notes).",
+        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 7, verdict APPROVE or SENDBACK, notes, and your own session id; it signs with the key only it holds. The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
         "needs": [
-          "access to Glam's uploaded model photos"
+          "Mila (an AI agent) to look at the photo"
         ],
-        "since": "2026-11-26 14:27",
+        "since": "2026-11-26 14:33",
         "sent_back": []
       }
     }

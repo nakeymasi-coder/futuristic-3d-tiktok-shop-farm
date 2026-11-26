@@ -1,11 +1,11 @@
 {
-  "sig": "[\"mila\", 7, \"Mila\", [], \"26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975\"]",
-  "opened_at": "2026-11-26 14:33",
-  "last_actor": "Casting / Image Agent",
+  "sig": "[\"agent\", 8, \"Story Agent + Video Agent\", [], \"\"]",
+  "opened_at": "2026-11-26 14:38",
+  "last_actor": "Mila",
   "open": {
-    "kind": "mila",
-    "step": 7,
-    "agent": "Mila",
-    "to": "Mila"
+    "kind": "agent",
+    "step": 8,
+    "agent": "Story Agent + Video Agent",
+    "to": "Story Agent + Video Agent"
   }
 }

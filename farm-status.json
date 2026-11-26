@@ -688,12 +688,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 7 (Styled Image) — model photo on file (casting-pick-run-2026-11-25-3.jpg) — waiting on Mila's model photo approval",
+      "headline": "BLOCKED at Step 8 (Package) — no package on file (steps/step8-package/package.md)",
       "state": "BLOCKED",
-      "open_step": 7,
-      "open_step_name": "Styled Image",
-      "needs": "Mila — needs: access to Glam's uploaded model photos",
-      "owner": "Mila",
+      "open_step": 8,
+      "open_step_name": "Package",
+      "needs": "Story Agent + Video Agent — needs: an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
+      "owner": "Story Agent + Video Agent",
       "steps": [
         {
           "n": 1,
@@ -740,8 +740,8 @@
         {
           "n": 7,
           "name": "Styled Image",
-          "state": "WAITING",
-          "reason": "model photo on file (casting-pick-run-2026-11-25-3.jpg) — waiting on Mila's model photo approval",
+          "state": "CLEARED",
+          "reason": "model photo on file (casting-pick-run-2026-11-25-3.jpg) and Mila's approval recorded",
           "agent": "Casting agent (Glam's uploaded model), then Mila approves"
         },
         {
@@ -1010,17 +1010,44 @@
           ],
           "output": "steps/step7-styled/casting-pick-run-2026-11-25-3.jpg (sha256 26baf9a35a9b4033…)",
           "result": "waiting on Mila"
+        },
+        {
+          "at": "2026-11-26 14:38",
+          "from": "Mila",
+          "to": "Story Agent + Video Agent",
+          "step": 8,
+          "what": "job opened for Story Agent + Video Agent: package.md (clip prompts + hook + Caption:)",
+          "inputs": [
+            {
+              "file": "steps/step6-script/script.md",
+              "sha256": "600867d52cb3edd6ad2e6d9d4c5c65428ea8a860a700161ce3698672bc1d7537"
+            },
+            {
+              "file": "steps/step7-styled/casting-pick-run-2026-11-25-3.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            },
+            {
+              "file": "steps/step7-styled/model-thursday-pink-blonde.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            },
+            {
+              "file": "steps/step4-photo/00.jpg",
+              "sha256": "470dccbf175a57f50337cc55e896a29a9f66c257f11f0c0a9dacfd5f8281d949"
+            }
+          ],
+          "output": "expected: steps/step8-package/package.md",
+          "result": "handed off"
         }
       ],
       "open_job": {
-        "step": 7,
-        "agent": "Mila",
-        "job_file": "steps/step7-styled/JOB.md",
-        "job": "Check the model photo is one of Glam's uploaded models, used as-is, and fits the product and buyer. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 7, verdict APPROVE or SENDBACK, notes, and your own session id; it signs with the key only it holds. The package and the video build start the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "step": 8,
+        "agent": "Story Agent + Video Agent",
+        "job_file": "steps/step8-package/JOB.md",
+        "job": "Write the \"Next\" package: Video Express clip prompts (C## format, Realistic Consistent Character workflow), the hook and the caption. A 'References:' line names the approved model photo and the real listing photo. Never describe the product in words, and never put the product in a clip: it appears only as the real listing photo close-up. Use shots show her hands, skin or hair with the product off frame. Lint runs the moment you submit; a failing package comes straight back.",
         "needs": [
-          "Mila (an AI agent) to look at the photo"
+          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
         ],
-        "since": "2026-11-26 14:33",
+        "since": "2026-11-26 14:38",
         "sent_back": []
       }
     }

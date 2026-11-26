@@ -688,7 +688,7 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 10 (Checks — Mila (QC owner)) — no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build",
+      "headline": "BLOCKED at Step 10 (Checks — Mila (QC owner)) — new build since Mila's verdict — waiting on her check (her verdict covers only the exact build files she was handed)",
       "state": "BLOCKED",
       "open_step": 10,
       "open_step_name": "Checks — Mila (QC owner)",
@@ -762,7 +762,7 @@
           "n": 10,
           "name": "Checks — Mila (QC owner)",
           "state": "WAITING",
-          "reason": "no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build",
+          "reason": "new build since Mila's verdict — waiting on her check (her verdict covers only the exact build files she was handed)",
           "agent": "Mila (QC)"
         },
         {
@@ -1116,6 +1116,41 @@
           ],
           "output": "expected: steps/step10-qc/mila-verdict.md",
           "result": "waiting on Mila"
+        },
+        {
+          "at": "2026-11-26 15:29",
+          "from": "Mila",
+          "to": "Mila",
+          "step": 10,
+          "what": "job opened for Mila: QC check of every build in the handoff folder",
+          "inputs": [
+            {
+              "file": "steps/step9-builds/C01.mp4",
+              "sha256": "cf336c3231934dd94751060470053e27d1ff7741fae3dd02e5aa1bb36fb538b5"
+            },
+            {
+              "file": "steps/step9-builds/C02.mp4",
+              "sha256": "3914e1b45e0b210b61059a54aa03b671e70bb6132575921e754dadd72e9d18b1"
+            },
+            {
+              "file": "steps/step9-builds/C03.mp4",
+              "sha256": "7b4264a40fc0e7d0b22a0dafaf2dec743fbae69a678d7fadd8767f86bc90b7fb"
+            },
+            {
+              "file": "steps/step9-builds/C04.mp4",
+              "sha256": "1c5b81ae803a8b7762d5ea4062669c4938876e98ff9ed655757647fced1cb238"
+            },
+            {
+              "file": "steps/step6-script/script.md",
+              "sha256": "600867d52cb3edd6ad2e6d9d4c5c65428ea8a860a700161ce3698672bc1d7537"
+            },
+            {
+              "file": "steps/step4-photo/00.jpg",
+              "sha256": "470dccbf175a57f50337cc55e896a29a9f66c257f11f0c0a9dacfd5f8281d949"
+            }
+          ],
+          "output": "steps/step10-qc/mila-verdict.md (sha256 974ae0573866677b…)",
+          "result": "waiting on Mila"
         }
       ],
       "open_job": {
@@ -1126,7 +1161,7 @@
         "needs": [
           "Mila (an AI agent that can watch the video frame by frame and hear the audio)"
         ],
-        "since": "2026-11-26 15:22",
+        "since": "2026-11-26 15:29",
         "sent_back": []
       }
     }

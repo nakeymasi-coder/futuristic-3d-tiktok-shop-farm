@@ -1,5 +1,5 @@
 # JOB — Step 10: Mila
-Run: run-2026-11-25-3 · rules version 2026-11-26a · opened 2026-11-26 15:22 · posting freeze ON
+Run: run-2026-11-25-3 · rules version 2026-11-26a · opened 2026-11-26 15:29 · posting freeze ON
 
 ## 🔒 HARD RULE: Products only from TikTok Shop Streamer Desktop
 Anything about Glam's products (the showcase, best sellers, stock, listing photos and product sales) comes ONLY from TikTok Shop Streamer Desktop / LIVE Manager, because her regular TikTok can't show those. The one exception is a product's listing photos, which may also come from the product's public TikTok Shop listing page (the shop.tiktok.com product page for that listing ID, no sign-in needed). Her regular TikTok is allowed for trends and general video views. If Streamer Desktop needs a sign-in, the job reports BLOCKED and Glam signs in herself.

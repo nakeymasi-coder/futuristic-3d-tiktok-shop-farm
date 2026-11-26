@@ -78,3 +78,7 @@ in steps/step10-qc/ → Step 10 · Step 11 is freeze-locked, always.
 - [2026-11-26 14:57] BLOCKED: Step 9 — Video Agent: time cap reached: claimed at 2026-11-26 14:45, 5-minute cap, nothing handed in
 - [2026-11-26 15:22] Step 9→10: QC handoff copied EVERY build (7 file(s)) + script + listing photo to farm-qc-handoff/run-2026-11-25-3/.
 - [2026-11-26 15:22] CHAIN: Mila → Mila (Step 10) — waiting on Mila
+- [2026-11-26 15:29] Step 10: Mila's verdict collected from the QC handoff — FAIL (checker: Mila).
+- [2026-11-26 15:29] Step 9→10: QC handoff copied EVERY build (7 file(s)) + script + listing photo to farm-qc-handoff/run-2026-11-25-3/.
+- [2026-11-26 15:29] CHAIN: Mila → Mila (Step 10) — waiting on Mila
+- [2026-11-26 15:29] SUBMIT: Step 10 by Mila — mila-verdict.md

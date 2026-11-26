@@ -300,6 +300,16 @@ def build_set(folder):
     return {v.name: sha256_file(v) for v in files_with_ext(folder, VIDEO_EXTS)}
 
 
+def signed_covers(kv, current, fallback):
+    """The builds a signed verdict covers: the build files in the run whose
+    sha256 the verdict's signed covers: line names. With no signed covers
+    line, the older handoff-folder record (fallback) stands."""
+    signed = {h.strip() for h in kv.get("covers", "").split(",") if h.strip()}
+    if not signed:
+        return fallback
+    return {name: h for name, h in current.items() if h in signed}
+
+
 def image_set_sha(folder):
     """One fingerprint for the image(s) in a folder (Glam's image approval
     covers exactly these files)."""
@@ -941,6 +951,23 @@ def blocked_report(run, step):
         if kv.get("reason"):
             return kv
     return None
+
+
+def live_blocked_report(run, info):
+    """The open job's BLOCKED report, unless Mila's signed Step 10 FAIL came
+    after it: then the work went past that report and her FAIL is the news
+    (Nov 26 fix: the board kept showing an old time-cap BLOCKED and
+    'waiting on Mila' after her FAIL was signed)."""
+    if info.get("kind") not in ("agent", "mila"):
+        return None
+    br = blocked_report(run, info.get("step"))
+    if not br or not info.get("findings"):
+        return br
+    kv = parse_kv(run / "steps" / STEP_DIRS[10] / "mila-verdict.md")
+    if kv.get("verdict", "").upper() == "FAIL" and \
+            kv.get("signed_at", "") > br.get("at", ""):
+        return None
+    return br
 
 
 def clear_blocked_report(run, step, why):
@@ -1640,6 +1667,11 @@ def eval_step(run, cfg, n):
         except (OSError, ValueError):
             covers = None
         current = build_set(steps / STEP_DIRS[9])
+        # Nov 26 fix: Mila's signed verdict names the exact builds it covers
+        # (their sha256s). Read coverage from that, so a verdict placed by
+        # the Mila sign workflow (which never sees the local QC handoff
+        # folder) still covers the builds she checked.
+        covers = signed_covers(kv, current, covers)
         if covers is None:
             return ("WAITING", "the verdict on file was collected before "
                                "verdicts were tied to the exact builds — "
@@ -1706,8 +1738,7 @@ def render_status(run):
         out.append(f"  Step {n:<2} {name:<28} {state:<8} {reason}")
     out.append("")
     info = open_job_info(run)
-    br = blocked_report(run, info.get("step")) \
-        if info["kind"] in ("agent", "mila") else None
+    br = live_blocked_report(run, info)
     if br:
         out.append(f"HEADLINE: BLOCKED at Step {info['step']} — "
                    f"{br.get('by', info['agent'])} reported BLOCKED: "
@@ -2350,7 +2381,9 @@ def cmd_collect_verdict(args):
     # The verdict covers exactly the build files sitting in the handoff
     # folder when it is collected (audit fix #1) — a later build is not
     # covered and waits on Mila again.
-    covers = build_set(handoff_dir_for(cfg["run_id"]))
+    covers = signed_covers(parse_kv(dest),
+                           build_set(run / "steps" / STEP_DIRS[9]),
+                           build_set(handoff_dir_for(cfg["run_id"])))
     (run / "steps" / STEP_DIRS[10] / "verdict-covers.json").write_text(
         json.dumps(covers, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -2529,6 +2562,8 @@ def review_entry(run):
         status = "Redo — being rebuilt with Glam's notes"
     elif states.get(10) == "CLEARED":
         status = "Waiting for Glam"
+    elif mila_verdict == "FAIL" and states.get(10) == "INVALID":
+        status = "Failed Mila's check — sent back to be rebuilt"
     else:
         status = "Not ready — waiting on Mila's check"
     links = watch_links(run)
@@ -3014,6 +3049,33 @@ def handoffs_path(run):
     return run / "handoffs.jsonl"
 
 
+NO_HANDIN = "no agent hand-in"
+
+
+def handoff_label(rec):
+    """Board label for a logged hand-off. Older records logged a job that
+    opened on file presence (no submit) as from the last actor, e.g. Steps
+    8->9 and 9->10 'from Mila' when no agent handed in. The step handed in is
+    the record's own step for Mila's script and photo gates (6, 7), else the
+    step before; if the named actor can't hand that step in and nothing was
+    submitted, the record shows 'no agent hand-in'. The log itself is kept."""
+    frm = rec.get("from", "")
+    n = rec.get("step") or 0
+    if (not str(rec.get("output", "")).startswith("expected:")
+            or rec.get("result") == "sent back"
+            or frm in ("", "Start a Run", "Glam", NO_HANDIN)):
+        return rec
+    handed = n if (rec.get("to") == "Mila" and n in (6, 7)) else n - 1
+    if frm == "Mila" and handed in (6, 7):
+        return rec
+    if handed in AGENTS and by_allowed(handed, frm):
+        return rec
+    out = dict(rec)
+    out["from"] = NO_HANDIN
+    out["logged_from"] = frm
+    return out
+
+
 def read_handoffs(run):
     p = handoffs_path(run)
     if not p.exists():
@@ -3265,7 +3327,16 @@ def sync_chain(run, actor=None, submitted=None):
         result = "waiting on Mila"
     else:
         result = "waiting on Glam"
-    frm = actor or st.get("last_actor") or "Start a Run"
+    # Nov 26 fix: a job that opened because files turned up (no submit)
+    # was logged as "from" whoever acted last (Mila). Show it as what it was.
+    if actor:
+        frm = actor
+    elif info["findings"] and parse_kv(
+            run / "steps" / STEP_DIRS[10] / "mila-verdict.md"
+            ).get("verdict", "").upper() == "FAIL":
+        frm = "Mila"  # her signed FAIL is what sent the build back
+    else:
+        frm = NO_HANDIN if st else "Start a Run"
     if info["findings"] and info["kind"] == "agent":
         what = (f"{actor} submitted; " if actor else "") + \
                f"SENT BACK to {info['agent']}: {info['findings'][0]}"
@@ -3512,8 +3583,7 @@ def run_status_entry(run):
             if why:
                 needs += f" (note: {why}; Step 3 will report BLOCKED unless " \
                          "it's in the list)"
-        br = blocked_report(run, info.get("step")) \
-            if info["kind"] in ("agent", "mila") else None
+        br = live_blocked_report(run, info)
         if br:
             state = "STOPPED"
             needs = (f"{br.get('by', info['agent'])} reported BLOCKED: "
@@ -3539,7 +3609,7 @@ def run_status_entry(run):
         "watch_links": [{"file": b.name, "url": links.get(b.name, "")}
                         for b in builds],
         "is_test": bool(re.search(r"TEST|MOCK", pick.upper())),
-        "handoffs": read_handoffs(run),
+        "handoffs": [handoff_label(h) for h in read_handoffs(run)],
         "open_job": open_job_entry(run, info),
     }
 
@@ -3570,6 +3640,14 @@ def write_status_file():
 
 
 def cmd_status_export(args):
+    # Nov 26 fix: open the job the evidence now calls for before exporting,
+    # so a send-back placed by the Mila sign workflow (e.g. her Step 10 FAIL
+    # reopening Step 9 for the Video Agent) reaches JOB.md and the log too.
+    if RUNS_DIR.is_dir():
+        for run in sorted(d for d in RUNS_DIR.iterdir()
+                          if d.is_dir() and (d / "config.json").exists()
+                          and not (d / CONFLICT_MARK).exists()):
+            sync_chain(run)
     out, data = write_status_file()
     print(f"farm-status.json written: {out} ({len(data['runs'])} run(s), "
           f"generated {data['generated_at']})")

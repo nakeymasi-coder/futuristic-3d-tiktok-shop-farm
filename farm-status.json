@@ -688,12 +688,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 6 (Script) — script on file and passing the script check — waiting on Mila's script approval",
+      "headline": "BLOCKED at Step 7 (Styled Image) — no model photo on file (steps/step7-styled/) — the Casting / Image Agent submits Glam's uploaded model photo",
       "state": "BLOCKED",
-      "open_step": 6,
-      "open_step_name": "Script",
-      "needs": "Mila — needs: an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
-      "owner": "Mila",
+      "open_step": 7,
+      "open_step_name": "Styled Image",
+      "needs": "Casting / Image Agent — needs: access to Glam's uploaded model photos",
+      "owner": "Casting / Image Agent",
       "steps": [
         {
           "n": 1,
@@ -733,8 +733,8 @@
         {
           "n": 6,
           "name": "Script",
-          "state": "WAITING",
-          "reason": "script on file and passing the script check — waiting on Mila's script approval",
+          "state": "CLEARED",
+          "reason": "script on file, passing the script check, and Mila's signed approval on file",
           "agent": "Mila (script approval)"
         },
         {
@@ -968,17 +968,40 @@
           ],
           "output": "steps/step6-script/script.md (sha256 600867d52cb3edd6…)",
           "result": "waiting on Mila"
+        },
+        {
+          "at": "2026-11-26 14:27",
+          "from": "Mila",
+          "to": "Casting / Image Agent",
+          "step": 7,
+          "what": "job opened for Casting / Image Agent: the uploaded model photo (an image file)",
+          "inputs": [
+            {
+              "file": "steps/step6-script/script.md",
+              "sha256": "600867d52cb3edd6ad2e6d9d4c5c65428ea8a860a700161ce3698672bc1d7537"
+            },
+            {
+              "file": "steps/step3-pick/pick.md",
+              "sha256": "1fee3b43216d6cf795fb3c46fc86763e54d7385778a1a744cf1f111e1cfb0af5"
+            },
+            {
+              "file": "steps/step4-photo/00.jpg",
+              "sha256": "470dccbf175a57f50337cc55e896a29a9f66c257f11f0c0a9dacfd5f8281d949"
+            }
+          ],
+          "output": "expected: steps/step7-styled/",
+          "result": "handed off"
         }
       ],
       "open_job": {
-        "step": 6,
-        "agent": "Mila",
-        "job_file": "steps/step6-script/JOB.md",
-        "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+        "step": 7,
+        "agent": "Casting / Image Agent",
+        "job_file": "steps/step7-styled/JOB.md",
+        "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves with her signed verdict file it (or sends it back with notes).",
         "needs": [
-          "Mila (an AI agent) to read the script against the farm laws"
+          "access to Glam's uploaded model photos"
         ],
-        "since": "2026-11-26 14:24",
+        "since": "2026-11-26 14:27",
         "sent_back": []
       }
     }

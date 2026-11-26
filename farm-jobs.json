@@ -44,14 +44,14 @@
       "run_id": "run-2026-11-25-2"
     },
     {
-      "step": 6,
-      "agent": "Mila",
-      "job_file": "steps/step6-script/JOB.md",
-      "job": "Read the script against the farm laws and the real listing photo. Place your verdict ONLY by running the Mila sign workflow (mila-sign.yml) with run <run>, step 6, verdict APPROVE or SENDBACK, notes listing every fix, and your own session id; it signs with the key only it holds and approves or sends back to the Story Agent. Your approval covers this exact script; the Casting / Image Agent starts the moment you approve. Glam is not asked; she rules once, on the finished video.",
+      "step": 7,
+      "agent": "Casting / Image Agent",
+      "job_file": "steps/step7-styled/JOB.md",
+      "job": "Pick the best-fitting model from Glam's uploaded models for this product and its buyer and submit that photo as-is. Never generate a model. Then Mila approves with her signed verdict file it (or sends it back with notes).",
       "needs": [
-        "Mila (an AI agent) to read the script against the farm laws"
+        "access to Glam's uploaded model photos"
       ],
-      "since": "2026-11-26 14:24",
+      "since": "2026-11-26 14:27",
       "sent_back": [],
       "run_id": "run-2026-11-25-3"
     }

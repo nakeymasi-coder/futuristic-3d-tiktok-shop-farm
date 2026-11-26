@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 14:45",
+  "generated_at": "2026-11-26 14:57",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -688,11 +688,11 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 9 (Build) — no build files on file (steps/step9-builds/)",
-      "state": "BLOCKED",
+      "headline": "BLOCKED at Step 9 — Video Agent reported BLOCKED: time cap reached: claimed at 2026-11-26 14:45, 5-minute cap, nothing handed in (2026-11-26 14:57)",
+      "state": "STOPPED",
       "open_step": 9,
       "open_step_name": "Build",
-      "needs": "Video Agent — needs: Video Express in the farm's browser (kept signed in) to build the video",
+      "needs": "Video Agent reported BLOCKED: time cap reached: claimed at 2026-11-26 14:45, 5-minute cap, nothing handed in",
       "owner": "Video Agent",
       "steps": [
         {

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 14:41",
+  "generated_at": "2026-11-26 14:44",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -688,12 +688,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 8 (Package) — no package on file (steps/step8-package/package.md)",
+      "headline": "BLOCKED at Step 9 (Build) — no build files on file (steps/step9-builds/)",
       "state": "BLOCKED",
-      "open_step": 8,
-      "open_step_name": "Package",
-      "needs": "Story Agent + Video Agent — needs: an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes",
-      "owner": "Story Agent + Video Agent",
+      "open_step": 9,
+      "open_step_name": "Build",
+      "needs": "Video Agent — needs: Video Express in the farm's browser (kept signed in) to build the video",
+      "owner": "Video Agent",
       "steps": [
         {
           "n": 1,
@@ -747,8 +747,8 @@
         {
           "n": 8,
           "name": "Package",
-          "state": "WAITING",
-          "reason": "no package on file (steps/step8-package/package.md)",
+          "state": "CLEARED",
+          "reason": "package on file and passing lint (references-only, no drawn product)",
           "agent": "Story Agent + Video Agent (package)"
         },
         {
@@ -1040,12 +1040,12 @@
         }
       ],
       "open_job": {
-        "step": 8,
-        "agent": "Story Agent + Video Agent",
-        "job_file": "steps/step8-package/JOB.md",
-        "job": "Write the \"Next\" package: Video Express clip prompts (C## format, Realistic Consistent Character workflow), the hook and the caption. A 'References:' line names the approved model photo and the real listing photo. Never describe the product in words, and never put the product in a clip: it appears only as the real listing photo close-up. Use shots show her hands, skin or hair with the product off frame. Lint runs the moment you submit; a failing package comes straight back.",
+        "step": 9,
+        "agent": "Video Agent",
+        "job_file": "steps/step9-builds/JOB.md",
+        "job": "Build the video in Video Express with the Realistic Consistent Character workflow from the package and the approved model photo. The AI clips never show the product; the real listing photo goes in only as the 1-2 second clean close-up. Every clip is 8 seconds flat; the runner measures each build before Mila sees it. Submit EVERY build, good or bad; the builder never checks her own work.",
         "needs": [
-          "an AI model (Claude, Muse/Indigo or another assigned agent) to do the writing — the runner itself never writes"
+          "Video Express in the farm's browser (kept signed in) to build the video"
         ],
         "since": "2026-11-26 14:38",
         "sent_back": []

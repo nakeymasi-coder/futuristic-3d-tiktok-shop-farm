@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-26 15:04",
-  "rules_version": "2026-11-25n",
+  "generated_at": "2026-11-26 15:22",
+  "rules_version": "2026-11-26a",
   "freeze": "ON",
   "runs": [
     {
@@ -688,12 +688,12 @@
       "model": "",
       "mode": "",
       "account": "@glamorousgrammyglowup",
-      "headline": "BLOCKED at Step 9 — Video Agent reported BLOCKED: time cap reached: claimed at 2026-11-26 14:45, 5-minute cap, nothing handed in (2026-11-26 14:57)",
-      "state": "STOPPED",
-      "open_step": 9,
-      "open_step_name": "Build",
-      "needs": "Video Agent reported BLOCKED: time cap reached: claimed at 2026-11-26 14:45, 5-minute cap, nothing handed in",
-      "owner": "Video Agent",
+      "headline": "BLOCKED at Step 10 (Checks — Mila (QC owner)) — no QC verdict collected — human gate: Mila's check (QC owner) has not ruled on this build",
+      "state": "BLOCKED",
+      "open_step": 10,
+      "open_step_name": "Checks — Mila (QC owner)",
+      "needs": "Mila — needs: Mila (an AI agent that can watch the video frame by frame and hear the audio)",
+      "owner": "Mila",
       "steps": [
         {
           "n": 1,
@@ -754,8 +754,8 @@
         {
           "n": 9,
           "name": "Build",
-          "state": "WAITING",
-          "reason": "no build files on file (steps/step9-builds/)",
+          "state": "CLEARED",
+          "reason": "build file(s) on file and measured: C01.mp4, C02.mp4, C03.mp4, C04.mp4",
           "agent": "Indigo (build)"
         },
         {
@@ -773,8 +773,25 @@
           "agent": "Glam (lifts the freeze)"
         }
       ],
-      "review_status": "No build yet",
-      "watch_links": [],
+      "review_status": "Not ready — waiting on Mila's check",
+      "watch_links": [
+        {
+          "file": "C01.mp4",
+          "url": ""
+        },
+        {
+          "file": "C02.mp4",
+          "url": ""
+        },
+        {
+          "file": "C03.mp4",
+          "url": ""
+        },
+        {
+          "file": "C04.mp4",
+          "url": ""
+        }
+      ],
       "is_test": false,
       "handoffs": [
         {
@@ -1067,12 +1084,12 @@
         }
       ],
       "open_job": {
-        "step": 9,
-        "agent": "Video Agent",
-        "job_file": "steps/step9-builds/JOB.md",
-        "job": "Build the video in Video Express with the Realistic Consistent Character workflow from the package and the approved model photo. The AI clips never show the product; the real listing photo goes in only as the 1-2 second clean close-up. Every clip is 8 seconds flat; the runner measures each build before Mila sees it. Submit EVERY build, good or bad; the builder never checks her own work.",
+        "step": 10,
+        "agent": "Mila",
+        "job_file": "steps/step10-qc/JOB.md",
+        "job": "Check every build in the QC handoff folder frame by frame, bottle first, then the lines word for word against the approved script, using your scorecard. Sign your verdict with runner.py mila-sign (PASS or FAIL, covering the exact build files) and drop it in the Glam Claude Handoff folder; only a signed verdict counts. Your PASS covers only the exact builds you were handed.",
         "needs": [
-          "Video Express in the farm's browser (kept signed in) to build the video"
+          "Mila (an AI agent that can watch the video frame by frame and hear the audio)"
         ],
         "since": "2026-11-26 14:44",
         "sent_back": []

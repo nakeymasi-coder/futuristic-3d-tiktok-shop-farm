@@ -1011,6 +1011,8 @@ def cap_minutes(step):
     nums = RULES.get("numbers", {})
     if step == 2:
         return int(nums.get("scout_time_cap_minutes", 10))
+    if step == 9:
+        return int(nums.get("video_time_cap_minutes", 10))
     return int(nums.get("job_time_cap_minutes", 5))
 
 

@@ -1,6 +1,6 @@
 {
   "about": "THE ONE MASTER RULES FILE for Glam's TikTok Shop farm. The farm runner, Mila's QC handoff and the farm page all read their rules from here, live. To change a rule: Glam approves it, it is edited here once, then `python3 farm-runner/runner.py check-rules` proves the file is complete. Words in {curly braces} inside a law are filled from \"numbers\", so a number is changed in one spot. The old playbook, runbook and test log are kept read-only in archive/.",
-  "version": "2026-11-25n",
+  "version": "2026-11-26a",
   "approved_by": "Glam",
   "numbers": {
     "max_spoken_words_per_line": 12,
@@ -18,6 +18,7 @@
     "modes": 12,
     "scout_time_cap_minutes": 10,
     "job_time_cap_minutes": 5,
+    "video_time_cap_minutes": 10,
     "weekly_lineup_time_cap_minutes": 10,
     "photo_finisher_time_cap_minutes": 10
   },
@@ -226,8 +227,8 @@
     },
     {
       "id": "time-cap",
-      "title": "Time cap: Scout, weekly lineup and photo finisher 10 minutes, every other job 5",
-      "text": "The Scout, the weekly lineup job and the photo finisher job each get a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, a run step hands in what it has, or runs report-blocked with the reason; the weekly lineup and the photo finisher save what they have and stop."
+      "title": "Time cap: Scout, weekly lineup, photo finisher and the Video build 10 minutes, every other job 5",
+      "text": "The Scout, the weekly lineup job, the photo finisher job and the Video Agent's Step 9 build each get a 10-minute cap; every other agent job gets a 5-minute cap. At the cap, a run step hands in what it has, or runs report-blocked with the reason; the weekly lineup and the photo finisher save what they have and stop."
     },
     {
       "id": "scout-trends-only",

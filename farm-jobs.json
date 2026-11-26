@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 14:44",
+  "generated_at": "2026-11-26 14:45",
   "rules_version": "2026-11-25n",
   "jobs": [
     {
@@ -51,7 +51,7 @@
       "needs": [
         "Video Express in the farm's browser (kept signed in) to build the video"
       ],
-      "since": "2026-11-26 14:38",
+      "since": "2026-11-26 14:44",
       "sent_back": [],
       "run_id": "run-2026-11-25-3"
     }

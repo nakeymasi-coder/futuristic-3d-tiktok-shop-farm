@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26 14:44",
+  "generated_at": "2026-11-26 14:45",
   "rules_version": "2026-11-25n",
   "freeze": "ON",
   "runs": [
@@ -1037,6 +1037,33 @@
           ],
           "output": "expected: steps/step8-package/package.md",
           "result": "handed off"
+        },
+        {
+          "at": "2026-11-26 14:44",
+          "from": "Mila",
+          "to": "Video Agent",
+          "step": 9,
+          "what": "job opened for Video Agent: the build video file(s)",
+          "inputs": [
+            {
+              "file": "steps/step8-package/package.md",
+              "sha256": "5e45f48d99d38954f0604bd2befb5a64b312ad9ee1b273140f92de04a33d566f"
+            },
+            {
+              "file": "steps/step7-styled/casting-pick-run-2026-11-25-3.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            },
+            {
+              "file": "steps/step7-styled/model-thursday-pink-blonde.jpg",
+              "sha256": "26baf9a35a9b40330a1231f1b3c8437c0aa9048809101230a5257739dbc9d975"
+            },
+            {
+              "file": "steps/step4-photo/00.jpg",
+              "sha256": "470dccbf175a57f50337cc55e896a29a9f66c257f11f0c0a9dacfd5f8281d949"
+            }
+          ],
+          "output": "expected: steps/step9-builds/",
+          "result": "handed off"
         }
       ],
       "open_job": {
@@ -1047,7 +1074,7 @@
         "needs": [
           "Video Express in the farm's browser (kept signed in) to build the video"
         ],
-        "since": "2026-11-26 14:38",
+        "since": "2026-11-26 14:44",
         "sent_back": []
       }
     }

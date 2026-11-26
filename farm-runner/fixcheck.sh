@@ -760,4 +760,55 @@ PYC
 Rr status-export >/dev/null 2>&1
 grep -q "time cap reached: .*5-minute cap, nothing handed in" $CS2/step3-pick/BLOCKED.md && ok "CAP a claim past its cap with nothing handed in is flagged BLOCKED at the next status export" "BLOCKED.md" || bad "CAP export flagging" "$(cat $CS2/step3-pick/BLOCKED.md 2>&1)"
 
+# ---------- Nov 26 board fix: Mila's signed FAIL placed by the sign workflow (no local QC handoff folder) shows on the board; no-submit hand-offs are labelled "no agent hand-in"
+FH=$(mktemp -d)
+RF=$($R create --mode "Get Ready With Me" 2>&1 | sed -n 's/^Run ID: //p'); FC=$HOME/workspace/farm-runs/$RF; FS=$FC/steps
+printf 'Findings: TEST — slides trending (test data)\nStory: Your feet ache after a long shift and you deserve soft.\n' > $FH/scout.md
+$R submit $RF --step 2 --by "TikTok Scout" --file $FH/scout.md >/dev/null
+printf 'product: TEST Cloud Slides\nlisting: TEST-0001 (test data)\n' > $FH/pick.md
+$R submit $RF --step 3 --by "TikTok Shop Agent" --file $FH/pick.md >/dev/null
+cp /tmp/fx_p.png $FH/listing.png; $R submit $RF --step 4 --by "TikTok Shop Agent" --file $FH/listing.png >/dev/null
+$R record-match $RF --checker Mila --grabber "TikTok Shop Agent" --verdict MATCH >/dev/null
+printf 'CTA: it is linked below for you\nLINE 1: "Your feet hurt after every long shift, nurses."\nThe slides sit on the counter, no hands on them.\nLINE 2: "Tap the orange cart."\n' > $FH/script.md
+$R submit $RF --step 6 --by "Story Agent" --file $FH/script.md >/dev/null; $R approve-script $RF --by Mila >/dev/null
+cp /tmp/fx_p.png $FH/model.png; $R submit $RF --step 7 --by "Casting / Image Agent" --file $FH/model.png >/dev/null; $R approve-image $RF --by Mila >/dev/null
+printf 'References: approved model photo + the real listing photo\nC01 - 8 seconds, she smiles at the counter, product stationary.\nCaption: Cloud Slides linked below for your tired feet\n#cloudslides #slides #comfyslides\n' > $FH/package.md
+$R submit $RF --step 8 --by "Video Agent" --file $FH/package.md >/dev/null
+# The clip lands on the farm with no submit (like run-2026-11-25-3), then the chain syncs.
+vid $FS/step9-builds/C01.mp4 "BOARDFIX clip 1"
+$R jobs >/dev/null 2>&1
+OUT=$(python3 -c "import json;h=[json.loads(l) for l in open('$FC/handoffs.jsonl')][-1];print(h['from'],'|',h['to'],'|',h['step'])"); expect "BOARDFIX a job opened with no agent hand-in is logged 'no agent hand-in', not 'from Mila'" "^no agent hand-in \| Mila \| 10" "$OUT"
+printf 'by: Video Agent\nstep: 9\nreason: time cap reached: TEST old cap\nsession: muse_farm-agent-video\nat: 2000-01-01 00:00\n' > $FS/step9-builds/BLOCKED.md
+# The sign workflow's machine has no local QC handoff folder.
+rm -rf $HOME/workspace/farm-qc-handoff/$RF
+sv $FH/verdict.md $RF FAIL $FS/step9-builds
+$R submit $RF --step 10 --by Mila --file $FH/verdict.md >/dev/null 2>&1
+OUT=$(python3 -c "import json;print(len(json.load(open('$FS/step10-qc/verdict-covers.json'))))"); expect "BOARDFIX the verdict covers the builds Mila signed even with no handoff folder" "^1$" "$OUT"
+$R status-export >/dev/null 2>&1
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RF'][0];print(r['state'],'|',r['review_status'],'|',r['headline'],'|',r['needs'])"); expect "BOARDFIX the board shows Mila's FAIL, not 'waiting on Mila' or an older BLOCKED" "^STOPPED \| Failed Mila's check — sent back to be rebuilt \| STOPPED at Step 10 .*'FAIL'.* \| sent back to Video Agent: Mila's verdict on file is 'FAIL'" "$OUT"
+OUT=$($R status $RF 2>&1); expect "BOARDFIX status headline shows the FAIL" "HEADLINE: STOPPED at Step 10 .*'FAIL'" "$OUT"
+OUT=$($R jobs 2>&1); expect "BOARDFIX Mila's FAIL reopens Step 9 for the Video Agent (Muse can rebuild)" "Video Agent — $RF Step 9 .*SENT BACK: Mila's verdict on file is 'FAIL'" "$OUT"
+OUT=$(python3 -c "import json;d=json.load(open('$FARM_STATUS_OUT'));r=[x for x in d['runs'] if x['run_id']=='$RF'][0];j=r['open_job'];print(j['step'],'|',j['agent'],'|',j['sent_back'][0][:30])"); expect "BOARDFIX the board's open job is Step 9, Video Agent, with Mila's FAIL" "^9 \| Video Agent \| Mila's verdict on file is 'FAI" "$OUT"
+grep -q "SENT BACK" $FS/step9-builds/JOB.md && grep -q "FAIL" $FS/step9-builds/JOB.md && ok "BOARDFIX the Video Agent's JOB.md carries Mila's FAIL at the top" "JOB.md" || bad "BOARDFIX step 9 JOB.md" "$(head -3 $FS/step9-builds/JOB.md)"
+OUT=$(python3 -c "import json;h=[json.loads(l) for l in open('$FC/handoffs.jsonl')][-1];print(h['from'],'|',h['to'],'|',h['step'],'|',h['result'])"); expect "BOARDFIX the reopen is logged from Mila's FAIL, as a send-back" "^Mila \| Video Agent \| 9 \| sent back" "$OUT"
+# A verdict signed on other builds still waits on Mila (a new build is not covered).
+vid $FS/step9-builds/C02.mp4 "BOARDFIX clip 2"
+OUT=$($R status $RF 2>&1); expect "BOARDFIX a new build after her verdict still waits on Mila" "Step 10 .*new build since Mila's verdict" "$OUT"
+rm -f $FS/step9-builds/C02.mp4
+OUT=$(python3 -c "
+import sys;sys.path.insert(0,'$ROOTF/farm-runner');import runner as r
+E='expected: x'
+recs=[{'from':'Mila','to':'Video Agent','step':9,'output':E,'result':'handed off'},
+{'from':'Mila','to':'Mila','step':10,'output':E,'result':'waiting on Mila'},
+{'from':'Mila','to':'Story Agent + Video Agent','step':8,'output':E,'result':'handed off'},
+{'from':'Mila','to':'Casting / Image Agent','step':7,'output':E,'result':'handed off'},
+{'from':'Story Agent','to':'Mila','step':6,'output':E,'result':'waiting on Mila'},
+{'from':'Mila','to':'Story Agent','step':6,'output':E,'result':'sent back'},
+{'from':'Mila','to':'Mila','step':10,'output':'steps/step10-qc/mila-verdict.md (sha256 x)','result':'waiting on Mila'},
+{'from':'Video Agent','to':'Mila','step':10,'output':E,'result':'waiting on Mila'}]
+print(' '.join(r.handoff_label(x)['from'].replace(' ','_') for x in recs))
+")
+expect "BOARDFIX old 8->9 and 9->10 'from Mila' records show 'no agent hand-in'; real hand-ins keep their names" "^no_agent_hand-in no_agent_hand-in Mila Mila Story_Agent Mila Mila Video_Agent$" "$OUT"
+grep -q '"from": "Mila", "to": "Video Agent"' $FC/handoffs.jsonl 2>/dev/null || python3 -c "import json;assert any(json.loads(l)['from']!='no agent hand-in' for l in open('$FC/handoffs.jsonl'))" && ok "BOARDFIX the hand-off log itself is kept as written" "handoffs.jsonl" || bad "BOARDFIX log kept" ""
+
 echo; echo "SUMMARY: $P passed, $F failed"

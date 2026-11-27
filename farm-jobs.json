@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27 20:57",
+  "generated_at": "2026-11-27 21:58",
   "rules_version": "2026-11-26a",
   "jobs": [
     {
@@ -44,15 +44,17 @@
       "run_id": "run-2026-11-25-2"
     },
     {
-      "step": 10,
-      "agent": "Mila",
-      "job_file": "steps/step10-qc/JOB.md",
-      "job": "Check every build in the QC handoff folder frame by frame, bottle first, then the lines word for word against the approved script, using your scorecard. Sign your verdict with runner.py mila-sign (PASS or FAIL, covering the exact build files) and drop it in the Glam Claude Handoff folder; only a signed verdict counts. Your PASS covers only the exact builds you were handed.",
+      "step": 9,
+      "agent": "Video Agent",
+      "job_file": "steps/step9-builds/JOB.md",
+      "job": "Build the video in Video Express with the Realistic Consistent Character workflow from the package and the approved model photo. The AI clips never show the product; the real listing photo goes in only as the 1-2 second clean close-up. Every clip is 8 seconds flat; the runner measures each build before Mila sees it. Submit EVERY build, good or bad; the builder never checks her own work.",
       "needs": [
-        "Mila (an AI agent that can watch the video frame by frame and hear the audio)"
+        "Video Express in the farm's browser (kept signed in) to build the video"
       ],
-      "since": "2026-11-26 18:57",
-      "sent_back": [],
+      "since": "2026-11-26 15:41",
+      "sent_back": [
+        "Mila's verdict on file is 'FAIL' — the build was sent back; the run does not advance"
+      ],
       "run_id": "run-2026-11-25-3"
     }
   ]

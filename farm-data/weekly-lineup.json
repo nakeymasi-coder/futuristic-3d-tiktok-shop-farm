@@ -1,5 +1,5 @@
 {
-  "basis": "Non-staple picks ranked by evidence in this order: (a) scorecard.json \u2014 no evidence: its videos list is empty, so no posted-video sales or views to rank by; (b) past farm runs \u2014 Turmeric + Honey Body Oil is already a staple, BASK AND LATHER is NOT in the current showcase list so it is not eligible, and run-2026-11-24-1 used a mock test product only; (c) Scout trend findings \u2014 run-2026-11-25-3 has no pick and no trend findings on file yet. Evidence ran out at step (a). The 7 non-staples are in-stock showcase picks chosen for a spread across hair, skin, body/home, wellness, clothing and tech. They are NOT presented as proven best sellers. The saved showcase list carries no sold counts \u2014 none are invented here.",
+  "basis": "Non-staple picks ranked by evidence in this order: (a) scorecard.json — no evidence: its videos list is empty, so no posted-video sales or views to rank by; (b) past farm runs — Turmeric + Honey Body Oil is already a staple, BASK AND LATHER is NOT in the current showcase list so it is not eligible, and run-2026-11-24-1 used a mock test product only; (c) Scout trend findings — run-2026-11-25-3 has no pick and no trend findings on file yet. Evidence ran out at step (a). The 7 non-staples are in-stock showcase picks chosen for a spread across hair, skin, body/home, wellness, clothing and tech. They are NOT presented as proven best sellers. The saved showcase list carries no sold counts — none are invented here.",
   "built_at": "2026-11-25 11:56 AM America/Indiana/Indianapolis",
   "products": [
     {
@@ -97,7 +97,7 @@
       "in_stock": true,
       "listing_id": "1729421802013800026",
       "name": "5-in-1 Professional Hair Dryer Set - Hair Blower, Hot Air Brush, Curler, Diffuser wit",
-      "photo_status": "BLOCKED \u2014 image link not captured yet (public listing page shop.tiktok.com/view/product/1729421802013800026 returns 'Product not available in this country or region', re-checked 2026-11-27 ~6:57 PM EST via text fetch; no Security Check; Streamer Desktop sign-in is Glam's, not attempted)",
+      "photo_status": "BLOCKED — image link not captured yet (public listing page shop.tiktok.com/view/product/1729421802013800026 returns 'Product not available in this country or region', re-checked 2026-11-27 ~7:58 PM EST via text fetch; no Security Check; Streamer Desktop sign-in is Glam's, not attempted)",
       "selling_points": [
         "5-in-1 professional hair dryer set, as listed",
         "Includes hair blower, hot air brush, curler and diffuser, as listed",
@@ -160,8 +160,8 @@
     {
       "in_stock": true,
       "listing_id": "1732437365001100017",
-      "name": "YONNOVA 5-Tier 360\u00b0 Rotate Bookshelf, 5 Shelf Corner Shelf Book Storage Organizer, Modern",
-      "photo_status": "BLOCKED \u2014 image link not captured yet (public listing page shop.tiktok.com/view/product/1732437365001100017 returns 'Product not available in this country or region', re-checked 2026-11-27 ~6:57 PM EST via text fetch; no Security Check; earlier live-browser check ~01:58 AM hit a Security Check \u2014 not solved, not waited on, per the bot-check rule; Streamer Desktop sign-in is Glam's, not attempted)",
+      "name": "YONNOVA 5-Tier 360° Rotate Bookshelf, 5 Shelf Corner Shelf Book Storage Organizer, Modern",
+      "photo_status": "BLOCKED — image link not captured yet (public listing page shop.tiktok.com/view/product/1732437365001100017 returns 'Product not available in this country or region', re-checked 2026-11-27 ~7:58 PM EST via text fetch; no Security Check; earlier live-browser check ~01:58 AM hit a Security Check — not solved, not waited on, per the bot-check rule; Streamer Desktop sign-in is Glam's, not attempted)",
       "selling_points": [
         "5-tier corner bookshelf, as listed",
         "360-degree rotating storage, as listed",
